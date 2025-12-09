@@ -1,0 +1,1 @@
+<h1>Vendor Detail</h1>

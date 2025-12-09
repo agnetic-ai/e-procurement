@@ -1,0 +1,195 @@
+<?php
+// app/core/Controller.php
+
+class Controller
+{
+    protected $session;
+
+    public function __construct()
+    {
+        $this->session = new Session();
+
+        if (!defined('APP_PATH')) {
+            define('APP_PATH', dirname(__DIR__));
+        }
+
+        if (!defined('VIEWS_PATH')) {
+            define('VIEWS_PATH', APP_PATH . '/views');
+        }
+
+        if (!defined('PUBLIC_PATH')) {
+            define('PUBLIC_PATH', dirname(APP_PATH) . '/public');
+        }
+
+        // Tambahkan BASE_URL jika belum ada
+        if (!defined('BASE_URL')) {
+            define('BASE_URL', 'http://localhost/e-procurement/');
+        }
+    }
+
+    protected function view($view, $data = [])
+    {
+        $data['session'] = $this->session;
+        $data['current_page'] = explode('/', $view)[0] ?? 'dashboard';
+
+        if (!isset($data['pageIcon'])) {
+            $icons = [
+                'dashboard' => 'fa-tachometer-alt',
+                'vendor' => 'fa-user-tie',
+                'login' => 'fa-sign-in-alt',
+            ];
+            $data['pageIcon'] = $icons[explode('/', $view)[0]] ?? 'fa-file';
+        }
+
+        extract($data);
+
+        $isLoginPage = strpos($view, 'login') !== false;
+
+        if (!$isLoginPage) {
+            // Gunakan template Voler untuk header
+            $this->loadVolerHeader($data);
+        } else {
+            echo '<!DOCTYPE html><html lang="en">';
+        }
+
+        if (!$isLoginPage && $this->session->isLoggedIn()) {
+            // Gunakan layout Voler (sidebar + main wrapper)
+            $this->loadVolerLayout($data);
+        }
+
+        // Load view content
+        include VIEWS_PATH . '/' . $view . '.php';
+
+        if (!$isLoginPage) {
+            // Load Voler footer dengan JS
+            $this->loadVolerFooter();
+        } else {
+            echo '</html>';
+        }
+    }
+
+    /**
+     * Load Voler header template
+     */
+    private function loadVolerHeader($data = [])
+    {
+        extract($data);
+        include VIEWS_PATH . '/layouts/header.php';
+    }
+
+    /**
+     * Load Voler layout (sidebar + main wrapper)
+     */
+    private function loadVolerLayout($data = [])
+    {
+        extract($data);
+        include VIEWS_PATH . '/layouts/sidebar.php';
+    }
+
+    private function loadVolerFooter()
+    {
+        include VIEWS_PATH . '/layouts/footer.php';
+    }
+
+    private function generateVolerMenus($role)
+    {
+        $menus = [
+            [
+                'title' => 'Dashboard',
+                'icon' => 'home',
+                'url' => 'dashboard',
+                'active' => false
+            ]
+        ];
+
+        if (in_array($role, ['admin', 'procurement'])) {
+            $menus[] = [
+                'title' => 'Vendor Management',
+                'icon' => 'users',
+                'url' => 'vendor',
+                'active' => false
+            ];
+        }
+
+        if ($role == 'admin') {
+            $menus[] = [
+                'title' => 'User Management',
+                'icon' => 'user-circle',
+                'url' => 'users',
+                'active' => false
+            ];
+            $menus[] = [
+                'title' => 'Reports',
+                'icon' => 'bar-chart',
+                'url' => 'reports',
+                'active' => false
+            ];
+        }
+
+        return $menus;
+    }
+
+    protected function getUserRoleForVoler()
+    {
+        return $this->session->getUserRole() ?? 'guest';
+    }
+
+    protected function getVolerMenus()
+    {
+        $role = $this->getUserRoleForVoler();
+        return $this->generateVolerMenus($role);
+    }
+
+    protected function redirect($url)
+    {
+        $baseUrl = defined('BASE_URL') ? BASE_URL : 'http://localhost/e-procurement/';
+        header('Location: ' . $baseUrl . $url);
+        exit();
+    }
+
+    protected function checkLogin()
+    {
+        if (!$this->session->isLoggedIn()) {
+            $this->redirect('auth/login');
+        }
+    }
+
+    protected function checkPermission($allowedRoles)
+    {
+        $userRole = $this->session->getUserRole();
+
+        if (!in_array($userRole, $allowedRoles)) {
+            $this->redirect('dashboard');
+        }
+    }
+
+    protected function render($view, $data = [])
+    {
+        // Panggil method view yang sudah dimodifikasi
+        $this->view($view, $data);
+    }
+
+    /**
+     * Helper untuk set flash message
+     */
+    protected function setFlash($type, $message)
+    {
+        if (!isset($_SESSION['flash_messages'])) {
+            $_SESSION['flash_messages'] = [];
+        }
+        $_SESSION['flash_messages'][$type] = $message;
+    }
+
+    /**
+     * Helper untuk get flash message
+     */
+    protected function getFlash($type)
+    {
+        if (isset($_SESSION['flash_messages'][$type])) {
+            $message = $_SESSION['flash_messages'][$type];
+            unset($_SESSION['flash_messages'][$type]);
+            return $message;
+        }
+        return null;
+    }
+}
