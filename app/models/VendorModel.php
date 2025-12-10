@@ -78,4 +78,156 @@ class VendorModel
             return [];
         }
     }
+
+    public function createVendor($vendorData = [])
+    {
+
+        if (empty($vendorData['vendorName'])) {
+            return [
+                'success' => false,
+                'message' => 'Nama vendor harus diisi'
+            ];
+        }
+
+        if (empty($vendorData['vendorEmail'])) {
+            return [
+                'success' => false,
+                'message' => 'Email vendor harus diisi'
+            ];
+        }
+
+        if (empty($vendorData['cityId'])) {
+            return [
+                'success' => false,
+                'message' => 'Kota harus dipilih'
+            ];
+        }
+
+        if (empty($vendorData['businessType'])) {
+            return [
+                'success' => false,
+                'message' => 'Tipe bisnis harus dipilih'
+            ];
+        }
+
+        if (!filter_var($vendorData['vendorEmail'], FILTER_VALIDATE_EMAIL)) {
+            return [
+                'success' => false,
+                'message' => 'Format email tidak valid'
+            ];
+        }
+
+        $checkEmailQuery = "SELECT id FROM vendors WHERE email = :email";
+        $checkStmt = $this->db->prepare($checkEmailQuery);
+        $checkStmt->execute(['email' => $vendorData['vendorEmail']]);
+
+        if ($checkStmt->rowCount() > 0) {
+            return [
+                'success' => false,
+                'message' => 'Email sudah terdaftar'
+            ];
+        }
+
+        $vendor_code = $this->generateVendorCode();
+
+        $status_code = 'VEND_ACTIVE';
+
+        try {
+            $this->db->beginTransaction();
+
+            $insertQuery = "INSERT INTO vendors (
+                vendor_code,
+                company_name,
+                email,
+                phone,
+                address,
+                city_id,
+                business_type_id,
+                tax_number,
+                payment_terms,
+                website,
+                status_code,
+                created_at,
+                updated_at
+            ) VALUES (
+                :vendor_code,
+                :company_name,
+                :email,
+                :phone,
+                :address,
+                :city_id,
+                :business_type_id,
+                :tax_number,
+                :payment_terms,
+                :website,
+                :status_code,
+                NOW(),
+                NOW()
+            )";
+
+            $insertStmt = $this->db->prepare($insertQuery);
+
+            $params = [
+                ':vendor_code' => $vendor_code,
+                ':company_name' => trim($vendorData['vendorName']),
+                ':email' => trim($vendorData['vendorEmail']),
+                ':phone' => trim($vendorData['vendorPhone'] ?? ''),
+                ':address' => trim($vendorData['address'] ?? ''),
+                ':city_id' => (int)$vendorData['cityId'],
+                ':business_type_id' => (int)$vendorData['businessType'],
+                ':tax_number' => trim($vendorData['taxNumber'] ?? ''),
+                ':payment_terms' => trim($vendorData['paymentTerms'] ?? ''),
+                ':website' => trim($vendorData['website'] ?? ''),
+                ':status_code' => $status_code
+            ];
+
+            $insertStmt->execute($params);
+
+            $vendorId = $this->db->lastInsertId();
+            $this->db->commit();
+
+            return [
+                'success' => true,
+                'message' => 'Vendor berhasil ditambahkan',
+                'vendorId' => (int)$vendorId,
+                'vendorCode' => $vendor_code
+            ];
+        } catch (PDOException $e) {
+            $this->db->rollBack();
+
+            error_log("Error creating vendor: " . $e->getMessage());
+            error_log("Query: " . $insertQuery);
+            error_log("Params: " . print_r($params, true));
+
+            return [
+                'success' => false,
+                'message' => 'Gagal menambah vendor: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    private function generateVendorCode()
+    {
+        $year = date('Y');
+        $prefix = 'VND-' . $year . '-';
+
+        $query = "SELECT vendor_code FROM vendors 
+                  WHERE vendor_code LIKE :prefix 
+                  ORDER BY vendor_code DESC 
+                  LIMIT 1";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([':prefix' => $prefix . '%']);
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result) {
+            $lastCode = $result['vendor_code'];
+            $lastNumber = (int)substr($lastCode, -3);
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+        return $prefix . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+    }
 }

@@ -111,3 +111,4 @@
         </div>
     </div>
 </div>
+<script src="<?php echo BASE_URL; ?>app/service/vendor/CreateVendor.js"></script>

@@ -1,6 +1,7 @@
 $(function () {
   $("#vendorForm").on("submit", function (e) {
     e.preventDefault();
+    submitVendor();
   });
 });
 
@@ -29,5 +30,19 @@ function submitVendor() {
     website: website,
     address: address,
   };
+
   console.log(JSON.stringify(dto));
+  $.ajax({
+    type: "POST",
+    url: BASE_URL + "vendor/SubmitNewVendor",
+    contentType: "application/json",
+    data: JSON.stringify(dto),
+    dataType: "json",
+    success: function (response) {
+      console.log(response);
+    },
+    error: function (err) {
+      alert("Error loading data");
+    },
+  });
 }

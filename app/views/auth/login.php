@@ -9,7 +9,6 @@
     <meta name="author" content="">
     <title>eProcurement</title>
 
-    <!-- TAMPILAN CSS TETAP SAMA -->
     <style>
         * {
             margin: 0;

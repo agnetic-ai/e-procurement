@@ -45,4 +45,32 @@ class VendorController extends Controller
             ]);
         }
     }
+
+    public function SubmitNewVendor()
+    {
+        header('Content-Type: application/json');
+
+        try {
+            $payload = json_decode(file_get_contents('php://input'), true);
+
+            $result = $this->vendor->createVendor($payload);
+            if ($result['success']) {
+                ResponseHelper::created(
+                    [
+                        'vendorId' => $result['vendorId'],
+                        'vendorCode' => $result['vendorCode']
+                    ],
+                    $result['message']
+                );
+            } else {
+                ResponseHelper::badRequest($result['message']);
+            }
+        } catch (Exception $e) {
+            // Log error untuk debugging
+            error_log("Error in SubmitNewVendor: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+
+            ResponseHelper::serverError('Terjadi kesalahan saat memproses data vendor');
+        }
+    }
 }

@@ -91,6 +91,4 @@
         </div>
     </section>
 </div>
-
-
 <script src="<?php echo BASE_URL; ?>app/service/vendor/main.js"></script>
