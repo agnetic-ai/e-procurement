@@ -1,42 +1,48 @@
 <?php
 class VendorController extends Controller
 {
+    private $vendor;
+    private $cities;
+    private $business;
+    public function __construct()
+    {
+        parent::__construct();
+        $this->vendor = new VendorModel();
+        $this->cities = new CitiesModel();
+        $this->business = new BusinessTypeModel();
+    }
     public function index()
     {
         $data = [
             'title' => 'Vendor Management',
-            'vendors' => $this->getVendors() // method untuk ambil data
         ];
 
         $this->view('vendor/index', $data);
     }
 
-    public function VendorDetail()
-    {
-        $this->view('vendor/VendorDetail');
-    }
-
-    public function list()
-    {
-        // alias untuk index
-        $this->index();
-    }
-
-    public function add()
+    public function create()
     {
         $data = [
-            'title' => 'Add New Vendor'
+            'title' => 'Vendor Management',
+            'cities' => $this->cities->GetCities(),
+            'business' => $this->business->GetBusiness()
         ];
 
-        $this->view('vendor/add', $data);
+        $this->view('vendor/Create', $data);
     }
 
-    private function getVendors()
+    public function GetVendorList()
     {
-        // Contoh data dummy
-        return [
-            ['id' => 1, 'name' => 'PT Supplier Jaya', 'email' => 'jaya@email.com'],
-            ['id' => 2, 'name' => 'CV Mandiri Sejahtera', 'email' => 'mandiri@email.com']
-        ];
+        header('Content-Type: application/json');
+
+        try {
+            $vendors = $this->vendor->GetVendorList();
+            ResponseHelper::success($vendors, 'Vendors retrieved successfully');
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 }

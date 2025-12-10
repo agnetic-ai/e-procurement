@@ -21,7 +21,6 @@ class Controller
             define('PUBLIC_PATH', dirname(APP_PATH) . '/public');
         }
 
-        // Tambahkan BASE_URL jika belum ada
         if (!defined('BASE_URL')) {
             define('BASE_URL', 'http://localhost/e-procurement/');
         }
@@ -53,24 +52,17 @@ class Controller
         }
 
         if (!$isLoginPage && $this->session->isLoggedIn()) {
-            // Gunakan layout Voler (sidebar + main wrapper)
             $this->loadVolerLayout($data);
         }
-
-        // Load view content
         include VIEWS_PATH . '/' . $view . '.php';
 
         if (!$isLoginPage) {
-            // Load Voler footer dengan JS
             $this->loadVolerFooter();
         } else {
             echo '</html>';
         }
     }
 
-    /**
-     * Load Voler header template
-     */
     private function loadVolerHeader($data = [])
     {
         extract($data);
@@ -165,13 +157,9 @@ class Controller
 
     protected function render($view, $data = [])
     {
-        // Panggil method view yang sudah dimodifikasi
         $this->view($view, $data);
     }
 
-    /**
-     * Helper untuk set flash message
-     */
     protected function setFlash($type, $message)
     {
         if (!isset($_SESSION['flash_messages'])) {

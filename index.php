@@ -3,6 +3,8 @@
 define('BASE_URL', 'http://localhost/e-procurement/');
 define('SITE_NAME', 'e-Procurement System');
 
+require_once __DIR__ . '/app/config/autoload.php';
+
 $url = $_GET['url'] ?? '';
 $url = rtrim($url, '/');
 
@@ -18,10 +20,6 @@ if (empty($url)) {
 function loadController($controllerName)
 {
     require_once __DIR__ . '/app/config/constants.php';
-
-    require_once __DIR__ . '/app/core/Controller.php';
-    require_once __DIR__ . '/app/core/Session.php';
-    require_once __DIR__ . '/app/core/Database.php';
 
     $controllerFile = __DIR__ . '/app/controllers/' . $controllerName . '.php';
     if (file_exists($controllerFile)) {

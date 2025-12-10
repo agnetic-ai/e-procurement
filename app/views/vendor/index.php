@@ -1,312 +1,384 @@
-<!-- File: app/views/vendors/index.php -->
+<style>
+    /* Adjust select agar sama dengan input text */
+    .form-select,
+    .choices__inner {
+        width: 100%;
+        height: calc(1.5em + 0.75rem + 2px);
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    /* Untuk choices.js khusus */
+    .choices {
+        margin-bottom: 0;
+    }
+
+    .choices__inner {
+        min-height: auto;
+        padding: 0.375rem 0.75rem;
+    }
+
+    /* Responsive adjustment */
+    @media (max-width: 768px) {
+
+        .form-select,
+        .choices__inner {
+            font-size: 16px;
+            /* Mencegah zoom di mobile */
+        }
+    }
+</style>
 <div class="main-content container-fluid">
     <div class="page-title">
         <div class="row">
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-6 order-md-1 order-last">
                 <h3>Vendor Management</h3>
                 <p class="text-subtitle text-muted">Manage your vendors and suppliers</p>
             </div>
-            <div class="col-12 col-md-6 text-end">
-                <a href="<?php echo BASE_URL; ?>vendor/create" class="btn btn-primary">
-                    <i data-feather="plus"></i> Add New Vendor
-                </a>
+            <div class="col-12 col-md-6 order-md-2 order-first">
+                <nav aria-label="breadcrumb" class='breadcrumb-header'>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="<?php echo BASE_URL; ?>">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Vendors</li>
+                    </ol>
+                </nav>
             </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h4 class="card-title">Search & Filter</h4>
-        </div>
-        <div class="card-content">
+    <section class="section">
+        <!-- Search Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="search" class="me-2"></i> Search & Filter
+                </h5>
+            </div>
             <div class="card-body">
-                <form class="form">
-                    <div class="row">
-                        <div class="col-md-6 col-12">
-                            <div class="form-group">
-                                <label for="first-name-column">First Name</label>
-                                <input
-                                    type="text"
-                                    id="first-name-column"
-                                    class="form-control"
-                                    placeholder="First Name"
-                                    name="fname-column" />
+                <form id="searchForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i data-feather="search"></i>
+                                </span>
+                                <input type="text" id="filterName" class="form-control"
+                                    placeholder="Search by name">
                             </div>
                         </div>
-                        <div class="col-md-6 col-12">
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label for="last-name-column">Last Name</label>
-                                <input type="text" id="last-name-column" class="form-control"
-                                    placeholder="Last Name"
-                                    name="lname-column" />
+                                <select class="choices form-select">
+                                    <option value="square">Square</option>
+                                    <option value="rectangle">Rectangle</option>
+                                    <option value="rombo">Rombo</option>
+                                    <option value="romboid">Romboid</option>
+                                    <option value="trapeze">Trapeze</option>
+                                    <option value="traible">Triangle</option>
+                                    <option value="polygon">Polygon</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="buttons">
-                            <a href="#" class="btn btn-outline-primary">Search</a>
-                            <a href="#" class="btn btn-outline-secondary">Clear</a>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary w-100" id="btnRefresh">
+                                <i data-feather="refresh-cw" class="me-2"></i> Refresh
+                            </button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
-    <!-- Vendors Table Card -->
-    <div class="card" style="border-radius: 12px; overflow: hidden; border: 1px solid #e3f2fd; box-shadow: 0 4px 12px rgba(33, 150, 243, 0.08);">
-        <div class="card-header" style="background: linear-gradient(135deg, #2196f3, #1976d2); border: none; border-radius: 12px 12px 0 0; padding: 1rem 1.5rem;">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h5 class="card-title mb-0" style="color: white; font-weight: 600;">
-                        <i data-feather="users" class="me-2"></i> Vendor List
-                    </h5>
-                </div>
-                <div class="col-md-6 text-end">
-                    <span class="badge bg-light text-primary me-2">Total: 45</span>
-                    <span class="badge bg-success me-2">Active: 38</span>
-                    <span class="badge bg-warning">Pending: 7</span>
+        <!-- Vendors Table Card -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i data-feather="list" class="me-2"></i> Vendor List
+                </h5>
+                <div>
+                    <a href="<?php echo BASE_URL; ?>vendor/create" class="btn btn-primary btn-sm">
+                        <i data-feather="plus" class="me-1"></i> Add Vendor
+                    </a>
                 </div>
             </div>
-        </div>
-
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0" id="vendorsTable">
-                    <thead style="background-color: #e3f2fd;">
+            <div class="card-body">
+                <table class='table table-striped' id="vendorsTable">
+                    <thead>
                         <tr>
-                            <th style="padding: 1rem; border-bottom: 2px solid #2196f3; color: #1976d2; font-weight: 600;">
-                                <i data-feather="hash" class="me-1"></i> ID
-                            </th>
-                            <th style="padding: 1rem; border-bottom: 2px solid #2196f3; color: #1976d2; font-weight: 600;">
-                                <i data-feather="user" class="me-1"></i> Vendor Name
-                            </th>
-                            <th style="padding: 1rem; border-bottom: 2px solid #2196f3; color: #1976d2; font-weight: 600;">
-                                <i data-feather="mail" class="me-1"></i> Email
-                            </th>
-                            <th style="padding: 1rem; border-bottom: 2px solid #2196f3; color: #1976d2; font-weight: 600;">
-                                <i data-feather="phone" class="me-1"></i> Phone
-                            </th>
-                            <th style="padding: 1rem; border-bottom: 2px solid #2196f3; color: #1976d2; font-weight: 600;">
-                                <i data-feather="activity" class="me-1"></i> Status
-                            </th>
-                            <th style="padding: 1rem; border-bottom: 2px solid #2196f3; color: #1976d2; font-weight: 600; text-align: center;">
-                                <i data-feather="settings" class="me-1"></i> Actions
-                            </th>
+                            <th>Vendor Code</th>
+                            <th>Company Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Business Type</th>
+                            <th>Status</th>
+                            <th>Registered Date</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- Vendor 1 -->
-                        <tr style="border-bottom: 1px solid #f0f0f0; transition: all 0.3s;">
-                            <td style="padding: 1rem; font-weight: 600; color: #2196f3;">V001</td>
-                            <td style="padding: 1rem;">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar me-3" style="width: 36px; height: 36px; background: linear-gradient(135deg, #2196f3, #1976d2); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                                        SJ
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0">PT Supplier Jaya</h6>
-                                        <small class="text-muted">Supplier</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td style="padding: 1rem;">
-                                <a href="mailto:jaya@email.com" class="text-primary">jaya@email.com</a>
-                            </td>
-                            <td style="padding: 1rem;">
-                                <span class="text-muted">08123456789</span>
-                            </td>
-                            <td style="padding: 1rem;">
-                                <span class="badge rounded-pill" style="background: linear-gradient(135deg, #4caf50, #2e7d32); padding: 0.35rem 1rem; font-size: 0.85rem;">
-                                    <i data-feather="check-circle" class="me-1" style="width: 14px; height: 14px;"></i> Active
-                                </span>
-                            </td>
-                            <td style="padding: 1rem; text-align: center;">
-                                <div class="btn-group" role="group">
-                                    <button class="btn btn-sm btn-outline-primary" style="border-radius: 6px 0 0 6px; border-color: #2196f3;">
-                                        <i data-feather="eye" style="width: 14px; height: 14px;"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-primary" style="border-radius: 0; border-color: #2196f3;">
-                                        <i data-feather="edit" style="width: 14px; height: 14px;"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" style="border-radius: 0 6px 6px 0; border-color: #f44336;">
-                                        <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                    <tbody id="vendorTableBody">
 
-                        <!-- Vendor 2 -->
-                        <tr style="border-bottom: 1px solid #f0f0f0; transition: all 0.3s;">
-                            <td style="padding: 1rem; font-weight: 600; color: #2196f3;">V002</td>
-                            <td style="padding: 1rem;">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar me-3" style="width: 36px; height: 36px; background: linear-gradient(135deg, #ff9800, #f57c00); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                                        MS
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0">CV Mandiri Sejahtera</h6>
-                                        <small class="text-muted">Contractor</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td style="padding: 1rem;">
-                                <a href="mailto:mandiri@email.com" class="text-primary">mandiri@email.com</a>
-                            </td>
-                            <td style="padding: 1rem;">
-                                <span class="text-muted">08234567890</span>
-                            </td>
-                            <td style="padding: 1rem;">
-                                <span class="badge rounded-pill" style="background: linear-gradient(135deg, #ff9800, #f57c00); padding: 0.35rem 1rem; font-size: 0.85rem;">
-                                    <i data-feather="clock" class="me-1" style="width: 14px; height: 14px;"></i> Pending
-                                </span>
-                            </td>
-                            <td style="padding: 1rem; text-align: center;">
-                                <div class="btn-group" role="group">
-                                    <button class="btn btn-sm btn-outline-primary" style="border-radius: 6px 0 0 6px; border-color: #2196f3;">
-                                        <i data-feather="eye" style="width: 14px; height: 14px;"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-primary" style="border-radius: 0; border-color: #2196f3;">
-                                        <i data-feather="edit" style="width: 14px; height: 14px;"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" style="border-radius: 0 6px 6px 0; border-color: #f44336;">
-                                        <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- Vendor 3 -->
-                        <tr style="border-bottom: 1px solid #f0f0f0; transition: all 0.3s;">
-                            <td style="padding: 1rem; font-weight: 600; color: #2196f3;">V003</td>
-                            <td style="padding: 1rem;">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar me-3" style="width: 36px; height: 36px; background: linear-gradient(135deg, #9c27b0, #7b1fa2); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                                        GT
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0">PT Global Teknik</h6>
-                                        <small class="text-muted">Service Provider</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td style="padding: 1rem;">
-                                <a href="mailto:global@email.com" class="text-primary">global@email.com</a>
-                            </td>
-                            <td style="padding: 1rem;">
-                                <span class="text-muted">08345678901</span>
-                            </td>
-                            <td style="padding: 1rem;">
-                                <span class="badge rounded-pill" style="background: linear-gradient(135deg, #4caf50, #2e7d32); padding: 0.35rem 1rem; font-size: 0.85rem;">
-                                    <i data-feather="check-circle" class="me-1" style="width: 14px; height: 14px;"></i> Active
-                                </span>
-                            </td>
-                            <td style="padding: 1rem; text-align: center;">
-                                <div class="btn-group" role="group">
-                                    <button class="btn btn-sm btn-outline-primary" style="border-radius: 6px 0 0 6px; border-color: #2196f3;">
-                                        <i data-feather="eye" style="width: 14px; height: 14px;"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-primary" style="border-radius: 0; border-color: #2196f3;">
-                                        <i data-feather="edit" style="width: 14px; height: 14px;"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" style="border-radius: 0 6px 6px 0; border-color: #f44336;">
-                                        <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-
-        <!-- Table Footer with Pagination -->
-        <div class="card-footer" style="background-color: #f8fafc; border-top: 1px solid #e3f2fd; padding: 1rem 1.5rem;">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <p class="mb-0 text-muted">
-                        Showing <span class="fw-semibold">3</span> of <span class="fw-semibold">45</span> vendors
-                    </p>
-                </div>
-                <div class="col-md-6">
-                    <nav aria-label="Page navigation" class="float-end">
-                        <ul class="pagination pagination-sm mb-0">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1">
-                                    <i data-feather="chevron-left"></i>
-                                </a>
-                            </li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">
-                                    <i data-feather="chevron-right"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
-        </div>
-    </div>
+    </section>
 </div>
 
+
 <script>
-    // Initialize Feather Icons
-    feather.replace();
-
-    // Search functionality
-    document.getElementById('searchVendor').addEventListener('keyup', function() {
-        const searchTerm = this.value.toLowerCase();
-        const rows = document.querySelectorAll('#vendorsTable tbody tr');
-
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(searchTerm) ? '' : 'none';
-        });
+    $(document).ready(function() {
+        console.log('jQuery is ready vendor:');
+        loadVendors();
     });
 
-    // Filter functionality
-    document.getElementById('filterStatus').addEventListener('change', filterTable);
-    document.getElementById('filterType').addEventListener('change', filterTable);
-
-    function filterTable() {
-        const statusFilter = document.getElementById('filterStatus').value;
-        const typeFilter = document.getElementById('filterType').value;
-        const rows = document.querySelectorAll('#vendorsTable tbody tr');
-
-        rows.forEach(row => {
-            const status = row.querySelector('.badge').textContent.toLowerCase().trim();
-            const type = row.querySelector('small.text-muted').textContent.toLowerCase().trim();
-
-            const statusMatch = !statusFilter || status.includes(statusFilter);
-            const typeMatch = !typeFilter || type.includes(typeFilter);
-
-            row.style.display = statusMatch && typeMatch ? '' : 'none';
+    function loadVendors() {
+        $.ajax({
+            type: "POST",
+            url: "<?php echo BASE_URL; ?>vendor/GetVendorList",
+            data: $("#searchForm").serialize(),
+            success: function(response) {
+                const Header = $('#vendorTableBody');
+                let body = '';
+                if (response.status == 200) {
+                    if ($.fn.DataTable.isDataTable("#vendorsTable")) {
+                        $("#vendorsTable").DataTable().destroy();
+                    }
+                    response.result.forEach(element => {
+                        let badge = StatusHandler(element.statusCode);
+                        body += ` <tr>
+                                    <td class="fw-semibold">${element.vendorCode}</td>
+                                    <td>${element.companyName}</td>
+                                    <td>${element.email}</td>
+                                    <td>${element.phone}</td>
+                                    <td>${element.businessType}</td>
+                                    <td><label class='status-badge ${badge}'>${element.vendorStatus}</label></td>
+                                    <td><small class="text-muted">${element.registrationDate}</small></td>
+                                </tr>`;
+                    });
+                    Header.append(body);
+                    $("#vendorsTable").DataTable();
+                }
+            },
+            error: function(err) {
+                alert("Error loading data");
+            },
         });
     }
-
-    // Clear filters
-    document.getElementById('btnClearFilters').addEventListener('click', function() {
-        document.getElementById('searchVendor').value = '';
-        document.getElementById('filterStatus').value = '';
-        document.getElementById('filterType').value = '';
-
-        const rows = document.querySelectorAll('#vendorsTable tbody tr');
-        rows.forEach(row => row.style.display = '');
-    });
-
-    // Row hover effect
-    const rows = document.querySelectorAll('#vendorsTable tbody tr');
-    rows.forEach(row => {
-        row.addEventListener('mouseenter', function() {
-            this.style.backgroundColor = '#f8fafc';
-            this.style.transform = 'translateY(-2px)';
-            this.style.boxShadow = '0 4px 8px rgba(33, 150, 243, 0.1)';
-        });
-
-        row.addEventListener('mouseleave', function() {
-            this.style.backgroundColor = '';
-            this.style.transform = '';
-            this.style.boxShadow = '';
-        });
-    });
 </script>
+<!-- 
+<script>
+    // Tunggu DOM siap
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Feather Icons
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+
+        // Load data pertama kali
+        loadVendors();
+
+        // Search functionality
+        document.getElementById('searchVendor').addEventListener('input', function() {
+            loadVendors();
+        });
+
+        // Status filter
+        document.getElementById('filterStatus').addEventListener('change', function() {
+            loadVendors();
+        });
+
+        // Refresh button
+        document.getElementById('btnRefresh').addEventListener('click', function() {
+            loadVendors();
+        });
+    });
+
+    // Function untuk load vendors via Ajax
+    function loadVendors() {
+        // Show loading
+        document.getElementById('vendorTableBody').innerHTML = `
+        <tr>
+            <td colspan="7" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Loading vendors...</p>
+            </td>
+        </tr>
+    `;
+
+        // Get filter values
+        const searchValue = document.getElementById('searchVendor').value;
+        const statusValue = document.getElementById('filterStatus').value;
+
+        // Buat FormData
+        const formData = new FormData();
+        if (searchValue) formData.append('search', searchValue);
+        if (statusValue) formData.append('status', statusValue);
+
+        // Ajax request menggunakan Fetch API
+        fetch('<?php echo BASE_URL; ?>vendor/getVendorsAjax', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Data received:', data);
+
+                if (data.success) {
+                    renderVendors(data.data);
+                    updateStats(data.stats);
+                    initializeDataTable();
+                } else {
+                    showError(data.message || 'Failed to load vendors');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Network error: ' + error.message);
+            });
+    }
+
+    // Function untuk render vendors
+    function renderVendors(vendors) {
+        const tbody = document.getElementById('vendorTableBody');
+
+        if (vendors.length === 0) {
+            tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-4">
+                    <div class="text-muted">
+                        <i data-feather="inbox" class="me-2" width="48" height="48"></i>
+                        <p class="mb-1 mt-3">No vendors found</p>
+                        <small>Try adjusting your search criteria</small>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+            // Refresh feather icons
+            if (typeof feather !== 'undefined') {
+                feather.replace();
+            }
+            return;
+        }
+
+        let html = '';
+        vendors.forEach(vendor => {
+            // Format status badge
+            let statusClass = 'status-badge ';
+            let statusText = vendor.vendorStatus || 'Unknown';
+
+            switch (vendor.statusCode) {
+                case 'active':
+                    statusClass += 'status-active';
+                    break;
+                case 'pending':
+                    statusClass += 'status-pending';
+                    break;
+                case 'inactive':
+                    statusClass += 'status-inactive';
+                    break;
+                default:
+                    statusClass += 'bg-secondary';
+            }
+
+            // Format data
+            const vendorCode = vendor.vendorCode || 'N/A';
+            const companyName = vendor.companyName || 'N/A';
+            const businessType = vendor.businessType || 'N/A';
+            const email = vendor.email || 'N/A';
+            const phone = vendor.phone || 'N/A';
+            const regDate = vendor.registrationDate || 'N/A';
+
+            html += `
+            <tr>
+                <td class="fw-semibold">${vendorCode}</td>
+                <td>
+                    <div class="fw-medium">${companyName}</div>
+                    ${businessType ? `<small class="text-muted">${businessType}</small>` : ''}
+                </td>
+                <td>${email}</td>
+                <td>${phone}</td>
+                <td>${businessType}</td>
+                <td><span class="${statusClass}">${statusText}</span></td>
+                <td><small class="text-muted">${regDate}</small></td>
+            </tr>
+        `;
+        });
+
+        tbody.innerHTML = html;
+
+        // Refresh feather icons
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    }
+
+    // Function untuk update statistics
+    function updateStats(stats) {
+        document.getElementById('totalVendors').textContent = stats.total || 0;
+        document.getElementById('activeVendors').textContent = stats.active || 0;
+        document.getElementById('pendingVendors').textContent = stats.pending || 0;
+    }
+
+    // Function untuk initialize Simple DataTable
+    function initializeDataTable() {
+        // Cek jika Simple DataTables tersedia
+        if (typeof simpleDatatables !== 'undefined') {
+            // Destroy existing DataTable jika ada
+            if (window.vendorDataTable) {
+                window.vendorDataTable.destroy();
+            }
+
+            // Initialize new DataTable
+            window.vendorDataTable = new simpleDatatables.DataTable("#vendorsTable", {
+                searchable: true,
+                fixedHeight: false,
+                perPage: 10,
+                perPageSelect: [5, 10, 15, 20],
+                labels: {
+                    placeholder: "Search vendors...",
+                    searchTitle: "Search within table",
+                    pageTitle: "Page {page}",
+                    perPage: "entries per page",
+                    noRows: "No entries to found",
+                    info: "Showing {start} to {end} of {rows} entries"
+                }
+            });
+
+            console.log('Simple DataTable initialized');
+        } else {
+            console.warn('Simple DataTables not available');
+        }
+    }
+
+    // Function untuk show error
+    function showError(message) {
+        document.getElementById('vendorTableBody').innerHTML = `
+        <tr>
+            <td colspan="7" class="text-center py-4 text-danger">
+                <i data-feather="alert-triangle" class="me-2"></i>
+                <span>${message}</span>
+            </td>
+        </tr>
+    `;
+
+        // Refresh feather icons
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    }
+</script> -->
+
+<!-- <script>
+    $(document).ready(function() {
+        alert("ok");
+    });
+</script> -->

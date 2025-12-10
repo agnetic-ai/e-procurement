@@ -15,7 +15,7 @@
                     ?>
                         <li class="sidebar-item <?php echo $isActive ? 'active' : ''; ?>">
                             <a href="<?php echo BASE_URL . $menu['url']; ?>" class='sidebar-link'>
-                                <i data-feather="<?php echo $menu['icon']; ?>"></i>
+                                <i data-feather="user"></i>
                                 <span><?php echo $menu['title']; ?></span>
                             </a>
                         </li>

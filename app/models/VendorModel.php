@@ -8,8 +8,11 @@ class VendorModel
         $this->db = Database::getInstance()->getConnection();
     }
 
-    public function GetVendorList()
+    public function GetVendorList($filters = [])
     {
+        $filter_name = htmlentities($filters['filterName'] ?? '');
+        $filter_email = htmlentities($filters['filterStatus'] ?? '');
+
         $query = "SELECT 
                     v.id AS vendorId,
                     v.vendor_code AS vendorCode,
@@ -53,6 +56,31 @@ class VendorModel
                     FROM vendor_contacts
                     GROUP BY vendor_id
                 ) vc_count ON v.id = vc_count.vendor_id
-                ORDER BY v.id DESC";
+                WHERE 1=1";
+
+        $params = [];
+
+        if (!empty($filter_name)) {
+            $query .= " AND v.company_name LIKE ?";
+            $params[] = "%$filter_name%";
+        }
+
+        if (!empty($filter_email)) {
+            $query .= " AND v.email LIKE ?";
+            $params[] = "%$filter_email%";
+        }
+
+        $query .= " ORDER BY v.id DESC";
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("SQL Error: " . $e->getMessage());
+            error_log("Query: " . $query);
+            error_log("Params: " . print_r($params, true));
+            return [];
+        }
     }
 }
