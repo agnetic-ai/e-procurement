@@ -8,12 +8,14 @@
 <script src="<?php echo BASE_URL; ?>public/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<?php echo BASE_URL; ?>public/node_modules/datatables.net/js/dataTables.min.js"></script>
 <script src="<?php echo BASE_URL; ?>public/node_modules/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
-
 <script src="<?php echo BASE_URL; ?>public/voler/assets/js/feather-icons/feather.min.js"></script>
 <script src="<?php echo BASE_URL; ?>public/voler/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
 <!-- <script src="<?php echo BASE_URL; ?>public/voler/assets/js/app.js"></script> -->
 <script src="<?php echo BASE_URL; ?>public/voler/assets/vendors/choices.js/choices.min.js"></script>
 <script src="<?php echo BASE_URL; ?>public/voler/assets/js/main.js"></script>
+<script>
+    window.BASE_URL = "<?php echo BASE_URL; ?>";
+</script>
 <script>
     $(document).ready(function() {
         $('.sidebar-toggler').click(function() {

@@ -21,50 +21,26 @@
             <h4>Vendor Information</h4>
         </div>
         <div class="card-body">
-            <form method="POST" action="<?php echo BASE_URL; ?>vendors/store">
+            <form id="vendorForm" method="post" onsubmit="return false;">
                 <div class="row">
-                    <!-- Existing fields -->
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Vendor Name *</label>
-                            <input type="text" class="form-control" name="name" required>
+                            <input type="text" class="form-control" id="name" name="name" required>
                         </div>
                     </div>
-
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Email *</label>
-                            <input type="email" class="form-control" name="email" required>
+                            <input type="email" class="form-control" id="email" name="email" required>
                         </div>
                     </div>
-
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Phone</label>
                             <input type="tel" class="form-control" name="phone">
                         </div>
                     </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Address</label>
-                            <textarea class="form-control" name="address" rows="2"></textarea>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Company Name *</label>
-                            <input type="text" class="form-control" name="company_name" required>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Vendor Code *</label>
-                            <input type="text" class="form-control" name="vendor_code" required>
-                        </div>
-                    </div>
-
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>City ID</label>
@@ -82,7 +58,6 @@
                             </select>
                         </div>
                     </div>
-
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Business Type</label>
@@ -100,28 +75,12 @@
                             </select>
                         </div>
                     </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Status Code *</label>
-                            <input type="text" class="form-control" name="status_code" required>
-                        </div>
-                    </div>
-
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Tax Number</label>
                             <input type="text" class="form-control" name="tax_number">
                         </div>
                     </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Credit Limit</label>
-                            <input type="number" class="form-control" name="credit_limit" step="0.01">
-                        </div>
-                    </div>
-
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Payment Terms</label>
@@ -138,29 +97,8 @@
 
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Established Year</label>
-                            <input type="number" class="form-control" name="established_year" min="1900" max="2099">
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Total Transactions</label>
-                            <input type="number" class="form-control" name="total_transactions" min="0">
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Last Transaction Date</label>
-                            <input type="date" class="form-control" name="last_transaction_date">
-                        </div>
-                    </div>
-
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label>Notes</label>
-                            <textarea class="form-control" name="notes" rows="3"></textarea>
+                            <label>Address</label>
+                            <textarea class="form-control" name="address" rows="2"></textarea>
                         </div>
                     </div>
 
