@@ -28,10 +28,10 @@ function loadProduct() {
                         <td><label class='status-badge ${badge}'>${element.statusName}</label></td>
                         <td>
                         <div class="buttons">
-                           <a href="${BASE_URL}vendor/UpdateVendor?vendorCode=${element.productId}" class="btn btn-outline-primary btn-sm">
+                           <a href="${BASE_URL}product/UpdateProduct?productId=${element.productId}&vendorId=${element.vendorId}" class="btn btn-outline-primary btn-sm">
                               <i data-feather="edit"></i>
                           </a>
-                          <a href="#" class="btn btn-outline-danger btn-sm">
+                          <a type="button" class="btn btn-outline-danger btn-sm" onclick="ConfirmDelete(${element.productId});">
                               <i data-feather="trash-2"></i>
                           </a>
                           </div>
@@ -45,6 +45,55 @@ function loadProduct() {
     },
     error: function (err) {
       alert("Error loading data");
+    },
+  });
+}
+
+function ConfirmDelete(productId) {
+  Swal.fire({
+    title: "Confirm Deletion",
+    text: "Are you sure you want to delete this product? This action cannot be undone.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes",
+    cancelButtonText: "No",
+    reverseButtons: true,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      DeleteProduct(productId);
+    }
+  });
+}
+
+function DeleteProduct(productId) {
+  let dto = {
+    statusCode: "PRODUCT_INACTIVE",
+    productId: parseInt(productId),
+  };
+
+  $.ajax({
+    type: "POST",
+    url: BASE_URL + "product/RemoveProduct",
+    contentType: "application/json",
+    data: JSON.stringify(dto),
+    dataType: "json",
+    success: function (response) {
+      console.log(JSON.stringify(response), " response");
+      Swal.fire({
+        title: "Success!",
+        text: "Delete Product successfully.",
+        icon: "success",
+      }).then(() => {
+        loadProduct();
+      });
+    },
+    error: function (err) {
+      console.log(JSON.stringify(err), "error");
+      Swal.fire({
+        title: "Failed!",
+        text: err.responseJSON.message,
+        icon: "error",
+      });
     },
   });
 }

@@ -21,7 +21,8 @@ class StatusCodeModel
                     is_default,
                     created_at
                 FROM status_codes
-                WHERE module_code = :module_code";
+                WHERE module_code = :module_code
+                ORDER BY display_order ASC";
         $stmt = $this->db->prepare($query);
         $stmt->execute([':module_code' => $code]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

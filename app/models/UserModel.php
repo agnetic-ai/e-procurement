@@ -44,9 +44,6 @@ class UserModel
                 'message' => 'Invalid username or password'
             ];
         }
-        // var_dump($password);
-        // var_dump($user['password']);
-        // die;
 
         if (password_verify($password, $user['password'])) {
             $this->resetLoginAttempts($username);

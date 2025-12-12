@@ -1,12 +1,12 @@
 $(function () {
-  $("#productForm").on("submit", function (e) {
+  $("#updateForm").on("submit", function (e) {
     e.preventDefault();
-    SubmitNewProduct();
+    SubmitUpdateProduct();
   });
 });
 
-function SubmitNewProduct() {
-  let formVendor = $("#productForm");
+function SubmitUpdateProduct() {
+  let formVendor = $("#updateForm");
   var dto = {
     productName: formVendor.find('input[name="name"]').val(),
     vendorId: parseInt(formVendor.find('select[name="vendor_id"]').val()),
@@ -19,18 +19,22 @@ function SubmitNewProduct() {
     ),
     statusCode: formVendor.find('select[name="status_code"]').val(),
     description: formVendor.find('textarea[name="description"]').val(),
+    productId: parseInt(formVendor.find('label[name="product_id"]').text()),
+    productVendorId: parseInt(
+      formVendor.find('label[name="product_vendor_id"]').text()
+    ),
   };
 
   $.ajax({
     type: "POST",
-    url: BASE_URL + "product/SubmitNewProduct",
+    url: BASE_URL + "product/SubmitUpdateProduct",
     contentType: "application/json",
     data: JSON.stringify(dto),
     dataType: "json",
     success: function (response) {
       Swal.fire({
         title: "Success!",
-        text: "Product created successfully.",
+        text: "Product updated successfully.",
         icon: "success",
       }).then(() => {
         window.location = BASE_URL + "product/index";

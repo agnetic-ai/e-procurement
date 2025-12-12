@@ -8,13 +8,14 @@ class ProductModel
         $this->db = Database::getInstance()->getConnection();
     }
 
-    public function GetProduct()
+    public function GetProductList()
     {
         $filter_name = htmlentities($_POST['filterName'] ?? '');
 
-        $query = "SELECT p.id prodcutId,
+        $query = "SELECT p.id productId,
                         p.name AS productName,
                         v.company_name AS vendorName,
+                        v.id AS vendorId,
                         FORMAT(pvp.unit_price, 0, 'id_ID') AS unitPrice,
                         p.unit_of_measure AS uof,
                         DATE_FORMAT(pvp.valid_from, '%d-%b-%Y') AS validFrom,
@@ -53,6 +54,46 @@ class ProductModel
             error_log("Params: " . print_r($params, true));
             return [];
         }
+    }
+
+    public function GetProductDetail($productId, $vendorId)
+    {
+        $query = "SELECT p.id prodcutId,
+                        pvp.id productVendorId,
+                        p.name AS productName,
+                        v.company_name AS vendorName,
+                        v.id vendorId,
+                        FORMAT(pvp.unit_price, 0, 'id_ID') AS unitPrice,
+                        p.unit_of_measure AS uof,
+                        DATE_FORMAT(pvp.valid_from, '%Y-%m-%d') AS validFrom,
+                        DATE_FORMAT(pvp.valid_to, '%Y-%m-%d') AS validTo,
+                        sc.status_name AS statusName,
+                        sc.status_code AS statusCode,
+                        c.name categoryName,
+                        c.id categoryId,
+                        p.description 
+                    FROM product_vendor_prices pvp
+                        JOIN products p
+                            ON pvp.product_id = p.id
+                        JOIN vendors v
+                            ON pvp.vendor_id = v.id
+                        JOIN categories c
+                            ON p.category_id = c.id
+                            AND category_code = 'products'
+                        JOIN status_codes sc
+                            ON p.status_code = sc.status_code
+                            AND sc.module_code = 'PRODUCT'
+                    WHERE pvp.is_active = TRUE
+                    AND p.id = :product_id
+                    AND v.id = :vendor_id";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(
+            [
+                ":product_id" => $productId,
+                ":vendor_id" => $vendorId
+            ]
+        );
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function AddNewProduct($payload = [])
@@ -167,6 +208,84 @@ class ProductModel
             return [
                 'success' => false,
                 'message' => 'Failed menambah Produk: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public function UpdateProduct($payload = [])
+    {
+        $this->db->beginTransaction();
+        try {
+            $updProduct = "UPDATE products
+                        SET name = :name,
+                            description = :description,
+                            category_id = :category_id,
+                            unit_of_measure = :unit_of_measure,
+                            status_code = :status_code
+                        WHERE id = :product_id";
+            $stmt = $this->db->prepare($updProduct);
+            $stmt->execute([
+                ':name' => trim($payload['productName'] ?? ''),
+                ':description' => trim($payload['description'] ?? ''),
+                ':category_id' => (int)$payload['categoryId'],
+                ':unit_of_measure' => trim($payload['uof'] ?? ''),
+                ':status_code' => trim($payload['statusCode'] ?? ''),
+                ':product_id' => (int)$payload['productId'],
+            ]);
+
+            $updProductVendor = "UPDATE product_vendor_prices
+                                SET vendor_id = :vendor_id,
+                                    unit_price = :unit_price,
+                                    valid_from = :valid_from,
+                                    valid_to = :valid_to
+                                WHERE id = :pvp_id";
+            $stmtVendor = $this->db->prepare($updProductVendor);
+            $stmtVendor->execute([
+                ':vendor_id' => (int)$payload['vendorId'],
+                ':unit_price' => $payload['unitPrice'],
+                ':valid_from' => trim($payload['validFrom'] ?? ''),
+                ':valid_to' => trim($payload['validTo'] ?? ''),
+                ':pvp_id' => (int)$payload['productVendorId'],
+            ]);
+
+            $this->db->commit();
+            return [
+                'success' => true,
+                'message' => 'Update Product Successfully',
+                'productName' => $payload['productName']
+            ];
+        } catch (PDOException $e) {
+            return [
+                'success' => false,
+                'message' => 'Failed merubah Produk: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public function DeleteProduct($payload = [])
+    {
+        $this->db->beginTransaction();
+        try {
+            $query = "UPDATE products
+                        SET status_code = :status_code
+                        WHERE id = :product_id";
+
+            $stmt = $this->db->prepare($query);
+            $stmt->execute([
+                ':status_code' => $payload["statusCode"],
+                ':product_id' => (int)$payload['productId'],
+            ]);
+            $this->db->commit();
+
+            return [
+                'success' => true,
+                'message' => 'Delete Product Successfully',
+                'productId' => $payload['productId']
+            ];
+        } catch (PDOException $e) {
+            return [
+                'success' => false,
+                'message' => 'Failed Hapus Produk: ' . $e->getMessage()
             ];
         }
     }

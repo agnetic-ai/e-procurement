@@ -117,7 +117,9 @@
 
                     <div class="col-12 mt-3">
                         <button type="submit" class="btn btn-primary">Submit</button>
-                        <a href="<?php echo BASE_URL; ?>vendors" class="btn btn-secondary">Cancel</a>
+                        <a href="<?php echo BASE_URL; ?>vendor" class="btn btn-secondary">
+                            <i data-feather="chevron-left"></i>
+                            Back</a>
                     </div>
                 </div>
             </form>

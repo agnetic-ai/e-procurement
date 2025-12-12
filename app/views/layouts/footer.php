@@ -27,12 +27,13 @@
         const statusLower = status.toLowerCase();
 
         switch (true) {
+            case statusLower.includes('inactive'):
+                return 'status-inactive';
             case statusLower.includes('active'):
                 return 'status-active';
             case statusLower.includes('pending'):
                 return 'status-pending';
-            case statusLower.includes('inactive'):
-                return 'status-inactive';
+
             case statusLower.includes('review'):
                 return 'status-pending';
             default:
