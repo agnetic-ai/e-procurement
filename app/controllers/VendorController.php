@@ -4,12 +4,14 @@ class VendorController extends Controller
     private $vendor;
     private $cities;
     private $business;
+    private $payment;
     public function __construct()
     {
         parent::__construct();
         $this->vendor = new VendorModel();
         $this->cities = new CitiesModel();
         $this->business = new BusinessTypeModel();
+        $this->payment = new PaymentTermsModel();
     }
     public function index()
     {
@@ -20,15 +22,28 @@ class VendorController extends Controller
         $this->view('vendor/index', $data);
     }
 
-    public function create()
+    public function RegisterVendor()
     {
         $data = [
             'title' => 'Vendor Management',
             'cities' => $this->cities->GetCities(),
+            'payment' => $this->payment->GetPaymentTerms(),
             'business' => $this->business->GetBusiness()
         ];
+        $this->view('vendor/RegisterVendor', $data);
+    }
 
-        $this->view('vendor/Create', $data);
+    public function UpdateVendor()
+    {
+        $vendorCode = $_GET['vendorCode'] ?? null;
+        $data = [
+            'title' => 'Vendor Management',
+            'vendorDetail' => $this->vendor->GetVendorByCode($vendorCode),
+            'cities' => $this->cities->GetCities(),
+            'payment' => $this->payment->GetPaymentTerms(),
+            'business' => $this->business->GetBusiness()
+        ];
+        $this->view('vendor/UpdateVendor', $data);
     }
 
     public function GetVendorList()
@@ -53,7 +68,7 @@ class VendorController extends Controller
         try {
             $payload = json_decode(file_get_contents('php://input'), true);
 
-            $result = $this->vendor->createVendor($payload);
+            $result = $this->vendor->RegisterVendor($payload);
             if ($result['success']) {
                 ResponseHelper::created(
                     [
@@ -66,7 +81,30 @@ class VendorController extends Controller
                 ResponseHelper::badRequest($result['message']);
             }
         } catch (Exception $e) {
-            // Log error untuk debugging
+            error_log("Error in SubmitNewVendor: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+
+            ResponseHelper::serverError('Terjadi kesalahan saat memproses data vendor');
+        }
+    }
+
+    public function SubmitUpdateVendor()
+    {
+        try {
+            $payload = json_decode(file_get_contents('php://input'), true);
+
+            $result = $this->vendor->UpdateVendor($payload);
+            if ($result['success']) {
+                ResponseHelper::created(
+                    [
+                        'vendorCode' => $result['vendorCode']
+                    ],
+                    $result['message']
+                );
+            } else {
+                ResponseHelper::badRequest($result['message']);
+            }
+        } catch (Exception $e) {
             error_log("Error in SubmitNewVendor: " . $e->getMessage());
             error_log("Stack trace: " . $e->getTraceAsString());
 

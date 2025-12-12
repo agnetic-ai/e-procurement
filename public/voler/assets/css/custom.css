@@ -105,3 +105,112 @@
     transform: rotate(360deg);
   }
 }
+
+.card-over {
+  overflow-x: auto;
+}
+
+/* Table dengan width otomatis berdasarkan konten */
+.table-custom {
+  width: 100%;
+  table-layout: auto;
+  /* Biarkan browser tentukan width */
+  border-collapse: collapse;
+}
+
+.table-custom th {
+  background-color: #e8f3ff;
+  color: black;
+  padding: 12px 10px;
+  text-align: left;
+  border: none;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table-custom td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  vertical-align: middle;
+}
+
+/* Hanya kolom tertentu yang bisa wrap */
+.table-custom td:nth-child(1),
+    /* Product Name */
+    .table-custom td:nth-child(3) {
+  /* Vendor Name */
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Hover untuk lihat full text */
+.table-custom td:nth-child(1):hover,
+.table-custom td:nth-child(3):hover {
+  overflow: visible;
+  white-space: normal;
+  position: relative;
+  z-index: 10;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Status dan Action tetap compact */
+.table-custom td:nth-child(8),
+.table-custom td:nth-child(9) {
+  width: 1%;
+  white-space: nowrap;
+}
+
+/* Responsive container */
+.responsive-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* border: 1px solid #ddd; */
+  border-radius: 5px;
+}
+
+/* Mobile optimization */
+@media (max-width: 576px) {
+  .table-custom {
+    font-size: 13px;
+  }
+
+  .table-custom th,
+  .table-custom td {
+    padding: 8px 6px;
+  }
+
+  /* Persingkat header di mobile */
+  .table-custom th:nth-child(1)::after {
+    content: "Product";
+  }
+
+  .table-custom th:nth-child(2)::after {
+    content: "Cat.";
+  }
+
+  .table-custom th:nth-child(3)::after {
+    content: "Vendor";
+  }
+
+  .table-custom th:nth-child(4)::after {
+    content: "Price";
+  }
+
+  .table-custom th:nth-child(5)::after {
+    content: "UOM";
+  }
+
+  .table-custom th:nth-child(6)::after {
+    content: "From";
+  }
+
+  .table-custom th:nth-child(7)::after {
+    content: "To";
+  }
+}

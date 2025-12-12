@@ -24,9 +24,20 @@ function loadVendors() {
                                     <td>${element.businessType}</td>
                                     <td><label class='status-badge ${badge}'>${element.vendorStatus}</label></td>
                                     <td><small class="text-muted">${element.registrationDate}</small></td>
+                                    <td>
+                                    <div class="buttons">
+                                       <a href="${BASE_URL}vendor/UpdateVendor?vendorCode=${element.vendorCode}" class="btn btn-outline-primary btn-sm">
+                                          <i data-feather="edit"></i>
+                                      </a>
+                                      <a href="#" class="btn btn-outline-danger btn-sm">
+                                          <i data-feather="trash-2"></i>
+                                      </a>
+                                      </div>
+                                    </td>
                                 </tr>`;
         });
         Header.append(body);
+        feather.replace();
         $("#vendorsTable").DataTable();
       }
     },

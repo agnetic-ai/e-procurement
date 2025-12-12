@@ -1,8 +1,8 @@
 </div> <!-- Close #main -->
 </div> <!-- Close #app -->
 
-<!-- jQuery CDN -->
-
+<!--Sweet alert -->
+<script src="<?php echo BASE_URL; ?>public/sweetalert/sweetalert2.all.min.js"></script>
 <!-- Voler JavaScript -->
 <script src="<?php echo BASE_URL; ?>public/voler/assets/vendors/simple-datatables/simple-datatables.js"></script>
 <script src="<?php echo BASE_URL; ?>public/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -10,7 +10,7 @@
 <script src="<?php echo BASE_URL; ?>public/node_modules/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
 <script src="<?php echo BASE_URL; ?>public/voler/assets/js/feather-icons/feather.min.js"></script>
 <script src="<?php echo BASE_URL; ?>public/voler/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
-<!-- <script src="<?php echo BASE_URL; ?>public/voler/assets/js/app.js"></script> -->
+<script src="<?php echo BASE_URL; ?>public/voler/assets/js/app.js"></script>
 <script src="<?php echo BASE_URL; ?>public/voler/assets/vendors/choices.js/choices.min.js"></script>
 <script src="<?php echo BASE_URL; ?>public/voler/assets/js/main.js"></script>
 <script>
@@ -40,7 +40,27 @@
         }
     }
 
-    // Global Loading Function
+    function cearFilter() {
+        $("#searchForm")[0].reset();
+        location.reload();
+    }
+
+    function formatMoney(input) {
+        let value = input.value;
+        value = value.replace(/[^0-9]/g, '');
+        if (value === '') {
+            input.value = '';
+            return;
+        }
+        let formatted = new Intl.NumberFormat('id-ID').format(value);
+        input.value = formatted;
+    }
+
+    function unformatMoneyValue(value) {
+        return parseInt(value.replace(/\./g, '')) || 0;
+    }
+
+
     function showLoading(message = 'Loading...') {
         if ($('#loadingOverlay').length === 0) {
             $('body').append(`
@@ -97,12 +117,9 @@ if (isset($pageScripts)) {
 ?>
 
 <script>
-    // Initialize Feather Icons (once)
     if (typeof feather !== 'undefined') {
         feather.replace();
     }
-
-    // Sidebar toggle
 </script>
 </body>
 

@@ -9,25 +9,64 @@
                 <ul class="menu">
                     <li class='sidebar-title'>Main Menu</li>
                     <?php
-                    $menus = $this->getVolerMenus();
+                    $menus = $this->GenerateMenus();
                     foreach ($menus as $menu):
+                        $hasChildren = isset($menu['children']) && !empty($menu['children']);
                         $isActive = ($current_page == $menu['url']);
+                        $childActive = false;
+                        if ($hasChildren) {
+                            foreach ($menu['children'] as $child) {
+                                if ($current_page == $child['url']) {
+                                    $isActive = true;
+                                    $childActive = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        $menuClass = 'sidebar-item';
+                        if ($isActive) {
+                            $menuClass .= ' active';
+                        }
+                        if ($hasChildren) {
+                            $menuClass .= ' has-sub';
+                            if ($childActive) {
+                                $menuClass .= ' open';
+                            }
+                        }
                     ?>
-                        <li class="sidebar-item <?php echo $isActive ? 'active' : ''; ?>">
-                            <a href="<?php echo BASE_URL . $menu['url']; ?>" class='sidebar-link'>
-                                <i data-feather="user"></i>
-                                <span><?php echo $menu['title']; ?></span>
+                        <li class="<?php echo $menuClass; ?>">
+                            <a href="<?php echo $hasChildren ? '#' : BASE_URL . $menu['url']; ?>" class='sidebar-link'>
+                                <i data-feather="<?php echo htmlspecialchars($menu['icon']); ?>"></i>
+                                <span><?php echo htmlspecialchars($menu['title']); ?></span>
+                                <?php if ($hasChildren): ?>
+                                    <i class="bi bi-chevron-down"></i>
+                                <?php endif; ?>
                             </a>
+
+                            <?php if ($hasChildren): ?>
+                                <ul class="submenu" <?php echo $childActive ? 'style="display: block;"' : ''; ?>>
+                                    <?php foreach ($menu['children'] as $child):
+                                        $isChildActive = ($current_page == $child['url']);
+                                    ?>
+                                        <li class="<?php echo $isChildActive ? 'active' : ''; ?>">
+                                            <a href="<?php echo BASE_URL . $child['url']; ?>">
+
+                                                <span><?php echo htmlspecialchars($child['title']); ?></span>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
                         </li>
                     <?php endforeach; ?>
-
                     <li class='sidebar-title'>Pages</li>
                     <li class="sidebar-item  has-sub">
                         <a href="#" class='sidebar-link'>
                             <i data-feather="user" width="20"></i>
                             <span>Authentication</span>
                         </a>
-                        <ul class="submenu ">
+                        <ul class="submenu">
                             <li>
                                 <a href="auth-login.html">Login</a>
                             </li>
@@ -79,6 +118,4 @@
             </div>
         </nav>
 
-        <!-- CONTENT AREA (FLEXIBLE) -->
         <div class="main-content container-fluid flex-grow-1">
-            <!-- Content akan dimasukkan di sini -->

@@ -2,7 +2,9 @@
 
 define('BASE_URL', 'http://localhost/e-procurement/');
 define('SITE_NAME', 'e-Procurement System');
-
+define('APP_PATH', __DIR__ . '/app');
+define('VIEWS_PATH', APP_PATH . '/views');
+define('PUBLIC_PATH', __DIR__ . '/public');
 require_once __DIR__ . '/app/config/autoload.php';
 
 $url = $_GET['url'] ?? '';

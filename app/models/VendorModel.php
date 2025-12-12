@@ -28,7 +28,8 @@ class VendorModel
                     sc.status_code AS statusCode,
                     sc.color AS statusColor,
                     v.tax_number AS taxNumber,
-                    v.payment_terms AS paymentTerms,
+                    pt.id paymentId,
+                    pt.payment_name AS paymentTerms,
                     v.website,
                     DATE_FORMAT(v.created_at, '%d-%m-%Y %H:%i') AS registrationDate,
                     v.updated_at AS updatedAt,
@@ -46,6 +47,7 @@ class VendorModel
                 INNER JOIN status_codes sc ON v.status_code = sc.status_code
                 LEFT JOIN vendor_contacts vc ON v.id = vc.vendor_id AND vc.is_primary = 1
                 LEFT JOIN vendor_bank_accounts vba ON v.id = vba.vendor_id AND vba.is_primary = 1
+                LEFT JOIN payment_terms pt ON v.payment_terms_id = pt.id
                 LEFT JOIN (
                     SELECT vendor_id, COUNT(*) AS contact_count
                     FROM vendor_contacts
@@ -79,16 +81,112 @@ class VendorModel
         }
     }
 
-    public function createVendor($vendorData = [])
+    public function GetVendorActive()
     {
+        $query = "SELECT 
+                    v.id AS vendorId,
+                    v.vendor_code AS vendorCode,
+                    v.company_name AS companyName,
+                    v.email,
+                    v.phone,
+                    CONCAT(v.address, ', ', c.city_name, ', ', c.province_name) AS fullAddress,
+                    c.city_name AS cityName,
+                    c.province_name AS provinceName,
+                    bt.type_name AS businessType,
+                    bt.type_code AS businessTypeCode,
+                    sc.status_name AS vendorStatus,
+                    sc.status_code AS statusCode,
+                    sc.color AS statusColor,
+                    v.tax_number AS taxNumber,
+                    pt.id paymentId,
+                    pt.payment_name AS paymentTerms,
+                    v.website,
+                    DATE_FORMAT(v.created_at, '%d-%m-%Y %H:%i') AS registrationDate,
+                    v.updated_at AS updatedAt,
+                    vc.contact_name AS primaryContact,
+                    vc.contact_email AS primaryContactEmail,
+                    vc.contact_phone AS primaryContactPhone,
+                    vc.position AS contactPosition,
+                    vba.bank_name AS primaryBankName,
+                    vba.account_number AS primaryBankAccountNumber,
+                    vba.account_name AS primaryBankAccountName,
+                    vc_count.contact_count AS totalContacts
+                FROM vendors v
+                INNER JOIN cities c ON v.city_id = c.id
+                INNER JOIN business_types bt ON v.business_type_id = bt.id
+                INNER JOIN status_codes sc ON v.status_code = sc.status_code
+                LEFT JOIN vendor_contacts vc ON v.id = vc.vendor_id AND vc.is_primary = 1
+                LEFT JOIN vendor_bank_accounts vba ON v.id = vba.vendor_id AND vba.is_primary = 1
+                LEFT JOIN payment_terms pt ON v.payment_terms_id = pt.id
+                LEFT JOIN (
+                    SELECT vendor_id, COUNT(*) AS contact_count
+                    FROM vendor_contacts
+                    GROUP BY vendor_id
+                ) vc_count ON v.id = vc_count.vendor_id
+                WHERE v.status_code = 'VEND_ACTIVE'";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
+    public function GetVendorByCode($vendorCode)
+    {
+        $query = "SELECT 
+                    v.id AS vendorId,
+                    v.vendor_code AS vendorCode,
+                    v.company_name AS companyName,
+                    v.email,
+                    v.phone,
+                    CONCAT(v.address, ', ', c.city_name, ', ', c.province_name) AS fullAddress,
+                    c.city_name AS cityName,
+                    c.id citiesId,
+                    c.province_name AS provinceName,
+                    bt.id businessId,
+                    bt.type_name AS businessType,
+                    bt.type_code AS businessTypeCode,
+                    sc.status_name AS vendorStatus,
+                    sc.status_code AS statusCode,
+                    sc.color AS statusColor,
+                    v.tax_number AS taxNumber,
+                    pt.id paymentId,
+                    pt.payment_name AS paymentTerms,
+                    v.website,
+                    DATE_FORMAT(v.created_at, '%d-%m-%Y %H:%i') AS registrationDate,
+                    v.updated_at AS updatedAt,
+                    vc.contact_name AS primaryContact,
+                    vc.contact_email AS primaryContactEmail,
+                    vc.contact_phone AS primaryContactPhone,
+                    vc.position AS contactPosition,
+                    vba.bank_name AS primaryBankName,
+                    vba.account_number AS primaryBankAccountNumber,
+                    vba.account_name AS primaryBankAccountName,
+                    vc_count.contact_count AS totalContacts
+                FROM vendors v
+                INNER JOIN cities c ON v.city_id = c.id
+                INNER JOIN business_types bt ON v.business_type_id = bt.id
+                INNER JOIN status_codes sc ON v.status_code = sc.status_code
+                LEFT JOIN vendor_contacts vc ON v.id = vc.vendor_id AND vc.is_primary = 1
+                LEFT JOIN vendor_bank_accounts vba ON v.id = vba.vendor_id AND vba.is_primary = 1
+                LEFT JOIN payment_terms pt ON v.payment_terms_id = pt.id
+                LEFT JOIN (
+                    SELECT vendor_id, COUNT(*) AS contact_count
+                    FROM vendor_contacts
+                    GROUP BY vendor_id
+                ) vc_count ON v.id = vc_count.vendor_id
+                WHERE v.vendor_code =:vendor_code";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([":vendor_code" => $vendorCode]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function RegisterVendor($vendorData = [])
+    {
         if (empty($vendorData['vendorName'])) {
             return [
                 'success' => false,
                 'message' => 'Nama vendor harus diisi'
             ];
         }
-
         if (empty($vendorData['vendorEmail'])) {
             return [
                 'success' => false,
@@ -144,7 +242,7 @@ class VendorModel
                 city_id,
                 business_type_id,
                 tax_number,
-                payment_terms,
+                payment_terms_id,
                 website,
                 status_code,
                 created_at,
@@ -158,7 +256,7 @@ class VendorModel
                 :city_id,
                 :business_type_id,
                 :tax_number,
-                :payment_terms,
+                :payment_terms_id,
                 :website,
                 :status_code,
                 NOW(),
@@ -176,7 +274,7 @@ class VendorModel
                 ':city_id' => (int)$vendorData['cityId'],
                 ':business_type_id' => (int)$vendorData['businessType'],
                 ':tax_number' => trim($vendorData['taxNumber'] ?? ''),
-                ':payment_terms' => trim($vendorData['paymentTerms'] ?? ''),
+                ':payment_terms_id' => trim($vendorData['paymentTerms'] ?? ''),
                 ':website' => trim($vendorData['website'] ?? ''),
                 ':status_code' => $status_code
             ];
@@ -201,7 +299,7 @@ class VendorModel
 
             return [
                 'success' => false,
-                'message' => 'Gagal menambah vendor: ' . $e->getMessage()
+                'message' => 'Failed menambah vendor: ' . $e->getMessage()
             ];
         }
     }
@@ -229,5 +327,48 @@ class VendorModel
             $nextNumber = 1;
         }
         return $prefix . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+    }
+    public function UpdateVendor($vendorData = [])
+    {
+        try {
+            $this->db->beginTransaction();
+            $updateStmt = $this->db->prepare("UPDATE vendors
+                SET company_name = :company_name,
+                    email = :email,
+                    phone = :phone,
+                    address = :address,
+                    city_id = :city_id,
+                    business_type_id =:business_type_id,
+                    tax_number = :tax_number,
+                    payment_terms_id = :payment_terms_id,
+                    website = :website
+                WHERE vendor_code = :vendor_code");
+
+            $updateStmt->execute([
+                ':company_name'  => $vendorData['vendorName'],
+                ':email' => trim($vendorData['vendorEmail']),
+                ':phone' => trim($vendorData['vendorPhone'] ?? ''),
+                ':address' => trim($vendorData['address'] ?? ''),
+                ':city_id' => (int)$vendorData['cityId'],
+                ':business_type_id' => (int)$vendorData['businessType'],
+                ':tax_number' => trim($vendorData['taxNumber'] ?? ''),
+                ':payment_terms_id' => (int)$vendorData['paymentTerms'],
+                ':website' => trim($vendorData['website'] ?? ''),
+                ':vendor_code' => $vendorData['vendorCode'],
+            ]);
+            $this->db->commit();
+
+            return [
+                'success' => true,
+                'message' => 'Update Vendor Successfully',
+                'vendorCode' => $vendorData['vendorCode']
+            ];
+        } catch (PDOException $e) {
+            $this->db->rollBack();
+            return [
+                'success' => false,
+                'message' => 'Failed update vendor: ' . $e->getMessage()
+            ];
+        }
     }
 }

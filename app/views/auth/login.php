@@ -8,7 +8,6 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <title>eProcurement</title>
-
     <style>
         * {
             margin: 0;
@@ -81,6 +80,7 @@
             justify-content: center;
             margin: 0 auto 20px;
             box-shadow: var(--shadow-light);
+            color: white;
         }
 
         .logo-icon i {
@@ -281,9 +281,7 @@
             }
         }
     </style>
-
-    <!-- CSS External -->
-    <link rel="stylesheet" href="public/sb-admin/vendor/Font-Awesome/css/all.min.css">
+    <!-- <link rel="stylesheet" href="public/sb-admin/vendor/Font-Awesome/css/all.min.css"> -->
 </head>
 
 <body>
@@ -291,7 +289,13 @@
         <div class="login-card">
             <div class="logo-section">
                 <div class="logo-icon">
-                    <i class="fas fa-boxes"></i>
+                    <i data-feather="codesandbox"></i>
+                    <!-- <i data-feather="archive"></i>
+                    <i data-feather="archive"></i>
+                    <i data-feather="layers"></i> -->
+
+
+
                 </div>
                 <h1>eProcurement</h1>
                 <p>admin</p>
@@ -335,11 +339,11 @@
                 </button>
 
                 <div class="additional-links">
-                    <small class="text-muted">
+                    <!-- <small class="text-muted">
                         Demo Accounts:<br>
                         <strong>Admin:</strong> admin / admin123<br>
                         <strong>Procurement:</strong> procurement / proc123
-                    </small>
+                    </small> -->
                 </div>
             </form>
         </div>
@@ -349,7 +353,13 @@
             <p>© 2025 eProcurement. All rights reserved.</p>
         </div>
     </div>
+    <script src="<?php echo BASE_URL; ?>public/voler/assets/js/feather-icons/feather.min.js"></script>
 
+    <script>
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    </script>
     <!-- JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {

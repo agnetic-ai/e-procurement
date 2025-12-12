@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/voler/assets/css/custom.css">
 
     <link rel="shortcut icon" href="<?php echo BASE_URL; ?>public/voler/assets/images/favicon.svg" type="image/x-icon">
+
 </head>
 
 <body>

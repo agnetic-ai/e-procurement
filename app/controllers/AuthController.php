@@ -51,12 +51,9 @@ class AuthController extends Controller
         try {
             $result = $this->userModel->authenticate($username, $password);
 
-            // FIX: Handle struktur return yang benar
             if ($result && isset($result['success']) && $result['success'] === true) {
-                // Ambil data user dari key 'user'
                 $userData = $result['user'];
 
-                // Set session dengan benar
                 $this->session->set('user_id', $userData['id']);
                 $this->session->set('username', $userData['username']);
                 $this->session->set('full_name', $userData['full_name']);
@@ -75,7 +72,6 @@ class AuthController extends Controller
 
                 $this->redirect('dashboard');
             } else {
-                // Authentication failed
                 $errorMessage = $result['message'] ?? 'Invalid username or password';
                 $this->session->setFlash('error', $errorMessage);
                 $this->redirect('login');

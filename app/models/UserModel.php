@@ -23,7 +23,16 @@ class UserModel
             ];
         }
 
-        $sql = "SELECT * FROM users WHERE username = :username AND is_active = 1";
+        $sql = "SELECT u.id,
+                    u.username,
+                    u.full_name,
+                    u.email,
+                    r.role_code as role,
+                    u.role_id,
+                    u.password
+                FROM users u
+                JOIN roles r ON u.role_id = r.id
+                WHERE u.is_active = 1 AND u.username = :username";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['username' => $username]);
         $user = $stmt->fetch();
@@ -35,7 +44,9 @@ class UserModel
                 'message' => 'Invalid username or password'
             ];
         }
-
+        // var_dump($password);
+        // var_dump($user['password']);
+        // die;
 
         if (password_verify($password, $user['password'])) {
             $this->resetLoginAttempts($username);
@@ -50,7 +61,7 @@ class UserModel
                     'username' => $user['username'],
                     'full_name' => $user['full_name'],
                     'email' => $user['email'],
-                    'role' => $user['role']
+                    'role' => $user['role'],
                 ]
             ];
         } else {
@@ -126,7 +137,15 @@ class UserModel
 
     public function getUserById($id)
     {
-        $sql = "SELECT id, username, full_name, email, role FROM users WHERE id = :id";
+        $sql = "SELECT u.id,
+                    u.username,
+                    u.full_name,
+                    u.email,
+                    r.role_code as role,
+                    u.role_id
+                FROM users u
+                JOIN roles r ON u.role_id = r.id
+                WHERE u.id = :id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['id' => $id]);
         return $stmt->fetch();

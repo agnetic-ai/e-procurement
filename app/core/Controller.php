@@ -4,10 +4,12 @@
 class Controller
 {
     protected $session;
+    private $menus;
 
     public function __construct()
     {
         $this->session = new Session();
+        $this->menus = new MenusModel();
 
         if (!defined('APP_PATH')) {
             define('APP_PATH', dirname(__DIR__));
@@ -45,7 +47,6 @@ class Controller
         $isLoginPage = strpos($view, 'login') !== false;
 
         if (!$isLoginPage) {
-            // Gunakan template Voler untuk header
             $this->loadVolerHeader($data);
         } else {
             echo '<!DOCTYPE html><html lang="en">';
@@ -69,9 +70,6 @@ class Controller
         include VIEWS_PATH . '/layouts/header.php';
     }
 
-    /**
-     * Load Voler layout (sidebar + main wrapper)
-     */
     private function loadVolerLayout($data = [])
     {
         extract($data);
@@ -82,6 +80,15 @@ class Controller
     {
         include VIEWS_PATH . '/layouts/footer.php';
     }
+    public function getUserMenus($userRole)
+    {
+        $data = $this->menus->GetMenus($userRole);
+
+        $formattedMenus = $this->formatMenuHierarchy($data);
+
+        return $formattedMenus;
+    }
+
 
     private function generateVolerMenus($role)
     {
@@ -129,7 +136,15 @@ class Controller
     protected function getVolerMenus()
     {
         $role = $this->getUserRoleForVoler();
+        $menu = $this->getUserMenus($role);
+
         return $this->generateVolerMenus($role);
+    }
+
+    protected function GenerateMenus()
+    {
+        $role = $this->getUserRoleForVoler();
+        return $this->getUserMenus($role);
     }
 
     protected function redirect($url)
@@ -168,9 +183,6 @@ class Controller
         $_SESSION['flash_messages'][$type] = $message;
     }
 
-    /**
-     * Helper untuk get flash message
-     */
     protected function getFlash($type)
     {
         if (isset($_SESSION['flash_messages'][$type])) {
@@ -179,5 +191,64 @@ class Controller
             return $message;
         }
         return null;
+    }
+
+    private function formatMenuHierarchy($menuData)
+    {
+        $menuMap = [];
+        $rootMenus = [];
+
+        foreach ($menuData as $menu) {
+            $menuMap[$menu['id']] = $menu;
+            $menuMap[$menu['id']]['children'] = [];
+        }
+
+        foreach ($menuData as $menu) {
+            if ($menu['parentId'] === null) {
+                $rootMenus[] = $menu['id'];
+            } else {
+                if (isset($menuMap[$menu['parentId']])) {
+                    $menuMap[$menu['parentId']]['children'][] = $menu;
+                }
+            }
+        }
+
+        $result = [];
+        foreach ($rootMenus as $rootId) {
+            $menu = $menuMap[$rootId];
+            $formattedMenu = [
+                'title' => $menu['title'],
+                'icon' => $menu['icon'],
+                'url' => $menu['url'],
+                'active' => false,
+                'permissions' => [
+                    'canView' => (bool)$menu['canView'],
+                    'canCreate' => (bool)$menu['canCreate'],
+                    'canEdit' => (bool)$menu['canEdit'],
+                    'canDelete' => (bool)$menu['canDelete']
+                ]
+            ];
+
+            if (!empty($menu['children'])) {
+                $formattedMenu['children'] = array_map(function ($child) {
+                    return [
+                        'title' => $child['title'],
+                        'icon' => $child['icon'],
+                        'url' => $child['url'],
+                        'active' => false,
+                        'permissions' => [
+                            'canView' => (bool)$child['canView'],
+                            'canCreate' => (bool)$child['canCreate'],
+                            'canEdit' => (bool)$child['canEdit'],
+                            'canDelete' => (bool)$child['canDelete']
+                        ]
+                    ];
+                }, $menu['children']);
+            }
+
+            $result[] = $formattedMenu;
+        }
+
+        return $result;
     }
 }

@@ -15,9 +15,11 @@ function submitVendor() {
     .find('select[name="business_type_id"]')
     .val();
   let tax_number = formVendor.find('input[name="tax_number"]').val();
-  let payment_terms = formVendor.find('input[name="payment_terms"]').val();
+  let payment_terms = parseInt(
+    formVendor.find('select[name="payment_terms"]').val()
+  );
   let website = formVendor.find('input[name="website"]').val();
-  let address = formVendor.find('input[name="address"]').val();
+  let address = formVendor.find('textarea[name="address"]').val();
 
   let dto = {
     vendorName: name,
@@ -31,7 +33,6 @@ function submitVendor() {
     address: address,
   };
 
-  console.log(JSON.stringify(dto));
   $.ajax({
     type: "POST",
     url: BASE_URL + "vendor/SubmitNewVendor",
@@ -39,10 +40,20 @@ function submitVendor() {
     data: JSON.stringify(dto),
     dataType: "json",
     success: function (response) {
-      console.log(response);
+      Swal.fire({
+        title: "Success!",
+        text: "Vendor created successfully.",
+        icon: "success",
+      }).then(() => {
+        window.location = BASE_URL + "vendor/index";
+      });
     },
     error: function (err) {
-      alert("Error loading data");
+      Swal.fire({
+        title: "Failed!",
+        text: err.responseJSON.message,
+        icon: "error",
+      });
     },
   });
 }
