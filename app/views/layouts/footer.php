@@ -1,7 +1,21 @@
-</div> <!-- Close #main -->
-</div> <!-- Close #app -->
+</div>
+<footer class="mt-auto">
+    <div class="footer clearfix mb-0 text-muted py-3">
+        <div class="container-fluid">
+            <div class="float-start">
+                <p><?php echo date('Y'); ?> &copy; eProcurement System</p>
+            </div>
+            <div class="float-end">
+                <p>Powered by <a href="#">Voler Admin</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
 
 <!--Sweet alert -->
+<script src="<?php echo BASE_URL; ?>public/select2/js/select2.min.js"></script>
 <script src="<?php echo BASE_URL; ?>public/sweetalert/sweetalert2.all.min.js"></script>
 <!-- Voler JavaScript -->
 <script src="<?php echo BASE_URL; ?>public/voler/assets/vendors/simple-datatables/simple-datatables.js"></script>
@@ -10,8 +24,8 @@
 <script src="<?php echo BASE_URL; ?>public/node_modules/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
 <script src="<?php echo BASE_URL; ?>public/voler/assets/js/feather-icons/feather.min.js"></script>
 <script src="<?php echo BASE_URL; ?>public/voler/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
-<script src="<?php echo BASE_URL; ?>public/voler/assets/js/app.js"></script>
 <script src="<?php echo BASE_URL; ?>public/voler/assets/vendors/choices.js/choices.min.js"></script>
+<script src="<?php echo BASE_URL; ?>public/voler/assets/js/app.js"></script>
 <script src="<?php echo BASE_URL; ?>public/voler/assets/js/main.js"></script>
 <script>
     window.BASE_URL = "<?php echo BASE_URL; ?>";
@@ -21,6 +35,7 @@
         $('.sidebar-toggler').click(function() {
             $('#sidebar').toggleClass('active');
         });
+        $('.select2').select2();
     });
 
     function StatusHandler(status) {

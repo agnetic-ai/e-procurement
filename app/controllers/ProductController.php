@@ -12,6 +12,7 @@ class ProductController extends Controller
         $this->categories = new CategoriesModel();
         $this->vendors = new VendorModel();
         $this->status = new StatusCodeModel();
+        $this->checkLogin();
     }
     public function index()
     {

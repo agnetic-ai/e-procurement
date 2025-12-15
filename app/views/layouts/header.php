@@ -20,7 +20,7 @@
     <!-- Node moduls -->
 
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/voler/assets/css/custom.css">
-
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>public/select2/css/select2.min.css">
     <link rel="shortcut icon" href="<?php echo BASE_URL; ?>public/voler/assets/images/favicon.svg" type="image/x-icon">
 
 </head>

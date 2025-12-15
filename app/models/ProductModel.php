@@ -56,6 +56,45 @@ class ProductModel
         }
     }
 
+    public function GetProductActive()
+    {
+        $query = "SELECT p.id productId,
+                        p.name AS productName,
+                        v.company_name AS vendorName,
+                        v.id AS vendorId,
+                        FORMAT(pvp.unit_price, 0, 'id_ID') AS unitPrice,
+                        p.unit_of_measure AS uof,
+                        DATE_FORMAT(pvp.valid_from, '%d-%b-%Y') AS validFrom,
+                        DATE_FORMAT(pvp.valid_to, '%d-%b-%Y') AS validTo,
+                        sc.status_name AS statusName,
+                        sc.status_code AS statusCode,
+                        c.name categoryName
+                    FROM product_vendor_prices pvp
+                        JOIN products p
+                            ON pvp.product_id = p.id
+                        JOIN vendors v
+                            ON pvp.vendor_id = v.id
+                        JOIN categories c
+                            ON p.category_id = c.id
+                            AND category_code = 'products'
+                        JOIN status_codes sc
+                            ON p.status_code = sc.status_code
+                            AND sc.module_code = 'PRODUCT'
+                    WHERE pvp.is_active = TRUE AND p.status_code = :status_code";
+        $params = [':status_code' => "PRODUCT_ACTIVE"];
+
+        $query .= " ORDER BY p.id DESC";
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("SQL Error: " . $e->getMessage());
+            return [];
+        }
+    }
+
     public function GetProductDetail($productId, $vendorId)
     {
         $query = "SELECT p.id prodcutId,

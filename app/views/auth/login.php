@@ -290,18 +290,9 @@
             <div class="logo-section">
                 <div class="logo-icon">
                     <i data-feather="codesandbox"></i>
-                    <!-- <i data-feather="archive"></i>
-                    <i data-feather="archive"></i>
-                    <i data-feather="layers"></i> -->
-
-
-
                 </div>
                 <h1>eProcurement</h1>
-                <p>admin</p>
             </div>
-
-            <!-- Error/Success Messages dari Controller -->
             <?php if (isset($error) && !empty($error)): ?>
                 <div class="error-message">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -315,8 +306,6 @@
                     <?php echo htmlspecialchars($success); ?>
                 </div>
             <?php endif; ?>
-
-            <!-- Form mengarah ke AuthController -->
             <form class="form-login" method="POST" action="<?php echo BASE_URL ?? ''; ?>auth/processLogin" id="loginForm">
                 <div class="form-group">
                     <i class="fas fa-user input-icon"></i>
@@ -324,14 +313,12 @@
                         placeholder="Username" autofocus required
                         value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : 'admin'; ?>">
                 </div>
-
                 <div class="form-group">
                     <i class="fas fa-lock input-icon"></i>
                     <input type="password" class="input-field" name="password"
                         placeholder="Password" required
                         value="admin123">
                 </div>
-
                 <button class="login-btn" type="submit" id="submitBtn">
                     <i class="fas fa-sign-in-alt"></i>
                     <span>SIGN IN</span>
@@ -347,7 +334,6 @@
                 </div>
             </form>
         </div>
-
         <div class="footer-text">
             <p>2025 - Sistem Inventory Management | by _404_</p>
             <p>© 2025 eProcurement. All rights reserved.</p>
@@ -367,9 +353,7 @@
             const submitBtn = document.getElementById('submitBtn');
             const loadingIcon = document.getElementById('loadingIcon');
 
-            // Form submission handling
             loginForm.addEventListener('submit', function(e) {
-                // Show loading state
                 submitBtn.disabled = true;
                 loadingIcon.classList.add('active');
                 submitBtn.querySelector('span').textContent = 'Signing In...';

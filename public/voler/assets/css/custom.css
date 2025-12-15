@@ -1,3 +1,9 @@
+label.required::after {
+  content: " *";
+  color: red;
+  font-weight: bold;
+}
+
 /* Status Badges */
 .status-badge {
   padding: 0.35rem 0.75rem;
@@ -213,4 +219,42 @@
   .table-custom th:nth-child(7)::after {
     content: "To";
   }
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.step {
+  text-align: center;
+  flex: 1;
+}
+
+.step .circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #dee2e6;
+  margin: auto;
+  line-height: 36px;
+  font-weight: bold;
+}
+
+.step.active .circle {
+  background: #435ebe;
+  color: #fff;
+}
+
+.step span {
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.line {
+  flex: 1;
+  height: 2px;
+  background: #dee2e6;
 }

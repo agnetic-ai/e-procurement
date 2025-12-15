@@ -24,13 +24,13 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Product Name *</label>
+                            <label class="required">Product Name</label>
                             <input type="text" class="form-control" name="name" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Vendor *</label>
+                            <label class="required">Vendor</label>
                             <select class="choices form-control" name="vendor_id" required>
                                 <option value="">-- Select Vendor --</option>
                                 <?php if (!empty($data['vendor'])): ?>
@@ -47,7 +47,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Product Category *</label>
+                            <label class="required">Product Category</label>
                             <select class="choices form-control" name="category" required>
                                 <option value="">-- Select Categories --</option>
                                 <?php if (!empty($data['categories'])): ?>
@@ -64,26 +64,26 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Unit Of Meansure *</label>
+                            <label class="required">Unit Of Meansure</label>
                             <select class="choices form-control" name="uof" required>
                                 <option value="">-- Select Unit --</option>
                                 <option value="unit">Unit</option>
-                                <option value="pkg">Pkg</option>
-                                <option value="rim">Rim</option>
+                                <!-- <option value="pkg">Pkg</option>
+                                <option value="rim">Rim</option> -->
                             </select>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Valid From *</label>
+                            <label class="required">Valid From</label>
                             <input type="date" class="form-control" name="valid_from" required>
                         </div>
                         <div class="form-group">
-                            <label>Valid To *</label>
+                            <label class="required">Valid To</label>
                             <input type="date" class="form-control" name="valid_to" required>
                         </div>
                         <div class="form-group">
-                            <label>Status *</label>
+                            <label class="required">Status</label>
                             <select class="choices form-control" name="status_code" required>
                                 <option value="">-- Select Status --</option>
                                 <?php if (!empty($data['status'])): ?>
@@ -100,7 +100,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Unit Price *</label>
+                            <label class="required">Unit Price</label>
                             <input type="text" class="form-control" name="unit_price" onblur="formatMoney(this);" required>
                         </div>
                         <div class="form-group">

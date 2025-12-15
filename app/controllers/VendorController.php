@@ -8,6 +8,7 @@ class VendorController extends Controller
     public function __construct()
     {
         parent::__construct();
+        $this->checkLogin();
         $this->vendor = new VendorModel();
         $this->cities = new CitiesModel();
         $this->business = new BusinessTypeModel();
@@ -61,6 +62,23 @@ class VendorController extends Controller
         }
     }
 
+    public function GetVendorProduct()
+    {
+        header('Content-Type: application/json');
+        $payload = json_decode(file_get_contents('php://input'), true);
+
+
+        try {
+            $vendors = $this->vendor->GetVendorsProduct($payload);
+
+            ResponseHelper::success($vendors, 'Vendors product successfully');
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
     public function SubmitNewVendor()
     {
         header('Content-Type: application/json');

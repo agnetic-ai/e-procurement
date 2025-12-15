@@ -179,6 +179,27 @@ class VendorModel
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function GetVendorsProduct($payload = [])
+    {
+        $query = "SELECT 
+                    v.id              AS vendorId,
+                    v.vendor_code     AS vendorCode,
+                    v.company_name    AS companyName,
+                    v.email,
+                    v.phone,
+                    pvp.unit_price    AS unitPrice,
+                    pvp.valid_from    AS validFrom,
+                    pvp.valid_to      AS validTo
+                FROM product_vendor_prices pvp
+                JOIN vendors v
+                    ON v.id = pvp.vendor_id
+                WHERE pvp.product_id = :product_id
+                AND pvp.is_active = 1
+                AND v.status_code = 'VEND_ACTIVE';";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([":product_id" => $payload["productId"]]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     public function RegisterVendor($vendorData = [])
     {
         if (empty($vendorData['vendorName'])) {
