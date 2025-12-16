@@ -298,7 +298,7 @@
 }
 .select2-container--default.select2-container--focus
   .select2-selection--multiple {
-  border: solid black 1px;
+  /* border: solid rgb(167, 161, 161) 0px; */
   outline: 0;
 }
 .select2-container--default.select2-container--disabled
@@ -423,7 +423,7 @@
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFFFF', endColorstr='#FFEEEEEE', GradientType=0);
 }
 .select2-container--classic .select2-selection--single:focus {
-  border: 1px solid #5897fb;
+  /* border: 1px solid #5897fb; */
 }
 .select2-container--classic
   .select2-selection--single
@@ -540,7 +540,7 @@
   outline: 0;
 }
 .select2-container--classic .select2-selection--multiple:focus {
-  border: 1px solid #5897fb;
+  /* border: 1px solid #5897fb; */
 }
 .select2-container--classic
   .select2-selection--multiple

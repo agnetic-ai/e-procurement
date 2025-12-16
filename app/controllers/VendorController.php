@@ -67,7 +67,6 @@ class VendorController extends Controller
         header('Content-Type: application/json');
         $payload = json_decode(file_get_contents('php://input'), true);
 
-
         try {
             $vendors = $this->vendor->GetVendorsProduct($payload);
 

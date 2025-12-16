@@ -46,7 +46,7 @@
                                 <div class="col-md-6 mb-2">
                                     <div class="form-group">
                                         <label class="required">Department</label>
-                                        <select class="choices form-select" name="department" required>
+                                        <select class="choices form-select" name="department_id" required>
                                             <option value="">--Select Department--</option>
                                             <option value="IT">IT</option>
                                             <option value="Finance">Finance</option>
@@ -77,16 +77,18 @@
                                 <div class="col-md-6 mb-2">
                                     <div class="form-group">
                                         <label class="required">Product Name</label>
-                                        <select class="choices form-select" name="product_id" required onchange="SelectedProduct(this);">
+                                        <select class="select2 foem-control" name="product_id" onchange="SelectedProduct(this);">
                                             <option value="">--Select Product--</option>
                                             <?php if (!empty($data['product'])): ?>
                                                 <?php foreach ($data['product'] as $product): ?>
-                                                    <option value="<?php echo $product['productId']; ?>">
+                                                    <option value="<?php echo $product['productId']; ?>"
+                                                        data-price="<?php echo $product['unitPrice']; ?>"
+                                                        data-custom-properties='{"price": "<?php echo $product['unitPrice']; ?>", "vendor": "<?php echo $product['vendorName']; ?>"}'>
                                                         <?php echo htmlspecialchars($product['productName']) . ' - ' . $product['vendorName']; ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             <?php else: ?>
-                                                <option value="">No vendor available</option>
+                                                <option value="">No Productt available</option>
                                             <?php endif; ?>
                                         </select>
                                     </div>
@@ -94,15 +96,14 @@
                                 <div class="col-md-6 mb-2">
                                     <div class="form-group">
                                         <label class="required">Vendor / Supplier</label>
-                                        <select class="select2 form-control" name="vendor_id" required>
-
+                                        <select class="select2 form-control" name="vendor_id">
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <div class="form-group">
                                         <label class="required">Quantity</label>
-                                        <input type="text" class="form-control" name="qty" required>
+                                        <input type="text" class="form-control" name="qty" onblur="calculateEstimatedPrice(this);">
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-2">
@@ -114,7 +115,7 @@
                                 <div class="col-md-6 mb-2">
                                     <div class="form-group">
                                         <label class="required">Unit Of Meansure</label>
-                                        <select class="choices form-control" name="uof" required>
+                                        <select class="form-control select2" name="uof">
                                             <option value="">-- Select Unit --</option>
                                             <option value="unit">Unit</option>
                                         </select>
@@ -133,11 +134,10 @@
                                     </div>
                                 </div>
                                 <div class="col-12 d-flex justify-content-end">
-
                                     <button class="btn btn-secondary mb-1" id="btnReset">
                                         <i data-feather="refresh-cw" class="me-2"></i> Reset
                                     </button>&nbsp;
-                                    <button ntype="button" class="btn btn-primary me-1 mb-1">
+                                    <button ntype="button" class="btn btn-primary me-1 mb-1" onclick="PreviewProduct();">
                                         Submit
                                     </button>
                                 </div>
@@ -152,37 +152,24 @@
                             <div class="row">
                                 <div class="col-md-12 mb-2">
                                     <div class="responsive-container">
-                                        <table class='table-custom' table-bordered">
+                                        <table class='table-custom table-preview'>
                                             <thead>
                                                 <tr>
                                                     <th>No</th>
                                                     <th>Product</th>
+                                                    <th>Product Description</th>
                                                     <th>Qty</th>
                                                     <th>Unit</th>
                                                     <th>Price</th>
                                                     <th>Subtotal</th>
-                                                    <th>Action</th>
+                                                    <th align="center;">Action</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td>Laptop Lenovo Thinkpad</td>
-                                                    <td>2</td>
-                                                    <td>PCS</td>
-                                                    <td>15,000,000</td>
-                                                    <td>30,000,000</td>
-                                                    <td>
-                                                        <button class="btn btn-sm btn-outline-danger">
-                                                            <i data-feather="trash-2"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
+                                            <tbody></tbody>
                                         </table>
                                     </div>
                                     <div class="text-end mt-3">
-                                        <h5>Total: <strong>30,000,000</strong></h5>
+                                        <h5>Grand Total: <strong></strong></h5>
                                     </div>
                                 </div>
                             </div>
@@ -202,11 +189,11 @@
                             <div class="row">
                                 <div class="col-md-6 mb-2">
                                     <label>Shipping Address</label>
-                                    <textarea class="form-control" rows="4"></textarea>
+                                    <textarea class="form-control" name="billing_address" rows="4" style="resize: none;"></textarea>
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label>Billing Address</label>
-                                    <textarea class="form-control" rows="4"></textarea>
+                                    <textarea class="form-control" name="shipping_address" rows="4" style="resize: none;"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -219,26 +206,38 @@
                 <div id="step-3" class="d-none">
                     <div class="card">
                         <div class="card-header">
-                            <h4>Approval Preview</h4>
+                            <h4>Approval Information</h4>
                         </div>
                         <div class="card-body">
-                            <table class="table table-bordered">
-                                <tr>
-                                    <th>Level</th>
-                                    <th>Role</th>
-                                    <th>Approver</th>
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>Manager</td>
-                                    <td>Andi / Budi</td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>Finance</td>
-                                    <td>Siti</td>
-                                </tr>
-                            </table>
+                            <!-- <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold">Remarks Approver</label>
+                                    <textarea class="form-control"
+                                        name="remarks"
+                                        rows="4"
+                                        style="resize: none;"
+                                        placeholder="Tambahkan catatan untuk approval (opsional)"></textarea>
+                                    <small class="text-muted">
+                                        Digunakan jika ada catatan khusus terkait persetujuan atau revisi.
+                                    </small>
+                                </div>
+                            </div> -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="responsive-container">
+                                        <table class='table-custom table-approval'>
+                                            <thead>
+                                                <tr>
+                                                    <th>Level</th>
+                                                    <th>Role</th>
+                                                    <th>Approver</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="d-flex justify-content-end mt-3">

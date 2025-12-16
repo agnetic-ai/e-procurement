@@ -61,7 +61,11 @@
         location.reload();
     }
 
-    function formatMoney(input) {
+    function formatCurrency(amount) { //use value
+        return parseFloat(amount).toLocaleString("id-ID");
+    }
+
+    function formatMoney(input) { //use input
         let value = input.value;
         value = value.replace(/[^0-9]/g, '');
         if (value === '') {
@@ -76,24 +80,44 @@
         return parseInt(value.replace(/\./g, '')) || 0;
     }
 
+    function showLoading(
+        message = 'Please wait',
+        subtext = ''
+    ) {
+        if (document.getElementById('loadingOverlay')) return;
 
-    function showLoading(message = 'Loading...') {
-        if ($('#loadingOverlay').length === 0) {
-            $('body').append(`
-                    <div class="loading-overlay" id="loadingOverlay">
-                        <div class="loading-spinner"></div>
-                        <p class="mt-3 text-muted">${message}</p>
-                    </div>
-                `);
-        }
-        $('#loadingOverlay').fadeIn(200);
+        const overlay = document.createElement('div');
+        overlay.id = 'loadingOverlay';
+        overlay.className = 'loading-overlay';
+
+        overlay.innerHTML = `
+    <div class="loading-content">
+      <div class="spinner">
+        <div class="spinner-circle"></div>
+        <div class="spinner-circle"></div>
+        <div class="spinner-circle"></div>
+      </div>
+      <div class="loading-text">
+        ${message}
+        <span class="loading-dots">
+          <span>.</span><span>.</span><span>.</span>
+        </span>
+      </div>
+      <div class="loading-subtext">${subtext}</div>
+    </div>
+  `;
+
+        document.body.appendChild(overlay);
     }
 
     function hideLoading() {
-        $('#loadingOverlay').fadeOut(200, function() {
-            $(this).remove();
-        });
+        const overlay = document.getElementById('loadingOverlay');
+        if (!overlay) return;
+
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 300);
     }
+
 
     // Global Alert Function
     function showAlert(type, message, duration = 3000) {
