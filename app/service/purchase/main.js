@@ -4,33 +4,33 @@ let editRow = null;
 function nextStep() {
   if (currentStep === 1) {
     let prTitle = $('input[name="title"]').val();
-    let department = $('select[name="department"]').val();
+    let department = $('select[name="department_id"]').val();
     let requestDate = $('input[name="request_date"]').val();
     let itemCount = $(".table-preview tbody tr").length;
 
-    // if (!prTitle || prTitle.trim() === "") {
-    //   Swal.fire("Warning!", "PR Title wajib diisi.", "warning");
-    //   return;
-    // }
+    if (!prTitle || prTitle.trim() === "") {
+      Swal.fire("Warning!", "PR Title wajib diisi.", "warning");
+      return;
+    }
 
-    // if (!department) {
-    //   Swal.fire("Warning!", "Department wajib dipilih.", "warning");
-    //   return;
-    // }
+    if (!department) {
+      Swal.fire("Warning!", "Department wajib dipilih.", "warning");
+      return;
+    }
 
-    // if (!requestDate) {
-    //   Swal.fire("Warning!", "Request Date wajib diisi.", "warning");
-    //   return;
-    // }
+    if (!requestDate) {
+      Swal.fire("Warning!", "Request Date wajib diisi.", "warning");
+      return;
+    }
 
-    // if (itemCount < 1) {
-    //   Swal.fire(
-    //     "Warning!",
-    //     "Minimal harus ada 1 item pada Preview Request.",
-    //     "warning"
-    //   );
-    //   return;
-    // }
+    if (itemCount < 1) {
+      Swal.fire(
+        "Warning!",
+        "Minimal harus ada 1 item pada Preview Request.",
+        "warning"
+      );
+      return;
+    }
   }
 
   if (currentStep === 2) {
@@ -69,7 +69,6 @@ function SelectedProduct(params) {
   var dto = {
     productId: productId,
   };
-  showLoading();
   $.ajax({
     type: "POST",
     url: BASE_URL + "vendor/GetVendorProduct",
@@ -77,7 +76,6 @@ function SelectedProduct(params) {
     data: JSON.stringify(dto),
     dataType: "json",
     success: function (response) {
-      hideLoading();
       let vendors = $('select[name="vendor_id"]');
       vendors
         .empty()
@@ -101,7 +99,6 @@ function SelectedProduct(params) {
       }
     },
     error: function (err) {
-      hideLoading();
       Swal.fire({
         title: "Failed!",
         text: err.responseJSON.message,
@@ -420,6 +417,8 @@ function SubmitPurchaseForm() {
           title: "Success!",
           text: response.message,
           icon: "success",
+        }).then(() => {
+          window.location = BASE_URL + "vendor/index";
         });
       }
     },

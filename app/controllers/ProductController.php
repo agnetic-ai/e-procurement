@@ -14,6 +14,7 @@ class ProductController extends Controller
         $this->status = new StatusCodeModel();
         $this->checkLogin();
     }
+
     public function index()
     {
         $data = [

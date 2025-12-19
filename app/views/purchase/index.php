@@ -242,7 +242,7 @@
                     </div>
                     <div class="d-flex justify-content-end mt-3">
                         <button type="button" class="btn btn-light" onclick="prevStep()">Back</button>&nbsp;
-                        <button type="submit" class="btn btn-success">Submit PR</button>
+                        <button type="button" class="btn btn-primary" onclick="SubmitPurchaseForm();">Submit</button>
                     </div>
                 </div>
             </form>
