@@ -29,9 +29,7 @@ class ResponseHelper
         exit;
     }
 
-    /**
-     * Success response (200)
-     */
+
     public static function success($data = [], $message = 'Success', $meta = [])
     {
         self::json(200, $message, $data, $meta);

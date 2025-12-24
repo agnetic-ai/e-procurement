@@ -20,7 +20,6 @@ class AuthController extends Controller
             $this->redirect('dashboard');
         }
 
-        // Ambil flash messages jika ada
         $error = $this->session->getFlash('error');
         $success = $this->session->getFlash('success');
 
@@ -60,6 +59,7 @@ class AuthController extends Controller
                 $this->session->set('user_role', $userData['role']);
                 $this->session->set('email', $userData['email']);
                 $this->session->set('last_activity', time());
+                $this->session->set('level',  $userData['level']);
 
                 $welcomeMessages = [
                     'admin' => 'Welcome back, Administrator!',

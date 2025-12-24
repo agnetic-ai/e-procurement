@@ -86,21 +86,22 @@
 
     <!-- MAIN CONTENT WRAPPER -->
     <div id="main" class="d-flex flex-column min-vh-100">
-        <!-- TOP NAVBAR (FIXED di atas) -->
         <nav class="navbar navbar-header navbar-expand navbar-light">
             <a class="sidebar-toggler" href="#"><span class="navbar-toggler-icon"></span></a>
 
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="navbar-collapse">
                 <ul class="navbar-nav d-flex align-items-center navbar-light ms-auto">
                     <li class="dropdown">
-                        <a href="#" data-bs-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+                        <button id="userDropdown"
+                            class="nav-link dropdown-toggle nav-link-lg nav-link-user bg-transparent border-0">
                             <div class="avatar me-1">
-                                <img src="<?php echo BASE_URL; ?>public/voler/assets/images/avatar/avatar-s-1.png" alt="Avatar">
+                                <img src="<?= BASE_URL ?>public/voler/assets/images/avatar/avatar-s-1.png">
                             </div>
                             <div class="d-none d-md-block d-lg-inline-block">
-                                Hi, <?php echo htmlspecialchars($session->getUserName()['name'] ?? 'Admin'); ?>
+                                Hi, <?= htmlspecialchars($session->get("full_name")) ?>
                             </div>
-                        </a>
+                        </button>
+
                         <div class="dropdown-menu dropdown-menu-end">
                             <a class="dropdown-item" href="<?php echo BASE_URL; ?>profile">
                                 <i data-feather="user"></i> Profile

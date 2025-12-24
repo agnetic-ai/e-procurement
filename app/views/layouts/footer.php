@@ -25,8 +25,23 @@
 <script src="<?php echo BASE_URL; ?>public/voler/assets/js/feather-icons/feather.min.js"></script>
 <script src="<?php echo BASE_URL; ?>public/voler/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
 <script src="<?php echo BASE_URL; ?>public/voler/assets/vendors/choices.js/choices.min.js"></script>
+<script>
+    feather.replace();
+</script>
 <script src="<?php echo BASE_URL; ?>public/voler/assets/js/app.js"></script>
 <script src="<?php echo BASE_URL; ?>public/voler/assets/js/main.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('userDropdown');
+        if (!btn) return;
+        const dropdown = new bootstrap.Dropdown(btn);
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            dropdown.toggle();
+        });
+    });
+</script>
+
 <script>
     window.BASE_URL = "<?php echo BASE_URL; ?>";
 </script>
@@ -40,7 +55,7 @@
 
     function StatusHandler(status) {
         const statusLower = status.toLowerCase();
-
+        console.log(statusLower);
         switch (true) {
             case statusLower.includes('inactive'):
                 return 'status-inactive';
@@ -48,6 +63,10 @@
                 return 'status-active';
             case statusLower.includes('pending'):
                 return 'status-pending';
+            case statusLower.includes('approved'):
+                return 'status-approved';
+            case statusLower.includes('rejected'):
+                return 'status-rejected';
 
             case statusLower.includes('review'):
                 return 'status-pending';
@@ -156,11 +175,6 @@ if (isset($pageScripts)) {
 }
 ?>
 
-<script>
-    if (typeof feather !== 'undefined') {
-        feather.replace();
-    }
-</script>
 </body>
 
 </html>

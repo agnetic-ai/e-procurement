@@ -29,12 +29,15 @@ class UserModel
                     u.email,
                     r.role_code as role,
                     u.role_id,
-                    u.password
+                    u.password,
+                    al.level
                 FROM users u
                 JOIN roles r ON u.role_id = r.id
+                LEFT JOIN approval_level_roles ar on r.id = ar.role_id
+                LEFT JOIN approval_levels al on ar.approval_level_id = al.id
                 WHERE u.is_active = 1 AND u.username = :username";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(['username' => $username]);
+        $stmt->execute([':username' => $username]);
         $user = $stmt->fetch();
 
         if (!$user) {
@@ -59,6 +62,7 @@ class UserModel
                     'full_name' => $user['full_name'],
                     'email' => $user['email'],
                     'role' => $user['role'],
+                    'level' => $user['level']
                 ]
             ];
         } else {

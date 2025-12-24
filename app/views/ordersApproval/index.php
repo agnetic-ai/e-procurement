@@ -5,9 +5,18 @@
                 <h3><?= $data["title"] ?></h3>
                 <p class="text-subtitle text-muted"><?= $data["subtitle"] ?></p>
             </div>
+            <div class="col-12 col-md-6 order-md-2 order-first">
+                <nav aria-label="breadcrumb" class='breadcrumb-header'>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#">Order Approval</a></li>
+                    </ol>
+                </nav>
+            </div>
         </div>
     </div>
+
     <section class="section">
+        <!-- Search Card -->
         <div class="card mb-4">
             <div class="card-header">
                 <h5 class="card-title mb-0">
@@ -22,7 +31,7 @@
                                 <span class="input-group-text">
                                     <i data-feather="search"></i>
                                 </span>
-                                <input type="text" name="filterName" class="form-control"
+                                <input type="text" id="filterName" class="form-control"
                                     placeholder="Search by name">
                             </div>
                         </div>
@@ -39,15 +48,8 @@
                                 </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="row g-3">
                         <div class="col-md-2">
-                            <button type="button" class="btn btn-sm btn-primary w-100" id="btnRefresh" onclick="loadProduct();">
-                                <i data-feather="search" class="me-2"></i> Search
-                            </button>
-                        </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-sm btn-secondary w-100" type="button" onclick="cearFilter();">
+                            <button class="btn btn-primary w-100" id="btnRefresh">
                                 <i data-feather="refresh-cw" class="me-2"></i> Refresh
                             </button>
                         </div>
@@ -55,29 +57,33 @@
                 </form>
             </div>
         </div>
+        <!-- Vendors Table Card -->
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">
-                    <i data-feather="list" class="me-2"></i> Orders List
+                    <i data-feather="list" class="me-2"></i> Order Approval List
                 </h5>
             </div>
-            <div class="card-body card-over">
-                <div class="responsive-container">
-                    <table class='table-custom' id="orderAprpovalTable">
+            <div class="responsive-container">
+                <div class="card-body card-over">
+                    <table class='table-custom' id="approvalTable">
                         <thead>
                             <tr>
-                                <th>Request Code</th>
-                                <th>Request Title</th>
+                                <th>PR Nmber</th>
                                 <th>Department</th>
+                                <th>Title</th>
                                 <th>Request Date</th>
                                 <th>Request By</th>
+                                <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
+                        <tbody id="approvalTableBody">
+                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </section>
 </div>
-<!-- <script src="<?php echo BASE_URL; ?>app/service/product/main.js"></script> -->
+<script src="<?php echo BASE_URL; ?>app/service/orderApproval/main.js"></script>

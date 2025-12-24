@@ -77,8 +77,8 @@
                                 <div class="col-md-6 mb-2">
                                     <div class="form-group">
                                         <label class="required">Product Name</label>
-                                        <select class="select2 foem-control" name="product_id" onchange="SelectedProduct(this);">
-                                            <option value="">--Select Product--</option>
+                                        <select class="select2 form-control" name="product_id" onchange="SelectedProduct(this);">
+                                            <option value="">--Select Prduct--</option>
                                             <?php if (!empty($data['product'])): ?>
                                                 <?php foreach ($data['product'] as $product): ?>
                                                     <option value="<?php echo $product['productId']; ?>"

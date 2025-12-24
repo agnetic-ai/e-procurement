@@ -8,26 +8,15 @@ class Session
     public function __construct()
     {
         if (session_status() === PHP_SESSION_NONE) {
-            // Configure session settings
             $this->configureSession();
-
-            // Start session
             session_start();
-
-            // Regenerate session ID for security (first time only)
             $this->regenerateSessionId();
-
-            // Check session timeout
             $this->checkTimeout();
         }
     }
 
-    /**
-     * Configure session settings
-     */
     private function configureSession()
     {
-        // Session name
         session_name($this->sessionName);
 
         // Cookie parameters
@@ -42,7 +31,6 @@ class Session
 
         session_set_cookie_params($cookieParams);
 
-        // Session configuration
         ini_set('session.cookie_lifetime', $cookieParams['lifetime']);
         ini_set('session.gc_maxlifetime', 86400); // 24 hours
         ini_set('session.cookie_samesite', 'Lax');
@@ -50,24 +38,18 @@ class Session
         ini_set('session.cookie_httponly', 1);
     }
 
-    /**
-     * Get domain for session cookie
-     */
     private function getDomain()
     {
         $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 
-        // Remove port if present
         if (strpos($host, ':') !== false) {
             $host = substr($host, 0, strpos($host, ':'));
         }
 
-        // For localhost, keep as is
         if ($host === 'localhost' || filter_var($host, FILTER_VALIDATE_IP)) {
             return $host;
         }
 
-        // For subdomains, use the main domain
         $parts = explode('.', $host);
         if (count($parts) > 2) {
             return '.' . $parts[count($parts) - 2] . '.' . $parts[count($parts) - 1];
@@ -75,10 +57,6 @@ class Session
 
         return '.' . $host;
     }
-
-    /**
-     * Check if connection is secure
-     */
     private function isSecure()
     {
         return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
@@ -86,9 +64,6 @@ class Session
             || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https');
     }
 
-    /**
-     * Regenerate session ID (first time only)
-     */
     private function regenerateSessionId()
     {
         if (!isset($_SESSION['session_regenerated'])) {
@@ -131,17 +106,11 @@ class Session
         $_SESSION['last_activity'] = time(); // Update activity on set
     }
 
-    /**
-     * Get session value
-     */
     public function get($key)
     {
         return $_SESSION[$key] ?? null;
     }
 
-    /**
-     * Remove session value
-     */
     public function remove($key)
     {
         if (isset($_SESSION[$key])) {
@@ -154,10 +123,8 @@ class Session
      */
     public function destroy()
     {
-        // Clear all session variables
         $_SESSION = [];
 
-        // Delete session cookie
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
             setcookie(
@@ -171,13 +138,9 @@ class Session
             );
         }
 
-        // Destroy session
         session_destroy();
     }
 
-    /**
-     * Set flash message
-     */
     public function setFlash($key, $message)
     {
         if (!isset($_SESSION['flash'])) {
@@ -186,9 +149,6 @@ class Session
         $_SESSION['flash'][$key] = $message;
     }
 
-    /**
-     * Get flash message
-     */
     public function getFlash($key)
     {
         if (isset($_SESSION['flash'][$key])) {
@@ -199,25 +159,17 @@ class Session
         return null;
     }
 
-    /**
-     * Check if user is logged in
-     */
     public function isLoggedIn()
     {
         return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
     }
 
-    /**
-     * Get user role
-     */
+
     public function getUserRole()
     {
         return $_SESSION['user_role'] ?? null;
     }
 
-    /**
-     * Get user ID
-     */
     public function getUserId()
     {
         return $_SESSION['user_id'] ?? null;
@@ -231,9 +183,6 @@ class Session
         return $_SESSION['username'] ?? null;
     }
 
-    /**
-     * Get full name
-     */
     public function getFullName()
     {
         return $_SESSION['full_name'] ?? null;
@@ -260,9 +209,7 @@ class Session
         return true;
     }
 
-    /**
-     * Start user session after login
-     */
+
     public function startUserSession($userData)
     {
         // Set user data

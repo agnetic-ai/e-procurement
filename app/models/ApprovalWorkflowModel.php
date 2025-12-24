@@ -43,4 +43,70 @@ class ApprovalWorkflowModel
         ]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function GetApprovalPurchaseRequest($prNumber)
+    {
+        $query = "SELECT 
+                    PRA.id,
+                    PRA.level,
+                    PRA.status_code,
+                    UA.full_name username,
+                    RL.role_name roleName,
+                    SC.status_name statusName,
+                    SC.status_code statusCode
+                FROM purchase_requests PR
+                JOIN purchase_request_approvals PRA ON PR.id = PRA.purchase_request_id
+                JOIN users UA ON PRA.approver_id = UA.id
+                JOIN roles RL ON UA.role_id = RL.id
+                JOIN status_codes SC ON PRA.status_code = SC.status_code AND SC.module_code = 'APR'
+                WHERE PR.pr_number = :pr_number";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([
+            ":pr_number" => $prNumber
+        ]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function GetApprovalApproved($prNumber): int
+    {
+        $query = "SELECT 
+                COUNT(*) AS total_approved
+              FROM purchase_requests PR
+              JOIN purchase_request_approvals PRA 
+                ON PR.id = PRA.purchase_request_id
+              WHERE PR.pr_number = :pr_number
+                AND PRA.status_code = :code";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([
+            ":pr_number" => $prNumber,
+            ":code" => "APR_APPROVE"
+        ]);
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return (int) ($result['total_approved'] ?? 0);
+    }
+
+    public function GetCurrentApprovalLevel($prNumber)
+    {
+        $query = "SELECT 
+                   MAX(PRA.level) AS current_level
+                 FROM purchase_requests PR
+                 JOIN purchase_request_approvals PRA 
+                   ON PR.id = PRA.purchase_request_id
+                 WHERE PR.pr_number = :pr_number
+                   AND PRA.status_code = :code";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([
+            ":pr_number" => $prNumber,
+            ":code" => "APR_APPROVE"
+        ]);
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result['current_level'] !== null ? (int) $result['current_level'] : null;
+    }
 }

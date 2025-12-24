@@ -135,6 +135,7 @@ function PreviewProduct() {
   let productText = selectedProduct.text();
   let productName = productText.split(" - ")[0];
   let vendorName = $('select[name="vendor_id"] option:selected');
+  let vendorId = parseInt($('select[name="vendor_id"] option:selected').val());
   let unit = $('select[name="uof"]').val();
   let productDesc = $('textarea[name="product_desc"]').val();
   let quantity = parseFloat($('input[name="qty"]').val());
@@ -200,7 +201,7 @@ function PreviewProduct() {
 
     $(editRow).html(`
     <td class="row-number"></td>
-    <td>${productName} - ${vendorName.text()}</td>
+    <td><span name='vendor_id' hidden>${vendorId}</span>${productName} - ${vendorName.text()}</td>
     <td>${productDesc || "-"}</td>
     <td>${quantity}</td>
     <td>${unit}</td>
@@ -222,6 +223,7 @@ function PreviewProduct() {
     var tableHTML = `
     <tr 
       data-product-id="${productId}"
+      data-vendor-id="${vendorId}"
       data-product-desc="${productDesc}"
       data-quantity="${quantity}"
       data-unit="${unit}"
@@ -229,7 +231,7 @@ function PreviewProduct() {
       data-subtotal="${total}"
     >
       <td class="row-number">${rowNumber}</td>
-      <td>${productName}${
+      <td><span name='vendor_id' hidden>${vendorId}</span>${productName}${
       vendorName.text() ? " - " + vendorName.text() : ""
     }</td>
       <td>${productDesc || "-"}</td>
@@ -335,7 +337,7 @@ function GetApprovalWorkflows() {
       $(".table-approval tbody").empty();
       if (response.status == 200) {
         response.result.forEach((element) => {
-          approvalHtml += `<tr data-approval-level ="${element.approvalLevel}">
+          approvalHtml += `<tr data-approval-level ="${element.approvalLevel}" data-approval-id="${element.userId}">
                                 <td>${element.approvalLevel}</td>
                                 <td>${element.roleName}</td>
                                 <td>${element.approverName}</td>
@@ -360,6 +362,7 @@ function GetPreviewProduct() {
   $(".table-preview tbody tr").each(function () {
     let obj = {
       productId: parseInt($(this).data("product-id")),
+      vendorId: parseInt($(this).data("vendor-id")),
       productDesc: $(this).data("product-desc"),
       quantity: parseInt($(this).data("quantity")),
       unit: $(this).data("unit"),
@@ -376,6 +379,7 @@ function GetApprovalPreview() {
   $(".table-approval tbody tr").each(function () {
     let obj = {
       level: parseInt($(this).data("approval-level")),
+      approverId: parseInt($(this).data("approval-id")),
     };
     approval.push(obj);
   });
@@ -402,7 +406,6 @@ function SubmitPurchaseForm() {
     approvalPreview: GetApprovalPreview(),
   };
 
-  console.log(JSON.stringify(dto));
   showLoading();
   $.ajax({
     type: "POST",

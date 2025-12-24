@@ -313,11 +313,6 @@ class VendorModel
             ];
         } catch (PDOException $e) {
             $this->db->rollBack();
-
-            error_log("Error creating vendor: " . $e->getMessage());
-            error_log("Query: " . $insertQuery);
-            error_log("Params: " . print_r($params, true));
-
             return [
                 'success' => false,
                 'message' => 'Failed menambah vendor: ' . $e->getMessage()
