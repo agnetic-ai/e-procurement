@@ -189,11 +189,11 @@
                             <div class="row">
                                 <div class="col-md-6 mb-2">
                                     <label>Shipping Address</label>
-                                    <textarea class="form-control" name="billing_address" rows="4" style="resize: none;"></textarea>
+                                    <textarea class="form-control" name="shipping_address" rows="4" style="resize: none;"></textarea>
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label>Billing Address</label>
-                                    <textarea class="form-control" name="shipping_address" rows="4" style="resize: none;"></textarea>
+                                    <textarea class="form-control" name="billing_address" rows="4" style="resize: none;"></textarea>
                                 </div>
                             </div>
                         </div>

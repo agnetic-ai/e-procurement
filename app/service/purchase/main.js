@@ -388,15 +388,14 @@ function GetApprovalPreview() {
 
 function SubmitPurchaseForm() {
   const purchaseForm = $("#purchaseForm");
+  let approvalCount = $(".table-approval tbody tr").length;
   var dto = {
     title: purchaseForm.find("input[name='title']").val(),
     department: purchaseForm.find("select[name='department_id']").val(),
     requestedBy: "",
     requestDate: purchaseForm.find("input[name='request_date']").val(),
     budgetEstimate: unformatMoneyValue($(".text-end h5 strong").text()),
-    maxApproval: parseInt(
-      purchaseForm.find("input[name='max_approval']").val()
-    ),
+    maxApproval: parseInt(approvalCount),
     notes: purchaseForm.find("textarea[name='notes']").val(),
     billingAddress: purchaseForm.find("textarea[name='billing_address']").val(),
     shippingAddress: purchaseForm
@@ -421,7 +420,7 @@ function SubmitPurchaseForm() {
           text: response.message,
           icon: "success",
         }).then(() => {
-          window.location = BASE_URL + "vendor/index";
+          window.location = BASE_URL + "ordersRequest";
         });
       }
     },

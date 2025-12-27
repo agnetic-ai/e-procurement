@@ -13,8 +13,11 @@ class StatusHandler
             return 'status-pending';
         } elseif (str_contains($statusLower, 'review')) {
             return 'status-pending';
+        } elseif (str_contains($statusLower, 'approve')) {
+            return 'status-approved';
+        } elseif (str_contains($statusLower, 'reject')) {
+            return 'status-reject';
         }
-
         return 'status-unknown';
     }
 }

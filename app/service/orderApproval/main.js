@@ -3,13 +3,11 @@ $(document).ready(function () {
 });
 
 function loadApproval() {
-  showLoading();
   $.ajax({
     type: "POST",
     url: BASE_URL + "ordersApproval/GetApprovalList",
     data: $("#searchForm").serialize(),
     success: function (response) {
-      hideLoading();
       const Header = $("#approvalTableBody");
       let body = "";
       if (response.status == 200) {
@@ -42,7 +40,7 @@ function loadApproval() {
 
         Header.append(body);
         feather.replace();
-        $("#approvalTable").DataTable();
+        $("#approvalTable").DataTable({ ordering: false });
       }
       console.log(response);
     },

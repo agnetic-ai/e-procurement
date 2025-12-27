@@ -52,7 +52,7 @@ function submitApproval() {
           text: response.message,
           icon: "success",
         }).then(() => {
-          window.location = BASE_URL + "vendor/index";
+          window.location = BASE_URL + "ordersApproval/index";
         });
       }
     },

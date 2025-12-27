@@ -60,7 +60,7 @@ class OrdersApprovalModel
             $this->db->beginTransaction();
             $GetPr =  $this->purchase->GetPurchaseRequest($payload["prNumber"]);
 
-            if (in_array($GetPr['statusCode'], ['PR_APPROVED', 'PR_REJECT'])) {
+            if (in_array($GetPr['statusCode'], ['PR_APPROVED', 'PR_REJECTED'])) {
                 $this->db->rollBack();
                 return [
                     'success' => true,
@@ -78,7 +78,7 @@ class OrdersApprovalModel
 
             $this->purchase->UpdateCurrentApproval($GetPr['purchaseId'], $payload);
 
-            if ($payload['approvalStatus'] === 'APR_REJECT') {
+            if ($payload['approvalStatus'] === 'APR_REJECTED') {
                 $this->purchase->RejectPurchaseRequest($GetPr['purchaseId']);
                 $this->db->commit();
                 return [

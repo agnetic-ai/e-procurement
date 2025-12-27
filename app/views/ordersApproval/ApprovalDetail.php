@@ -214,7 +214,7 @@
                                         <option value="">--Select Action--</option>
                                         <?php if (!empty($data['status'])): ?>
                                             <?php foreach ($data['status'] as $status): ?>
-                                                <?php if (in_array($status['statusCode'], ['APR_APPROVE', 'APR_REJECT'])): ?>
+                                                <?php if (in_array($status['statusCode'], ['APR_APPROVED', 'APR_REJECTED'])): ?>
                                                     <option value="<?= $status['statusCode']; ?>">
                                                         <?= htmlspecialchars($status['statusName']); ?>
                                                     </option>

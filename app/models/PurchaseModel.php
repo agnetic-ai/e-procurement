@@ -255,7 +255,7 @@ class PurchaseModel
     {
         $stmt = $this->db->prepare("
             UPDATE purchase_requests
-            SET status_code = 'PR_REJECT'
+            SET status_code = 'PR_REJECTED'
             WHERE id = :pr_id
         ");
         $stmt->execute([':pr_id' => $prId]);
