@@ -3,19 +3,22 @@ class PurchaseController extends Controller
 {
     private $product;
     private $purchase;
+    private $uof;
     public function __construct()
     {
         parent::__construct();
         $this->checkLogin();
         $this->product = new ProductModel();
         $this->purchase = new PurchaseModel();
+        $this->uof = new UnitOfMeansureModel();
     }
 
     public function index()
     {
         $data = [
             'pageTitle' => 'Purchase Request',
-            'product' => $this->product->GetProductActive()
+            'product' => $this->product->GetProductActive(),
+            'units' => $this->uof->GetAllUnits()
         ];
 
         $this->view('purchase/index', $data);

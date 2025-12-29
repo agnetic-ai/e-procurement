@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 20, 2025 at 05:49 PM
+-- Generation Time: Dec 29, 2025 at 04:40 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.0
 
@@ -92,6 +92,31 @@ INSERT INTO `approval_rules` (`id`, `min_amount`, `max_amount`, `total_level`, `
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `asset_units`
+--
+
+CREATE TABLE `asset_units` (
+  `id` int(11) NOT NULL,
+  `goods_receipt_detail_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `serial_number` varchar(100) DEFAULT NULL,
+  `status_code` varchar(30) DEFAULT NULL,
+  `assigned_to` int(11) DEFAULT NULL COMMENT 'User ID jika sudah didistribusikan',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `asset_units`
+--
+
+INSERT INTO `asset_units` (`id`, `goods_receipt_detail_id`, `product_id`, `serial_number`, `status_code`, `assigned_to`, `created_at`, `updated_at`) VALUES
+(1, 1, 14, NULL, 'ASSET_DRAFT', NULL, '2025-12-29 03:34:20', '2025-12-29 03:39:48'),
+(2, 1, 14, NULL, 'ASSET_DRAFT', NULL, '2025-12-29 03:34:20', '2025-12-29 03:39:52');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `business_types`
 --
 
@@ -172,6 +197,52 @@ INSERT INTO `cities` (`id`, `city_name`, `province_name`, `created_at`) VALUES
 (13, 'Malang', 'Jawa Timur', '2025-12-09 09:44:03'),
 (14, 'Bekasi', 'Jawa Barat', '2025-12-09 09:44:03'),
 (15, 'Tangerang', 'Banten', '2025-12-09 09:44:03');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `goods_receipts`
+--
+
+CREATE TABLE `goods_receipts` (
+  `id` int(11) NOT NULL,
+  `purchase_request_id` int(11) NOT NULL,
+  `receipt_date` date DEFAULT NULL,
+  `received_by` int(11) DEFAULT NULL,
+  `status_code` varchar(30) DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `goods_receipts`
+--
+
+INSERT INTO `goods_receipts` (`id`, `purchase_request_id`, `receipt_date`, `received_by`, `status_code`, `notes`, `created_at`, `updated_at`) VALUES
+(8, 6, NULL, NULL, 'GR_DRAFT', NULL, '2025-12-29 03:34:20', '2025-12-29 03:34:20');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `goods_receipt_details`
+--
+
+CREATE TABLE `goods_receipt_details` (
+  `id` int(11) NOT NULL,
+  `goods_receipt_id` int(11) NOT NULL,
+  `purchase_request_detail_id` int(11) NOT NULL,
+  `qty_received` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `goods_receipt_details`
+--
+
+INSERT INTO `goods_receipt_details` (`id`, `goods_receipt_id`, `purchase_request_detail_id`, `qty_received`, `created_at`) VALUES
+(1, 8, 5, 0, '2025-12-29 03:34:20'),
+(2, 8, 6, 0, '2025-12-29 03:34:20');
 
 -- --------------------------------------------------------
 
@@ -333,11 +404,12 @@ CREATE TABLE `purchase_requests` (
 --
 
 INSERT INTO `purchase_requests` (`id`, `pr_number`, `title`, `department`, `requested_by`, `request_date`, `status_code`, `total_estimated`, `current_approval_level`, `max_approval_level`, `notes`, `billing_address`, `shipping_address`, `created_at`, `updated_at`) VALUES
-(2, 'PR-2025-00001', 'INIT TITTLE', 'IT', 1, '2025-12-24', 'PR_PENDING', '78750000.00', 1, NULL, 'PEMBELIAN PERTAMA', 'SHIPPING ADDRESS', 'BILLING ADDRESS', '2025-12-16 18:32:49', '2025-12-16 18:32:49'),
-(3, 'PR-2025-00002', 'REQUEST TITEL', 'HR', 1, '2025-12-31', 'PR_PENDING', '51295000.00', 1, NULL, 'PEMBELIAN KE 2', 'SHIPPING ADDRESS', 'BILLING ADDRESS', '2025-12-16 19:01:13', '2025-12-16 19:01:13'),
-(4, 'PR-2025-00003', 'REQUEST TITLR', 'Finance', 1, '0000-00-00', 'PR_PENDING', '0.00', 1, NULL, '', '', '', '2025-12-17 08:59:21', '2025-12-17 08:59:21'),
-(5, 'PR-2025-00004', 'REQUEST TITLE', 'HR', 1, '2025-12-31', 'PR_PENDING', '75000000.00', 1, NULL, 'NOTES', '', '', '2025-12-17 09:00:23', '2025-12-17 09:00:23'),
-(6, 'PR-2025-00005', 'REQUEST FORM', 'HR', 1, '2025-12-31', 'PR_PENDING', '90000.00', 1, NULL, 'NOTES', 'SHIPPING ADDRES', 'BILLING', '2025-12-17 09:05:08', '2025-12-17 09:05:08');
+(1, 'PR-2025-00001', 'PEMBELIAN PERTAMA TAHUN 2026', 'IT', 1, '2025-12-27', 'PR_APPROVED', '82670490.00', 3, 3, 'PEMBALIAN PERTAMA PADA JANURI 2026 UNUTK KEBUTUHAN DEPARTMENT IT ', 'SHIPPING ADDRESS', 'BILLING ADDRESS', '2025-12-27 06:11:26', '2025-12-27 06:25:23'),
+(2, 'PR-2025-00002', 'PEMBELIAN KE 2 PADA JANUARI 2026', 'HR', 1, '2025-12-27', 'PR_PENDING', '27000000.00', 1, 2, 'PEMBELIAN KE 2 PADA JANUARI 2026 UNUTK KEBUTUHAN DEPARTMENT HR', '', '', '2025-12-27 06:16:33', '2025-12-27 06:21:59'),
+(3, 'PR-2025-00003', 'PEMBELIAN KE 3 2026', 'Finance', 1, '2026-01-10', 'PR_PENDING', '2500000.00', 1, 1, 'PEMBELIAN KE 3 2026 UNTUK DIVISI FINANCE', 'BILLING ADDRESS', 'SHIPPING ADDRESS', '2025-12-27 06:20:36', '2025-12-27 06:20:36'),
+(4, 'PR-2025-00004', 'PEMBELIAN KE 4', 'HR', 1, '2026-01-18', 'PR_APPROVED', '18340000.00', 2, 2, 'PEMBELIAN KE 4 DIVISI HR', 'BILLING ADDRESS', 'SHIPPING ADDRESS', '2025-12-28 12:09:58', '2025-12-28 12:15:54'),
+(5, 'PR-2025-00005', 'Pembelian ke 6', 'Finance', 1, '2026-01-04', 'PR_APPROVED', '30558196.00', 2, 2, 'notes', 'billing', 'shipping ', '2025-12-28 12:19:33', '2025-12-28 12:34:44'),
+(6, 'PR-2025-00006', 'y', 'Finance', 1, '2026-01-04', 'PR_APPROVED', '24287744.00', 2, 2, 'NOT', 'fvdcxz', 'gfvcdx', '2025-12-28 13:23:52', '2025-12-29 03:34:20');
 
 -- --------------------------------------------------------
 
@@ -350,7 +422,7 @@ CREATE TABLE `purchase_request_approvals` (
   `purchase_request_id` int(11) NOT NULL,
   `level` int(11) NOT NULL,
   `approver_id` int(11) DEFAULT NULL,
-  `status_code` varchar(30) DEFAULT NULL,
+  `status_code` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `approved_at` datetime DEFAULT NULL,
   `remarks` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -362,13 +434,12 @@ CREATE TABLE `purchase_request_approvals` (
 --
 
 INSERT INTO `purchase_request_approvals` (`id`, `purchase_request_id`, `level`, `approver_id`, `status_code`, `approved_at`, `remarks`, `created_at`, `updated_at`) VALUES
-(1, 2, 1, NULL, 'PR_PENDING', NULL, NULL, '2025-12-16 18:32:49', '2025-12-16 18:32:49'),
-(2, 2, 2, NULL, 'PR_PENDING', NULL, NULL, '2025-12-16 18:32:49', '2025-12-16 18:32:49'),
-(3, 2, 3, NULL, 'PR_PENDING', NULL, NULL, '2025-12-16 18:32:49', '2025-12-16 18:32:49'),
-(4, 3, 1, NULL, 'PR_PENDING', NULL, NULL, '2025-12-16 19:01:13', '2025-12-16 19:01:13'),
-(5, 3, 2, NULL, 'PR_PENDING', NULL, NULL, '2025-12-16 19:01:13', '2025-12-16 19:01:13'),
-(6, 3, 3, NULL, 'PR_PENDING', NULL, NULL, '2025-12-16 19:01:13', '2025-12-16 19:01:13'),
-(7, 6, 1, NULL, 'PR_PENDING', NULL, NULL, '2025-12-17 09:05:08', '2025-12-17 09:05:08');
+(1, 4, 1, 3, 'APR_APPROVED', '2025-12-28 19:10:27', 'ok approve', '2025-12-28 12:09:58', '2025-12-28 12:10:27'),
+(2, 4, 2, 4, 'APR_APPROVED', '2025-12-28 19:15:54', 'OK sesuai', '2025-12-28 12:09:58', '2025-12-28 12:15:54'),
+(3, 5, 1, 3, 'APR_APPROVED', '2025-12-28 19:19:55', 'ok', '2025-12-28 12:19:33', '2025-12-28 12:19:55'),
+(4, 5, 2, 4, 'APR_APPROVED', '2025-12-28 19:34:44', 'Remarks', '2025-12-28 12:19:33', '2025-12-28 12:34:44'),
+(5, 6, 1, 3, 'APR_APPROVED', '2025-12-28 20:24:15', '', '2025-12-28 13:23:52', '2025-12-28 13:24:15'),
+(6, 6, 2, 4, 'APR_APPROVED', '2025-12-29 10:34:20', 'OK', '2025-12-28 13:23:52', '2025-12-29 03:34:20');
 
 -- --------------------------------------------------------
 
@@ -382,7 +453,7 @@ CREATE TABLE `purchase_request_details` (
   `product_id` int(11) NOT NULL,
   `vendor_id` int(11) NOT NULL,
   `product_description` text DEFAULT NULL,
-  `quantity` decimal(12,2) NOT NULL,
+  `quantity` int(11) NOT NULL,
   `unit` varchar(50) NOT NULL,
   `estimated_price` decimal(15,2) NOT NULL,
   `subtotal` decimal(15,2) NOT NULL,
@@ -395,13 +466,12 @@ CREATE TABLE `purchase_request_details` (
 --
 
 INSERT INTO `purchase_request_details` (`id`, `purchase_request_id`, `product_id`, `vendor_id`, `product_description`, `quantity`, `unit`, `estimated_price`, `subtotal`, `created_at`, `updated_at`) VALUES
-(1, 2, 5, 0, 'DESKRIPSI LAPTOP DELL', '3.00', 'unit', '25000000.00', '75000000.00', '2025-12-16 18:32:49', '2025-12-16 18:32:49'),
-(2, 2, 3, 0, 'DEKSREPSI MEJA KANTOR', '3.00', 'unit', '1250000.00', '3750000.00', '2025-12-16 18:32:49', '2025-12-16 18:32:49'),
-(3, 3, 5, 0, 'DF', '2.00', 'unit', '25000000.00', '50000000.00', '2025-12-16 19:01:13', '2025-12-16 19:01:13'),
-(4, 3, 3, 0, 'DGBFDSASDFGB', '1.00', 'unit', '1250000.00', '1250000.00', '2025-12-16 19:01:13', '2025-12-16 19:01:13'),
-(5, 3, 4, 0, 'GBFVDCSXZ', '1.00', 'unit', '45000.00', '45000.00', '2025-12-16 19:01:13', '2025-12-16 19:01:13'),
-(6, 5, 5, 0, 'DESC', '3.00', 'unit', '25000000.00', '75000000.00', '2025-12-17 09:00:23', '2025-12-17 09:00:23'),
-(7, 6, 4, 0, 'DESC', '2.00', 'unit', '45000.00', '90000.00', '2025-12-17 09:05:08', '2025-12-17 09:05:08');
+(1, 4, 1, 1, 'DESC', 1, 'Unit', '18250000.00', '18250000.00', '2025-12-28 12:09:58', '2025-12-28 12:09:58'),
+(2, 4, 4, 4, 'DESC 2', 2, 'Pcs', '45000.00', '90000.00', '2025-12-28 12:09:58', '2025-12-28 12:09:58'),
+(3, 5, 13, 4, 'unit', 2, 'Unit', '15234098.00', '30468196.00', '2025-12-28 12:19:33', '2025-12-28 12:19:33'),
+(4, 5, 4, 4, 'Product', 2, 'Pcs', '45000.00', '90000.00', '2025-12-28 12:19:33', '2025-12-28 12:19:33'),
+(5, 6, 14, 1, 'ok', 2, 'Unit', '12098872.00', '24197744.00', '2025-12-28 13:23:52', '2025-12-28 13:23:52'),
+(6, 6, 4, 4, 'fvdcx', 2, 'Pcs', '45000.00', '90000.00', '2025-12-28 13:23:52', '2025-12-28 13:23:52');
 
 -- --------------------------------------------------------
 
@@ -463,7 +533,13 @@ INSERT INTO `role_menus` (`id`, `role_id`, `menu_id`, `can_view`, `can_create`, 
 (9, 2, 4, 1, 1, 1, 0, '2025-12-11 13:00:25'),
 (10, 1, 8, 1, 1, 1, 1, '2025-12-17 15:32:51'),
 (11, 1, 9, 1, 1, 1, 1, '2025-12-17 15:34:16'),
-(12, 1, 10, 1, 1, 1, 1, '2025-12-18 13:54:07');
+(12, 1, 10, 1, 1, 1, 1, '2025-12-18 13:54:07'),
+(13, 4, 8, 1, 1, 1, 1, '2025-12-23 03:34:05'),
+(14, 4, 10, 1, 1, 1, 1, '2025-12-23 03:34:05'),
+(15, 5, 8, 1, 1, 1, 1, '2025-12-23 09:00:46'),
+(16, 5, 10, 1, 1, 1, 1, '2025-12-23 09:00:46'),
+(17, 6, 8, 1, 1, 1, 1, '2025-12-27 06:24:59'),
+(18, 6, 10, 1, 1, 1, 1, '2025-12-27 06:24:59');
 
 -- --------------------------------------------------------
 
@@ -510,7 +586,21 @@ INSERT INTO `status_codes` (`id`, `module_code`, `status_code`, `status_name`, `
 (19, 'PR', 'PR_CANCELLED', 'Cancelled', 'PR dibatalkan', '#343a40', 6, 1, 0, '2025-12-09 09:44:03'),
 (22, 'PRODUCT', 'PRODUCT_ACTIVE', 'Active', 'Kondisi barang masih aktif', '#6c757d', 1, 1, 0, '2025-12-12 06:49:30'),
 (23, 'PRODUCT', 'PRODUCT_INACTIVE', 'Inactive', 'Barang sudah Inactive', '#6c757d', 2, 1, 0, '2025-12-12 06:49:30'),
-(24, 'PRODUCT', 'PRODUCT_EXP', 'Expired', 'Barang sudah Expired', '#6c757d', 3, 1, 0, '2025-12-12 18:59:25');
+(24, 'PRODUCT', 'PRODUCT_EXP', 'Expired', 'Barang sudah Expired', '#6c757d', 3, 1, 0, '2025-12-12 18:59:25'),
+(25, 'APR', 'APR_PENDING', 'Pending', 'Approval masih pending', '#6c757d', 1, 1, 0, '2025-12-21 04:06:37'),
+(26, 'APR', 'APR_PROCESS', 'Process', 'Approval masih proses', '#6c757d', 2, 1, 0, '2025-12-21 04:06:37'),
+(27, 'APR', 'APR_APPROVED', 'Approve', 'Approver sudah melakukan approve', '#6c757d', 3, 1, 0, '2025-12-21 04:07:30'),
+(28, 'APR', 'APR_REJECTED', 'Reject', 'Approver melakukan Reject', '#6c757d', 4, 1, 0, '2025-12-21 04:07:30'),
+(29, 'GR', 'GR_DRAFT', 'Draft', 'GR Draft', '#6c757d', 1, 1, 0, '2025-12-29 03:15:57'),
+(30, 'GR', 'GR_PROCESS', 'Process', 'GR Process', '#6c757d', 2, 1, 0, '2025-12-29 03:15:57'),
+(31, 'GR', 'GR_COMPLETE', 'Complete', 'GR Complete', '#6c757d', 3, 1, 0, '2025-12-29 03:31:04'),
+(32, 'ASSET', 'ASSET_DRAFT', 'Draft', 'Asset Draft saat approval complete', '#0dcaf0', 1, 1, 1, '2025-12-29 03:32:56'),
+(33, 'ASSET', 'ASSET_IN_STOCK', 'In Stock', 'Asset tersedia di gudang', '#0dcaf0', 2, 1, 1, '2025-12-29 03:32:56'),
+(34, 'ASSET', 'ASSET_ASSIGNED', 'Assigned', 'Asset sudah didistribusikan ke user', '#20c997', 3, 1, 0, '2025-12-29 03:32:56'),
+(35, 'ASSET', 'ASSET_RETURNED', 'Returned', 'Asset dikembalikan ke gudang', '#6c757d', 4, 1, 0, '2025-12-29 03:32:56'),
+(36, 'ASSET', 'ASSET_DAMAGED', 'Damaged', 'Asset rusak dan tidak dapat digunakan', '#ffc107', 5, 1, 0, '2025-12-29 03:32:56'),
+(37, 'ASSET', 'ASSET_LOST', 'Lost', 'Asset hilang', '#dc3545', 6, 1, 0, '2025-12-29 03:32:56'),
+(38, 'ASSET', 'ASSET_DISPOSED', 'Disposed', 'Asset sudah dihapuskan', '#343a40', 7, 1, 0, '2025-12-29 03:32:56');
 
 -- --------------------------------------------------------
 
@@ -537,11 +627,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `full_name`, `email`, `role_id`, `login_attempts`, `last_login_attempt`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'admin', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Administrator', 'admin@eprocurement.com', 1, 0, NULL, 1, '2025-12-07 17:00:00', '2025-12-20 16:05:58'),
-(2, 'procurement', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Procurement Staff', 'proc@eprocurement.com', 2, 0, NULL, 1, '2025-12-08 14:17:56', '2025-12-11 13:31:18'),
-(3, 'manager01', 'password123', 'Andi Pratama', 'andi.manager@company.com', 4, 0, NULL, 1, '2025-12-14 09:34:12', '2025-12-14 09:34:12'),
-(4, 'finance01', 'password123', 'Siti Aisyah', 'siti.finance@company.com', 5, 0, NULL, 1, '2025-12-14 09:34:12', '2025-12-14 09:34:12'),
-(5, 'director01', 'password123', 'Rudi Hartono', 'rudi.director@company.com', 6, 0, NULL, 1, '2025-12-14 09:34:12', '2025-12-14 09:34:12');
+(1, 'admin', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Administrator', 'admin@eprocurement.com', 1, 0, NULL, 1, '2025-12-07 17:00:00', '2025-12-28 13:23:14'),
+(2, 'procurement', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Procurement Staff', 'proc@eprocurement.com', 2, 0, NULL, 1, '2025-12-08 14:17:56', '2025-12-23 08:24:59'),
+(3, 'manager01', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Andi Pratama', 'andi.manager@company.com', 4, 0, NULL, 1, '2025-12-14 09:34:12', '2025-12-28 13:24:02'),
+(4, 'finance01', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Siti Aisyah', 'siti.finance@company.com', 5, 0, NULL, 1, '2025-12-14 09:34:12', '2025-12-29 03:10:11'),
+(5, 'director01', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Rudi Hartono', 'rudi.director@company.com', 6, 0, NULL, 1, '2025-12-14 09:34:12', '2025-12-27 06:24:22');
 
 -- --------------------------------------------------------
 
@@ -669,6 +759,16 @@ ALTER TABLE `approval_rules`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `asset_units`
+--
+ALTER TABLE `asset_units`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uk_asset_serial` (`serial_number`),
+  ADD KEY `idx_asset_gr_detail` (`goods_receipt_detail_id`),
+  ADD KEY `idx_asset_status` (`status_code`),
+  ADD KEY `fk_asset_product` (`product_id`);
+
+--
 -- Indexes for table `business_types`
 --
 ALTER TABLE `business_types`
@@ -691,6 +791,23 @@ ALTER TABLE `cities`
   ADD UNIQUE KEY `unique_city_province` (`city_name`,`province_name`),
   ADD KEY `idx_city_name` (`city_name`),
   ADD KEY `idx_province` (`province_name`);
+
+--
+-- Indexes for table `goods_receipts`
+--
+ALTER TABLE `goods_receipts`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_gr_pr` (`purchase_request_id`),
+  ADD KEY `idx_gr_status` (`status_code`),
+  ADD KEY `idx_gr_date` (`receipt_date`);
+
+--
+-- Indexes for table `goods_receipt_details`
+--
+ALTER TABLE `goods_receipt_details`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_grd_receipt` (`goods_receipt_id`),
+  ADD KEY `idx_grd_pr_detail` (`purchase_request_detail_id`);
 
 --
 -- Indexes for table `menus`
@@ -743,6 +860,7 @@ ALTER TABLE `purchase_request_approvals`
 --
 ALTER TABLE `purchase_request_details`
   ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_pr_detail_vendor` (`vendor_id`),
   ADD KEY `fk_pr_detail_pr` (`purchase_request_id`);
 
 --
@@ -833,6 +951,12 @@ ALTER TABLE `approval_rules`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `asset_units`
+--
+ALTER TABLE `asset_units`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `business_types`
 --
 ALTER TABLE `business_types`
@@ -849,6 +973,18 @@ ALTER TABLE `categories`
 --
 ALTER TABLE `cities`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT for table `goods_receipts`
+--
+ALTER TABLE `goods_receipts`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `goods_receipt_details`
+--
+ALTER TABLE `goods_receipt_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `menus`
@@ -884,13 +1020,13 @@ ALTER TABLE `purchase_requests`
 -- AUTO_INCREMENT for table `purchase_request_approvals`
 --
 ALTER TABLE `purchase_request_approvals`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `purchase_request_details`
 --
 ALTER TABLE `purchase_request_details`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -902,13 +1038,13 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `role_menus`
 --
 ALTER TABLE `role_menus`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `status_codes`
 --
 ALTER TABLE `status_codes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -945,6 +1081,27 @@ ALTER TABLE `approval_level_roles`
   ADD CONSTRAINT `fk_level_role_level` FOREIGN KEY (`approval_level_id`) REFERENCES `approval_levels` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `asset_units`
+--
+ALTER TABLE `asset_units`
+  ADD CONSTRAINT `fk_asset_gr_detail` FOREIGN KEY (`goods_receipt_detail_id`) REFERENCES `goods_receipt_details` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_asset_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_asset_status` FOREIGN KEY (`status_code`) REFERENCES `status_codes` (`status_code`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `goods_receipts`
+--
+ALTER TABLE `goods_receipts`
+  ADD CONSTRAINT `fk_gr_purchase_request` FOREIGN KEY (`purchase_request_id`) REFERENCES `purchase_requests` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_gr_status` FOREIGN KEY (`status_code`) REFERENCES `status_codes` (`status_code`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `goods_receipt_details`
+--
+ALTER TABLE `goods_receipt_details`
+  ADD CONSTRAINT `fk_grd_receipt` FOREIGN KEY (`goods_receipt_id`) REFERENCES `goods_receipts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `menus`
 --
 ALTER TABLE `menus`
@@ -973,14 +1130,13 @@ ALTER TABLE `purchase_requests`
 -- Constraints for table `purchase_request_approvals`
 --
 ALTER TABLE `purchase_request_approvals`
-  ADD CONSTRAINT `fk_pr_approval_pr` FOREIGN KEY (`purchase_request_id`) REFERENCES `purchase_requests` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_pr_approval_user` FOREIGN KEY (`approver_id`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `purchase_request_details`
 --
 ALTER TABLE `purchase_request_details`
-  ADD CONSTRAINT `fk_pr_detail_pr` FOREIGN KEY (`purchase_request_id`) REFERENCES `purchase_requests` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_pr_detail_vendor` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `role_menus`

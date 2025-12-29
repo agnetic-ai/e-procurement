@@ -117,7 +117,15 @@
                                         <label class="required">Unit Of Meansure</label>
                                         <select class="form-control select2" name="uof">
                                             <option value="">-- Select Unit --</option>
-                                            <option value="unit">Unit</option>
+                                            <?php if (!empty($data['units'])): ?>
+                                                <?php foreach ($data['units'] as $unit): ?>
+                                                    <option value="<?php echo $unit['value']; ?>">
+                                                        <?php echo $unit['name']; ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <option value="">No Unit available</option>
+                                            <?php endif; ?>
                                         </select>
                                     </div>
                                 </div>

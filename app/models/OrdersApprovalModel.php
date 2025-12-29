@@ -3,10 +3,12 @@ class OrdersApprovalModel
 {
     private $db;
     private $purchase;
+    private $goodsReceipt;
     public function __construct()
     {
         $this->db = Database::getInstance()->getConnection();
         $this->purchase = new PurchaseModel();
+        $this->goodsReceipt = new GoodsReciptsModel();
     }
 
     public function GetApprovalList()
@@ -63,7 +65,7 @@ class OrdersApprovalModel
             if (in_array($GetPr['statusCode'], ['PR_APPROVED', 'PR_REJECTED'])) {
                 $this->db->rollBack();
                 return [
-                    'success' => true,
+                    'success' => false,
                     'message' => 'PR Sudah di Proses'
                 ];
             }
@@ -95,8 +97,12 @@ class OrdersApprovalModel
             } else {
                 $this->purchase->ApprovePurchaseRequest($GetPr['purchaseId']);
             }
-
             $this->db->commit();
+            $RefreshedPr = $this->purchase->GetPurchaseRequest($payload["prNumber"]);
+
+            if ($RefreshedPr['statusCode'] == 'PR_APPROVED') {
+                $this->goodsReceipt->DraftGoodsRecipt($RefreshedPr['purchaseId']);
+            }
             return [
                 'success' => true,
                 'message' => 'Submit Approval Workflow Successfully'

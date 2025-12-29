@@ -48,7 +48,8 @@ class OrdersApprovalController extends Controller
             'purchaseDetail' => $this->purchase->GetPurchaseDetail($prNumber),
             'workflow' => $this->workflow->GetApprovalPurchaseRequest($prNumber),
             'status' => $this->status->GetStatusByModuleCode("APR"),
-            'level' => $this->session->get("level")
+            'level' => $this->session->get("level"),
+            ''
         ];
         $this->view('ordersApproval/ApprovalDetail', $data);
     }
@@ -69,7 +70,7 @@ class OrdersApprovalController extends Controller
                 ResponseHelper::badRequest($result['message']);
             }
         } catch (Exception $e) {
-            ResponseHelper::serverError('Terjadi kesalahan saat memproses data request');
+            ResponseHelper::serverError('Terjadi kesalahan saat memproses data request' . $e->getMessage());
         }
     }
 }

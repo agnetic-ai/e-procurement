@@ -1,6 +1,4 @@
 <?php
-// app/controllers/DashboardController.php
-
 class DashboardController extends Controller
 {
 

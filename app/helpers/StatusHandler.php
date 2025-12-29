@@ -17,6 +17,8 @@ class StatusHandler
             return 'status-approved';
         } elseif (str_contains($statusLower, 'reject')) {
             return 'status-reject';
+        } elseif (str_contains($statusLower, 'process')) {
+            return 'status-process';
         }
         return 'status-unknown';
     }
