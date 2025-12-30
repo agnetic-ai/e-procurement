@@ -102,7 +102,6 @@
                                             ? 'Complete : All items have been received.'
                                             : 'Remaining: ' . ($detail['quantity'] - $detail['qty_received']) . ' of ' . $detail['quantity'] ?>
                                     </small>
-
                                 </td>
                                 <td>
                                     <?php if ($detail["unit"] === "Unit") : ?>
