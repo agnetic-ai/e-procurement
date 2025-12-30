@@ -1,0 +1,792 @@
+/* custom.css - CSS yang sudah ada (JANGAN DIUBAH) */
+label.required::after {
+  content: " *";
+  color: red;
+  font-weight: bold;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: inline-block;
+  min-width: 80px;
+  text-align: center;
+}
+
+.status-active {
+  background-color: rgba(76, 201, 240, 0.15);
+  color: #0a7ea4;
+  border: 1px solid rgba(76, 201, 240, 0.3);
+}
+
+.status-pending {
+  background-color: rgba(255, 193, 7, 0.15);
+  color: #b38700;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+.status-approved {
+  background-color: rgba(40, 167, 69, 0.15);
+  color: #1e7e34;
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.status-inactive {
+  background-color: rgba(220, 53, 69, 0.15);
+  color: #a71d2a;
+  border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.status-rejected {
+  background-color: rgba(220, 53, 69, 0.15);
+  color: #a71d2a;
+  border: 1px solid rgba(220, 53, 69, 0.3);
+}
+.status-process {
+  background-color: rgba(13, 110, 253, 0.15);
+  color: #0d6efd;
+  border: 1px solid rgba(13, 110, 253, 0.3);
+}
+
+.status-unknown {
+  background-color: rgba(108, 117, 125, 0.15);
+  color: #495057;
+  border: 1px solid rgba(108, 117, 125, 0.3);
+}
+
+/* Modern Card Design */
+.modern-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.modern-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Table Enhancements */
+.table-modern {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table-modern thead th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+.table-modern tbody tr {
+  transition: all 0.2s ease;
+}
+
+.table-modern tbody tr:hover {
+  background-color: rgba(102, 126, 234, 0.04);
+  transform: scale(1.001);
+}
+
+.card-over {
+  overflow-x: auto;
+}
+
+/* Table dengan width otomatis berdasarkan konten */
+.table-custom {
+  width: 100%;
+  table-layout: auto;
+  /* Biarkan browser tentukan width */
+  border-collapse: collapse;
+}
+
+.table-custom th {
+  background-color: #e8f3ff;
+  color: black;
+  padding: 12px 10px;
+  text-align: left;
+  border: none;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table-custom td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  vertical-align: middle;
+}
+
+/* Hanya kolom tertentu yang bisa wrap */
+.table-custom td:nth-child(1),
+    /* Product Name */
+    .table-custom td:nth-child(3) {
+  /* Vendor Name */
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Hover untuk lihat full text */
+.table-custom td:nth-child(1):hover,
+.table-custom td:nth-child(3):hover {
+  overflow: visible;
+  white-space: normal;
+  position: relative;
+  z-index: 10;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Status dan Action tetap compact */
+.table-custom td:nth-child(8),
+.table-custom td:nth-child(9) {
+  width: 1%;
+  white-space: nowrap;
+}
+
+/* Responsive container */
+.responsive-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* border: 1px solid #ddd; */
+  border-radius: 5px;
+}
+
+/* Mobile optimization */
+@media (max-width: 576px) {
+  .table-custom {
+    font-size: 13px;
+  }
+
+  .table-custom th,
+  .table-custom td {
+    padding: 8px 6px;
+  }
+
+  /* Persingkat header di mobile */
+  .table-custom th:nth-child(1)::after {
+    content: "Product";
+  }
+
+  .table-custom th:nth-child(2)::after {
+    content: "Cat.";
+  }
+
+  .table-custom th:nth-child(3)::after {
+    content: "Vendor";
+  }
+
+  .table-custom th:nth-child(4)::after {
+    content: "Price";
+  }
+
+  .table-custom th:nth-child(5)::after {
+    content: "UOM";
+  }
+
+  .table-custom th:nth-child(6)::after {
+    content: "From";
+  }
+
+  .table-custom th:nth-child(7)::after {
+    content: "To";
+  }
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.step {
+  text-align: center;
+  flex: 1;
+}
+
+.step .circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #dee2e6;
+  margin: auto;
+  line-height: 36px;
+  font-weight: bold;
+}
+
+.step.active .circle {
+  background: #435ebe;
+  color: #fff;
+}
+
+.step span {
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.line {
+  flex: 1;
+  height: 2px;
+  background: #dee2e6;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.95);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.loading-content {
+  text-align: center;
+  max-width: 300px;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Spinner */
+.spinner {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 25px;
+  position: relative;
+}
+
+.spinner-circle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: #3498db;
+  animation: spin 1.2s linear infinite;
+}
+
+.spinner-circle:nth-child(2) {
+  border-top-color: #e74c3c;
+  animation-delay: 0.15s;
+}
+
+.spinner-circle:nth-child(3) {
+  border-top-color: #2ecc71;
+  animation-delay: 0.3s;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.loading-dots span {
+  animation: pulse 1.4s infinite;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.loading-subtext {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  margin-top: 10px;
+}
+
+.navbar-header {
+  position: relative;
+  z-index: 1100;
+}
+.nav-link-user {
+  cursor: pointer;
+}
+
+/* CSS TAMBAHAN UNTUK GOODS RECEIPT FORM (SESUAIKAN DENGAN CSS YANG SUDAH ADA) */
+
+/* Goods Receipt Specific Styles */
+.gr-status-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: inline-block;
+  min-width: 80px;
+  text-align: center;
+}
+
+.gr-status-draft {
+  background-color: rgba(255, 193, 7, 0.15);
+  color: #856404;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.gr-status-process {
+  background-color: rgba(13, 110, 253, 0.15);
+  color: #0d6efd;
+  border: 1px solid rgba(13, 110, 253, 0.3);
+}
+
+.gr-status-complete {
+  background-color: rgba(40, 167, 69, 0.15);
+  color: #1e7e34;
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.gr-status-cancelled {
+  background-color: rgba(220, 53, 69, 0.15);
+  color: #a71d2a;
+  border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+/* Goods Receipt Card Styles */
+.gr-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: #ffffff;
+  margin-bottom: 24px;
+}
+
+.gr-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
+}
+
+.gr-card-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #dee2e6;
+  padding: 20px 24px;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.gr-card-title {
+  color: #212529;
+  font-weight: 600;
+  margin-bottom: 0;
+  font-size: 1.25rem;
+}
+
+.gr-header-icon {
+  color: #435ebe;
+  font-size: 1.2rem;
+  margin-right: 10px;
+}
+
+/* Form Elements */
+.gr-form-label {
+  font-weight: 500;
+  color: #212529;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.gr-form-control {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.gr-form-control:focus {
+  border-color: #435ebe;
+  box-shadow: 0 0 0 0.2rem rgba(67, 94, 190, 0.15);
+}
+
+.gr-form-control:disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
+}
+
+/* Unit Badge */
+.gr-unit-badge {
+  background-color: rgba(67, 94, 190, 0.1);
+  color: #435ebe;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Serial Number Section */
+.gr-serial-section {
+  background-color: rgba(67, 94, 190, 0.03);
+  border-left: 3px solid #435ebe;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+.gr-serial-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 10px;
+}
+
+.gr-serial-input-group {
+  margin-bottom: 8px;
+}
+
+.gr-serial-label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* Action Buttons */
+.gr-action-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+  margin-top: 20px;
+}
+
+.gr-btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  border: none;
+}
+
+.gr-btn-primary {
+  background-color: #435ebe;
+  border-color: #435ebe;
+  color: white;
+}
+
+.gr-btn-primary:hover {
+  background-color: #4f6dcc;
+  border-color: #4f6dcc;
+}
+
+.gr-btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+}
+
+.gr-btn-outline-secondary {
+  color: #6c757d;
+  border-color: #dee2e6;
+  background-color: transparent;
+}
+
+.gr-btn-outline-secondary:hover {
+  background-color: rgba(108, 117, 125, 0.05);
+  border-color: #6c757d;
+}
+
+.gr-btn-success {
+  background-color: #198754;
+  border-color: #198754;
+  color: white;
+}
+
+.gr-btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+/* Info Box */
+.gr-info-box {
+  background-color: rgba(67, 94, 190, 0.05);
+  border-left: 4px solid #435ebe;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 24px;
+}
+
+.gr-info-box p {
+  margin-bottom: 0;
+  color: #212529;
+  font-size: 0.9rem;
+}
+
+.gr-info-icon {
+  color: #435ebe;
+  margin-right: 10px;
+}
+
+/* Receipt Info Grid */
+.gr-receipt-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.gr-info-item {
+  margin-bottom: 0;
+}
+
+.gr-info-label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-bottom: 4px;
+}
+
+.gr-info-value {
+  font-weight: 500;
+  color: #212529;
+  font-size: 1rem;
+}
+
+/* Status Indicator */
+.gr-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gr-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.gr-dot-draft {
+  background-color: #ffc107;
+}
+
+.gr-dot-process {
+  background-color: #435ebe;
+}
+
+.gr-dot-complete {
+  background-color: #198754;
+}
+
+.gr-dot-cancelled {
+  background-color: #dc3545;
+}
+
+/* Table Styles for Goods Receipt */
+.gr-table th {
+  font-weight: 600;
+  color: #212529;
+  background-color: rgba(67, 94, 190, 0.05);
+  border-bottom: 1px solid #dee2e6;
+  padding: 14px 16px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.gr-table td {
+  padding: 16px;
+  vertical-align: middle;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.gr-table tr:hover {
+  background-color: rgba(67, 94, 190, 0.03);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .gr-receipt-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gr-action-buttons {
+    flex-direction: column;
+  }
+
+  .gr-action-buttons .gr-btn {
+    width: 100%;
+  }
+
+  .gr-table th,
+  .gr-table td {
+    padding: 12px 8px;
+    font-size: 0.85rem;
+  }
+}
+
+/* Animations */
+.gr-fade-in {
+  animation: grFadeIn 0.3s ease-in;
+}
+
+@keyframes grFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gr-highlight-change {
+  animation: grHighlightChange 1.5s ease;
+}
+
+@keyframes grHighlightChange {
+  0% {
+    background-color: rgba(67, 94, 190, 0.1);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* Textarea */
+.gr-notes-textarea {
+  min-height: 100px;
+  resize: vertical;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.gr-notes-textarea:focus {
+  border-color: #435ebe;
+  box-shadow: 0 0 0 0.2rem rgba(67, 94, 190, 0.15);
+}
+
+/* Validation */
+.gr-validation-error {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 5px;
+  display: none;
+}
+
+.gr-required:after {
+  content: " *";
+  color: #dc3545;
+}
+
+/* Quantity Input */
+.gr-quantity-input {
+  max-width: 100px !important;
+}
+
+.receipt-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.info-item {
+  margin-bottom: 0;
+}
+
+.info-label {
+  font-size: 0.85rem;
+  color: var(--voler-gray);
+  margin-bottom: 4px;
+}
+
+.info-value {
+  font-weight: 500;
+  color: var(--voler-dark);
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .receipt-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-buttons .btn {
+    width: 100%;
+  }
+}
+
+/* Animasi untuk interaksi */
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.highlight-change {
+  animation: highlightChange 1.5s ease;
+}
+
+@keyframes highlightChange {
+  0% {
+    background-color: rgba(67, 94, 190, 0.1);
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}

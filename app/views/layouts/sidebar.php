@@ -3,7 +3,8 @@
     <div id="sidebar" class='active'>
         <div class="sidebar-wrapper active">
             <div class="sidebar-header">
-                <img src="<?php echo BASE_URL; ?>public/voler/assets/images/shopping-cart.png" alt="Logo">
+                <!-- <img src="<?php echo BASE_URL; ?>public/voler/assets/images/shopping-cart.png" alt="Logo"> -->
+                <img src="<?php echo BASE_URL; ?>public/voler/assets/images/logo.svg" alt="" srcset="">
             </div>
             <div class="sidebar-menu">
                 <ul class="menu">

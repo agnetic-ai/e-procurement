@@ -67,6 +67,10 @@
                 return 'status-approved';
             case statusLower.includes('rejected'):
                 return 'status-rejected';
+            case statusLower.includes('complete'):
+                return 'status-complete';
+            case statusLower.includes('draft'):
+                return 'status-draft';
 
             case statusLower.includes('review'):
                 return 'status-pending';

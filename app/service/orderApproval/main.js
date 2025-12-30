@@ -42,7 +42,6 @@ function loadApproval() {
         feather.replace();
         $("#approvalTable").DataTable({ ordering: false });
       }
-      console.log(response);
     },
     error: function (err) {
       alert("Error loading data");

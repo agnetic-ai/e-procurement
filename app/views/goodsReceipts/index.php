@@ -32,17 +32,13 @@
                                     <option value="square">Square</option>
                                     <option value="rectangle">Rectangle</option>
                                     <option value="rombo">Rombo</option>
-                                    <option value="romboid">Romboid</option>
-                                    <option value="trapeze">Trapeze</option>
-                                    <option value="traible">Triangle</option>
-                                    <option value="polygon">Polygon</option>
                                 </select>
                             </div>
                         </div>
                     </div>
                     <div class="row g-3">
                         <div class="col-md-2">
-                            <button type="button" class="btn btn-sm btn-primary w-100" id="btnRefresh" onclick="loadProduct();">
+                            <button type="button" class="btn btn-sm btn-primary w-100" id="btnRefresh" onclick="GetGoodsReceiptsList();">
                                 <i data-feather="search" class="me-2"></i> Search
                             </button>
                         </div>
@@ -58,31 +54,24 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">
-                    <i data-feather="list" class="me-2"></i> Product List
+                    <i data-feather="list" class="me-2"></i> Goods Receipts List
                 </h5>
-                <div>
-                    <a href="<?php echo BASE_URL; ?>product/NewProduct" class="btn btn-primary btn-sm">
-                        <i data-feather="plus" class="me-1"></i> Add Product
-                    </a>
-                </div>
             </div>
             <div class="card-body card-over">
                 <div class="responsive-container">
-                    <table class='table-custom' id="orderRequestTable">
+                    <table class='table-custom' id="goodsTable">
                         <thead>
                             <tr>
-                                <th>Product Name</th>
-                                <th>Category</th>
-                                <th>Vendor Name</th>
-                                <th>Unit Price</th>
-                                <th>Unit of Measure</th>
-                                <th>Valid From</th>
-                                <th>Valid To</th>
+                                <th>GR Number</th>
+                                <th>PR Number</th>
+                                <th>Department</th>
                                 <th>Status</th>
-                                <th>Action</th>
+                                <th>Received Date</th>
+                                <th>Received By</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="procutTableBody">
+                        <tbody id="goodsTableBody">
                         </tbody>
                     </table>
                 </div>
@@ -90,4 +79,4 @@
         </div>
     </section>
 </div>
-<!-- <script src="<?php echo BASE_URL; ?>app/service/product/main.js"></script> -->
+<script src="<?php echo BASE_URL; ?>app/service/goodsReceipts/main.js"></script>

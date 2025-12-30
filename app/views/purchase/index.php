@@ -48,7 +48,7 @@
                                         <label class="required">Department</label>
                                         <select class="choices form-select" name="department_id" required>
                                             <option value="">--Select Department--</option>
-                                            <option value="IT">IT</option>
+                                            <option value="IT & Infrastructure">IT & Infrastructure</option>
                                             <option value="Finance">Finance</option>
                                             <option value="HR">HR</option>
                                         </select>

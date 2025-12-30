@@ -1,9 +1,19 @@
+/* === CSS TAMBAHAN YANG ANDA BERIKAN === */
+
 label.required::after {
   content: " *";
   color: red;
   font-weight: bold;
 }
 
+.unit-badge {
+  background-color: rgba(67, 94, 190, 0.1);
+  color: #435ebe;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
 /* Status Badges */
 .status-badge {
   padding: 0.35rem 0.75rem;
@@ -20,12 +30,18 @@ label.required::after {
   color: #0a7ea4;
   border: 1px solid rgba(76, 201, 240, 0.3);
 }
+.status-complete {
+  background-color: rgba(46, 204, 113, 0.15);
+  color: #1e8449;
+  border: 1px solid rgba(46, 204, 113, 0.3);
+}
 
 .status-pending {
   background-color: rgba(255, 193, 7, 0.15);
   color: #b38700;
   border: 1px solid rgba(255, 193, 7, 0.3);
 }
+
 .status-approved {
   background-color: rgba(40, 167, 69, 0.15);
   color: #1e7e34;
@@ -43,10 +59,16 @@ label.required::after {
   color: #a71d2a;
   border: 1px solid rgba(220, 53, 69, 0.3);
 }
+
 .status-process {
   background-color: rgba(13, 110, 253, 0.15);
   color: #0d6efd;
   border: 1px solid rgba(13, 110, 253, 0.3);
+}
+.status-draft {
+  background-color: rgba(149, 165, 166, 0.15);
+  color: #5f6a6a;
+  border: 1px solid rgba(149, 165, 166, 0.3);
 }
 
 .status-unknown {
@@ -103,7 +125,6 @@ label.required::after {
 .table-custom {
   width: 100%;
   table-layout: auto;
-  /* Biarkan browser tentukan width */
   border-collapse: collapse;
 }
 
@@ -127,9 +148,7 @@ label.required::after {
 
 /* Hanya kolom tertentu yang bisa wrap */
 .table-custom td:nth-child(1),
-    /* Product Name */
-    .table-custom td:nth-child(3) {
-  /* Vendor Name */
+.table-custom td:nth-child(3) {
   max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -159,51 +178,10 @@ label.required::after {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  /* border: 1px solid #ddd; */
   border-radius: 5px;
 }
 
-/* Mobile optimization */
-@media (max-width: 576px) {
-  .table-custom {
-    font-size: 13px;
-  }
-
-  .table-custom th,
-  .table-custom td {
-    padding: 8px 6px;
-  }
-
-  /* Persingkat header di mobile */
-  .table-custom th:nth-child(1)::after {
-    content: "Product";
-  }
-
-  .table-custom th:nth-child(2)::after {
-    content: "Cat.";
-  }
-
-  .table-custom th:nth-child(3)::after {
-    content: "Vendor";
-  }
-
-  .table-custom th:nth-child(4)::after {
-    content: "Price";
-  }
-
-  .table-custom th:nth-child(5)::after {
-    content: "UOM";
-  }
-
-  .table-custom th:nth-child(6)::after {
-    content: "From";
-  }
-
-  .table-custom th:nth-child(7)::after {
-    content: "To";
-  }
-}
-
+/* Stepper */
 .stepper {
   display: flex;
   align-items: center;
@@ -343,6 +321,93 @@ label.required::after {
   position: relative;
   z-index: 1100;
 }
+
 .nav-link-user {
   cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .receipt-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-buttons .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .table-custom {
+    font-size: 13px;
+  }
+
+  .table-custom th,
+  .table-custom td {
+    padding: 8px 6px;
+  }
+
+  /* Persingkat header di mobile */
+  .table-custom th:nth-child(1)::after {
+    content: "Product";
+  }
+
+  .table-custom th:nth-child(2)::after {
+    content: "Cat.";
+  }
+
+  .table-custom th:nth-child(3)::after {
+    content: "Vendor";
+  }
+
+  .table-custom th:nth-child(4)::after {
+    content: "Price";
+  }
+
+  .table-custom th:nth-child(5)::after {
+    content: "UOM";
+  }
+
+  .table-custom th:nth-child(6)::after {
+    content: "From";
+  }
+
+  .table-custom th:nth-child(7)::after {
+    content: "To";
+  }
+}
+
+/* Animasi untuk interaksi */
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.highlight-change {
+  animation: highlightChange 1.5s ease;
+}
+
+@keyframes highlightChange {
+  0% {
+    background-color: rgba(67, 94, 190, 0.1);
+  }
+
+  100% {
+    background-color: transparent;
+  }
 }
