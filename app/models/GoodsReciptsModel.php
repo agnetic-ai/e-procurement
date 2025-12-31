@@ -18,7 +18,7 @@ class GoodsReciptsModel
                         PR.department,
                         SC.status_name statusName,
                         GR.status_code statusCode,
-                       DATE_FORMAT(GR.receipt_date, '%d %b %Y') receiptDate,
+                        DATE_FORMAT(GR.receipt_date, '%d %b %Y') receiptDate,
                         UR.full_name receivedBy
                     FROM goods_receipts GR
                         JOIN purchase_requests PR

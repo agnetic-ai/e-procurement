@@ -46,6 +46,7 @@ class PurchaseModel
                     FORMAT(PD.subtotal, 'id-ID') AS subtotal,
                     PD.created_at AS createdAt,
                     PD.updated_at AS updatedAt,
+                    VN.id AS vendorId,
                     VN.company_name AS vendorName,
                     PROD.name productName
                 FROM purchase_request_details PD

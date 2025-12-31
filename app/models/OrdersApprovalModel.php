@@ -3,12 +3,12 @@ class OrdersApprovalModel
 {
     private $db;
     private $purchase;
-    private $goodsReceipt;
+    private $po;
     public function __construct()
     {
         $this->db = Database::getInstance()->getConnection();
         $this->purchase = new PurchaseModel();
-        $this->goodsReceipt = new GoodsReciptsModel();
+        $this->po = new PurchaseOrdersModel();
     }
 
     public function GetApprovalList()
@@ -101,7 +101,7 @@ class OrdersApprovalModel
             $RefreshedPr = $this->purchase->GetPurchaseRequest($payload["prNumber"]);
 
             if ($RefreshedPr['statusCode'] == 'PR_APPROVED') {
-                $this->goodsReceipt->DraftGoodsRecipt($RefreshedPr['purchaseId']);
+                $this->po->DraftPurchaseOrder($payload);
             }
             return [
                 'success' => true,

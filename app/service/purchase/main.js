@@ -7,22 +7,18 @@ function nextStep() {
     let department = $('select[name="department_id"]').val();
     let requestDate = $('input[name="request_date"]').val();
     let itemCount = $(".table-preview tbody tr").length;
-
     if (!prTitle || prTitle.trim() === "") {
       Swal.fire("Warning!", "PR Title wajib diisi.", "warning");
       return;
     }
-
     if (!department) {
       Swal.fire("Warning!", "Department wajib dipilih.", "warning");
       return;
     }
-
     if (!requestDate) {
       Swal.fire("Warning!", "Request Date wajib diisi.", "warning");
       return;
     }
-
     if (itemCount < 1) {
       Swal.fire(
         "Warning!",
@@ -325,6 +321,7 @@ function updateSubtotalTotal() {
 function GetApprovalWorkflows() {
   var dto = {
     amount: unformatMoneyValue($(".text-end h5 strong").text()),
+    moduleCode: "PR",
   };
   $.ajax({
     type: "POST",
