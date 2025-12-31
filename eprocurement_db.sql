@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 29, 2025 at 04:40 AM
+-- Generation Time: Dec 31, 2025 at 03:27 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.0
 
@@ -106,14 +106,6 @@ CREATE TABLE `asset_units` (
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `asset_units`
---
-
-INSERT INTO `asset_units` (`id`, `goods_receipt_detail_id`, `product_id`, `serial_number`, `status_code`, `assigned_to`, `created_at`, `updated_at`) VALUES
-(1, 1, 14, NULL, 'ASSET_DRAFT', NULL, '2025-12-29 03:34:20', '2025-12-29 03:39:48'),
-(2, 1, 14, NULL, 'ASSET_DRAFT', NULL, '2025-12-29 03:34:20', '2025-12-29 03:39:52');
-
 -- --------------------------------------------------------
 
 --
@@ -206,6 +198,7 @@ INSERT INTO `cities` (`id`, `city_name`, `province_name`, `created_at`) VALUES
 
 CREATE TABLE `goods_receipts` (
   `id` int(11) NOT NULL,
+  `gr_number` varchar(20) NOT NULL,
   `purchase_request_id` int(11) NOT NULL,
   `receipt_date` date DEFAULT NULL,
   `received_by` int(11) DEFAULT NULL,
@@ -214,13 +207,6 @@ CREATE TABLE `goods_receipts` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `goods_receipts`
---
-
-INSERT INTO `goods_receipts` (`id`, `purchase_request_id`, `receipt_date`, `received_by`, `status_code`, `notes`, `created_at`, `updated_at`) VALUES
-(8, 6, NULL, NULL, 'GR_DRAFT', NULL, '2025-12-29 03:34:20', '2025-12-29 03:34:20');
 
 -- --------------------------------------------------------
 
@@ -235,14 +221,6 @@ CREATE TABLE `goods_receipt_details` (
   `qty_received` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `goods_receipt_details`
---
-
-INSERT INTO `goods_receipt_details` (`id`, `goods_receipt_id`, `purchase_request_detail_id`, `qty_received`, `created_at`) VALUES
-(1, 8, 5, 0, '2025-12-29 03:34:20'),
-(2, 8, 6, 0, '2025-12-29 03:34:20');
 
 -- --------------------------------------------------------
 
@@ -276,7 +254,9 @@ INSERT INTO `menus` (`id`, `title`, `icon`, `url`, `parent_id`, `menu_order`, `i
 (7, 'Category Management', 'grid', 'categories', 2, 4, 0, '2025-12-11 12:59:30', '2025-12-11 14:49:36'),
 (8, 'Order Management', 'clipboard', '#', NULL, 5, 1, '2025-12-17 09:07:00', '2025-12-17 15:42:00'),
 (9, 'Request Order', 'user', 'ordersrequest', 8, 1, 1, '2025-12-17 09:08:58', '2025-12-18 13:47:41'),
-(10, 'Approval Order', NULL, 'ordersapproval', 8, 2, 1, '2025-12-18 13:53:36', '2025-12-18 13:54:24');
+(10, 'Approval Order', NULL, 'ordersapproval', 8, 2, 1, '2025-12-18 13:53:36', '2025-12-18 13:54:24'),
+(11, 'Goods Receipts', 'package', 'goodsReceipts', NULL, 6, 1, '2025-12-29 04:31:53', '2025-12-29 04:35:13'),
+(12, 'Purchase Order', 'file-text', 'purchaseOrder', NULL, 7, 1, '2025-12-30 08:50:13', '2025-12-30 08:50:13');
 
 -- --------------------------------------------------------
 
@@ -385,7 +365,7 @@ CREATE TABLE `purchase_requests` (
   `id` int(11) NOT NULL,
   `pr_number` varchar(30) NOT NULL COMMENT 'PR-YYYY-NNN',
   `title` varchar(200) NOT NULL,
-  `department` enum('IT','Finance','HR') NOT NULL,
+  `department` enum('IT & Infrastructure','Finance','HR') NOT NULL,
   `requested_by` int(11) NOT NULL COMMENT 'User ID requester',
   `request_date` date NOT NULL,
   `status_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -404,12 +384,7 @@ CREATE TABLE `purchase_requests` (
 --
 
 INSERT INTO `purchase_requests` (`id`, `pr_number`, `title`, `department`, `requested_by`, `request_date`, `status_code`, `total_estimated`, `current_approval_level`, `max_approval_level`, `notes`, `billing_address`, `shipping_address`, `created_at`, `updated_at`) VALUES
-(1, 'PR-2025-00001', 'PEMBELIAN PERTAMA TAHUN 2026', 'IT', 1, '2025-12-27', 'PR_APPROVED', '82670490.00', 3, 3, 'PEMBALIAN PERTAMA PADA JANURI 2026 UNUTK KEBUTUHAN DEPARTMENT IT ', 'SHIPPING ADDRESS', 'BILLING ADDRESS', '2025-12-27 06:11:26', '2025-12-27 06:25:23'),
-(2, 'PR-2025-00002', 'PEMBELIAN KE 2 PADA JANUARI 2026', 'HR', 1, '2025-12-27', 'PR_PENDING', '27000000.00', 1, 2, 'PEMBELIAN KE 2 PADA JANUARI 2026 UNUTK KEBUTUHAN DEPARTMENT HR', '', '', '2025-12-27 06:16:33', '2025-12-27 06:21:59'),
-(3, 'PR-2025-00003', 'PEMBELIAN KE 3 2026', 'Finance', 1, '2026-01-10', 'PR_PENDING', '2500000.00', 1, 1, 'PEMBELIAN KE 3 2026 UNTUK DIVISI FINANCE', 'BILLING ADDRESS', 'SHIPPING ADDRESS', '2025-12-27 06:20:36', '2025-12-27 06:20:36'),
-(4, 'PR-2025-00004', 'PEMBELIAN KE 4', 'HR', 1, '2026-01-18', 'PR_APPROVED', '18340000.00', 2, 2, 'PEMBELIAN KE 4 DIVISI HR', 'BILLING ADDRESS', 'SHIPPING ADDRESS', '2025-12-28 12:09:58', '2025-12-28 12:15:54'),
-(5, 'PR-2025-00005', 'Pembelian ke 6', 'Finance', 1, '2026-01-04', 'PR_APPROVED', '30558196.00', 2, 2, 'notes', 'billing', 'shipping ', '2025-12-28 12:19:33', '2025-12-28 12:34:44'),
-(6, 'PR-2025-00006', 'y', 'Finance', 1, '2026-01-04', 'PR_APPROVED', '24287744.00', 2, 2, 'NOT', 'fvdcxz', 'gfvcdx', '2025-12-28 13:23:52', '2025-12-29 03:34:20');
+(1, 'PR-2025-00001', 'PEMBELIAN PERTAMA PADA TAHUN 2026 ', 'IT & Infrastructure', 1, '2025-12-26', 'PR_PENDING', '145792294.00', 1, 3, 'PEMBELIAN PERTAMA PADA TAHUN 2026  UNTUK DIVISI IT & INFRA', 'BILLING ADDRESS', 'SHIPPING ADDRESS', '2025-12-31 02:26:45', '2025-12-31 02:26:45');
 
 -- --------------------------------------------------------
 
@@ -434,12 +409,9 @@ CREATE TABLE `purchase_request_approvals` (
 --
 
 INSERT INTO `purchase_request_approvals` (`id`, `purchase_request_id`, `level`, `approver_id`, `status_code`, `approved_at`, `remarks`, `created_at`, `updated_at`) VALUES
-(1, 4, 1, 3, 'APR_APPROVED', '2025-12-28 19:10:27', 'ok approve', '2025-12-28 12:09:58', '2025-12-28 12:10:27'),
-(2, 4, 2, 4, 'APR_APPROVED', '2025-12-28 19:15:54', 'OK sesuai', '2025-12-28 12:09:58', '2025-12-28 12:15:54'),
-(3, 5, 1, 3, 'APR_APPROVED', '2025-12-28 19:19:55', 'ok', '2025-12-28 12:19:33', '2025-12-28 12:19:55'),
-(4, 5, 2, 4, 'APR_APPROVED', '2025-12-28 19:34:44', 'Remarks', '2025-12-28 12:19:33', '2025-12-28 12:34:44'),
-(5, 6, 1, 3, 'APR_APPROVED', '2025-12-28 20:24:15', '', '2025-12-28 13:23:52', '2025-12-28 13:24:15'),
-(6, 6, 2, 4, 'APR_APPROVED', '2025-12-29 10:34:20', 'OK', '2025-12-28 13:23:52', '2025-12-29 03:34:20');
+(1, 1, 1, 3, 'APR_PROCESS', NULL, NULL, '2025-12-31 02:26:45', '2025-12-31 02:26:45'),
+(2, 1, 2, 4, 'APR_PENDING', NULL, NULL, '2025-12-31 02:26:45', '2025-12-31 02:26:45'),
+(3, 1, 3, 5, 'APR_PENDING', NULL, NULL, '2025-12-31 02:26:45', '2025-12-31 02:26:45');
 
 -- --------------------------------------------------------
 
@@ -466,12 +438,9 @@ CREATE TABLE `purchase_request_details` (
 --
 
 INSERT INTO `purchase_request_details` (`id`, `purchase_request_id`, `product_id`, `vendor_id`, `product_description`, `quantity`, `unit`, `estimated_price`, `subtotal`, `created_at`, `updated_at`) VALUES
-(1, 4, 1, 1, 'DESC', 1, 'Unit', '18250000.00', '18250000.00', '2025-12-28 12:09:58', '2025-12-28 12:09:58'),
-(2, 4, 4, 4, 'DESC 2', 2, 'Pcs', '45000.00', '90000.00', '2025-12-28 12:09:58', '2025-12-28 12:09:58'),
-(3, 5, 13, 4, 'unit', 2, 'Unit', '15234098.00', '30468196.00', '2025-12-28 12:19:33', '2025-12-28 12:19:33'),
-(4, 5, 4, 4, 'Product', 2, 'Pcs', '45000.00', '90000.00', '2025-12-28 12:19:33', '2025-12-28 12:19:33'),
-(5, 6, 14, 1, 'ok', 2, 'Unit', '12098872.00', '24197744.00', '2025-12-28 13:23:52', '2025-12-28 13:23:52'),
-(6, 6, 4, 4, 'fvdcx', 2, 'Pcs', '45000.00', '90000.00', '2025-12-28 13:23:52', '2025-12-28 13:23:52');
+(1, 1, 13, 4, 'NEW DELL LATITUDE 5240 3 UNIT', 3, 'Unit', '15234098.00', '45702294.00', '2025-12-31 02:26:45', '2025-12-31 02:26:45'),
+(2, 1, 5, 5, 'NEW LAPTOP DELL XPS 13 4 UNIT', 4, 'Unit', '25000000.00', '100000000.00', '2025-12-31 02:26:45', '2025-12-31 02:26:45'),
+(3, 1, 4, 4, '2 PCS PAPER A4', 2, 'Pcs', '45000.00', '90000.00', '2025-12-31 02:26:45', '2025-12-31 02:26:45');
 
 -- --------------------------------------------------------
 
@@ -539,7 +508,9 @@ INSERT INTO `role_menus` (`id`, `role_id`, `menu_id`, `can_view`, `can_create`, 
 (15, 5, 8, 1, 1, 1, 1, '2025-12-23 09:00:46'),
 (16, 5, 10, 1, 1, 1, 1, '2025-12-23 09:00:46'),
 (17, 6, 8, 1, 1, 1, 1, '2025-12-27 06:24:59'),
-(18, 6, 10, 1, 1, 1, 1, '2025-12-27 06:24:59');
+(18, 6, 10, 1, 1, 1, 1, '2025-12-27 06:24:59'),
+(19, 1, 11, 1, 1, 1, 1, '2025-12-29 04:33:05'),
+(20, 1, 12, 1, 1, 1, 1, '2025-12-30 08:50:40');
 
 -- --------------------------------------------------------
 
@@ -627,11 +598,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `full_name`, `email`, `role_id`, `login_attempts`, `last_login_attempt`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'admin', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Administrator', 'admin@eprocurement.com', 1, 0, NULL, 1, '2025-12-07 17:00:00', '2025-12-28 13:23:14'),
+(1, 'admin', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Administrator', 'admin@eprocurement.com', 1, 0, NULL, 1, '2025-12-07 17:00:00', '2025-12-31 02:19:42'),
 (2, 'procurement', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Procurement Staff', 'proc@eprocurement.com', 2, 0, NULL, 1, '2025-12-08 14:17:56', '2025-12-23 08:24:59'),
-(3, 'manager01', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Andi Pratama', 'andi.manager@company.com', 4, 0, NULL, 1, '2025-12-14 09:34:12', '2025-12-28 13:24:02'),
-(4, 'finance01', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Siti Aisyah', 'siti.finance@company.com', 5, 0, NULL, 1, '2025-12-14 09:34:12', '2025-12-29 03:10:11'),
-(5, 'director01', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Rudi Hartono', 'rudi.director@company.com', 6, 0, NULL, 1, '2025-12-14 09:34:12', '2025-12-27 06:24:22');
+(3, 'manager01', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Andi Pratama', 'andi.manager@company.com', 4, 0, NULL, 1, '2025-12-14 09:34:12', '2025-12-30 07:34:42'),
+(4, 'finance01', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Siti Aisyah', 'siti.finance@company.com', 5, 0, NULL, 1, '2025-12-14 09:34:12', '2025-12-30 07:35:08'),
+(5, 'director01', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Rudi Hartono', 'rudi.director@company.com', 6, 0, NULL, 1, '2025-12-14 09:34:12', '2025-12-30 07:35:35');
 
 -- --------------------------------------------------------
 
@@ -860,8 +831,8 @@ ALTER TABLE `purchase_request_approvals`
 --
 ALTER TABLE `purchase_request_details`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_pr_detail_vendor` (`vendor_id`),
-  ADD KEY `fk_pr_detail_pr` (`purchase_request_id`);
+  ADD KEY `fk_pr_detail_pr` (`purchase_request_id`),
+  ADD KEY `fk_pr_detail_vendor` (`vendor_id`);
 
 --
 -- Indexes for table `roles`
@@ -954,7 +925,7 @@ ALTER TABLE `approval_rules`
 -- AUTO_INCREMENT for table `asset_units`
 --
 ALTER TABLE `asset_units`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `business_types`
@@ -978,19 +949,19 @@ ALTER TABLE `cities`
 -- AUTO_INCREMENT for table `goods_receipts`
 --
 ALTER TABLE `goods_receipts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `goods_receipt_details`
 --
 ALTER TABLE `goods_receipt_details`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `menus`
 --
 ALTER TABLE `menus`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `payment_terms`
@@ -1014,19 +985,19 @@ ALTER TABLE `product_vendor_prices`
 -- AUTO_INCREMENT for table `purchase_requests`
 --
 ALTER TABLE `purchase_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `purchase_request_approvals`
 --
 ALTER TABLE `purchase_request_approvals`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `purchase_request_details`
 --
 ALTER TABLE `purchase_request_details`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -1038,7 +1009,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `role_menus`
 --
 ALTER TABLE `role_menus`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `status_codes`

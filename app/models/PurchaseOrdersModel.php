@@ -50,6 +50,7 @@ class PurchaseOrdersModel
     public function GetPurchaseOrdersByPoNumber($poNumber)
     {
         $query = "SELECT 
+                    po.id purchaseOrderId,
                     po.po_number poNumber,
                     pr.pr_number prNumber,
                     pr.department,
@@ -59,7 +60,8 @@ class PurchaseOrdersModel
                     u.full_name AS receivedBy,
                     vn.company_name companyName,
                     FORMAT(po.total_amount, 'id-ID') totalAmount,
-                    po.notes
+                    po.notes,
+                    po.payment_terms_id paymentTermsId
                 FROM purchase_orders po
                 JOIN purchase_requests pr ON po.purchase_request_id = pr.id
                 JOIN vendors vn ON po.vendor_id = vn.id
@@ -81,7 +83,8 @@ class PurchaseOrdersModel
                     pod.quantity,
                     pod.unit,
                     FORMAT(pod.unit_price, 'id-ID') unitPrice,
-                    FORMAT(pod.subtotal, 'id-ID') subtotal
+                    FORMAT(pod.subtotal, 'id-ID') subtotal,
+                    FORMAT(SUM(pod.subtotal) OVER (), 'id-ID') AS grandTotal
                 FROM purchase_order_details pod
                 JOIN purchase_orders po ON pod.purchase_order_id = po.id
                 JOIN products p ON pod.product_id = p.id
@@ -91,6 +94,70 @@ class PurchaseOrdersModel
         $stmt = $this->db->prepare($query);
         $stmt->execute([':poNumber' => $poNumber]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function SubmitedPurchaseOrder($payload = [])
+    {
+        $approver =  $payload["approvalPo"] ?? [];
+        try {
+            $this->db->beginTransaction();
+            $queryPo = "UPDATE purchase_orders
+                        SET po_date = :po_date,
+                            payment_terms_id = :payment_terms_id,
+                            notes = :notes,
+                            received_by = :received_by,
+                            current_approval_level = 1,
+                            max_approval_level =:max_approval_level,
+                            status_code = :status_code
+                        WHERE po_number = :po_number";
+            $stmtPo = $this->db->prepare($queryPo);
+            $stmtPo->execute([
+                ':po_date' => date('Y-m-d'),
+                ':payment_terms_id' => $payload['paymentTermsId'],
+                ':notes' => $payload['notes'],
+                ':received_by' => $payload["receiveBy"],
+                ':max_approval_level' => $payload['maxApprovalLevel'],
+                ':status_code' => 'PO_SUBMITTED',
+                ':po_number' => $payload['poNumber']
+            ]);
+
+            $insertApproval = "INSERT INTO purchase_orders_approvals (
+                                    purchase_order_id,
+                                    approver_id,
+                                    level,
+                                    status_code
+                                )
+                               VALUES
+                               (
+                                    :purchase_order_id,
+                                    :approver_id,
+                                    :level,
+                                    :status_code
+                                )";
+            $stmtApproval = $this->db->prepare($insertApproval);
+            foreach ($approver as $apr) {
+                $aprStatus = ($apr["level"] == 1) ? "APR_PROCESS" : "APR_PENDING";
+
+                $stmtApproval->execute([
+                    ':purchase_order_id' => $payload["poId"],
+                    ':approver_id' => $apr['approverId'],
+                    ':level' => $apr['level'],
+                    ':status_code' => $aprStatus
+                ]);
+            }
+
+            $this->db->commit();
+            return [
+                'success' => true,
+                'message' => 'Purchase Order submitted successfully.'
+            ];
+        } catch (Throwable $e) {
+            $this->db->rollBack();
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
     }
 
     public function DraftPurchaseOrder($payload = [])
@@ -185,7 +252,6 @@ class PurchaseOrdersModel
             ];
         }
     }
-
 
     function GeneratePoNumber()
     {

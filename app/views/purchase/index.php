@@ -217,19 +217,6 @@
                             <h4>Approval Information</h4>
                         </div>
                         <div class="card-body">
-                            <!-- <div class="row mb-3">
-                                <div class="col-md-12">
-                                    <label class="form-label fw-semibold">Remarks Approver</label>
-                                    <textarea class="form-control"
-                                        name="remarks"
-                                        rows="4"
-                                        style="resize: none;"
-                                        placeholder="Tambahkan catatan untuk approval (opsional)"></textarea>
-                                    <small class="text-muted">
-                                        Digunakan jika ada catatan khusus terkait persetujuan atau revisi.
-                                    </small>
-                                </div>
-                            </div> -->
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="responsive-container">

@@ -47,4 +47,19 @@ class PurchaseOrdersController extends Controller
 
         $this->view('purchaseOrder/PurchaseOrderDetail', $data);
     }
+
+    public function SubmitPurchaseOrder()
+    {
+        $payload = json_decode(file_get_contents('php://input'), true);
+        try {
+            $payload["receiveBy"] = $this->session->get("user_id");
+            $response = $this->po->SubmitedPurchaseOrder($payload);
+            ResponseHelper::success($response, 'Purchase Order submitted successfully');
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
 }

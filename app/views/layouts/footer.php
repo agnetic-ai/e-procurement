@@ -84,11 +84,11 @@
         location.reload();
     }
 
-    function formatCurrency(amount) { //use value
+    function formatCurrency(amount) {
         return parseFloat(amount).toLocaleString("id-ID");
     }
 
-    function formatMoney(input) { //use input
+    function formatMoney(input) {
         let value = input.value;
         value = value.replace(/[^0-9]/g, '');
         if (value === '') {
@@ -100,8 +100,19 @@
     }
 
     function unformatMoneyValue(value) {
-        return parseInt(value.replace(/\./g, '')) || 0;
+        if (!value) return 0;
+        value = value.toString().trim();
+        if (value.includes(',') && value.includes('.')) {
+            value = value.split(',')[0].replace(/\./g, '');
+        } else if (value.includes(',')) {
+            value = value.replace(/,/g, '');
+        } else {
+            value = value.replace(/\./g, '');
+        }
+
+        return parseInt(value, 10) || 0;
     }
+
 
     function showLoading(
         message = 'Please wait',
