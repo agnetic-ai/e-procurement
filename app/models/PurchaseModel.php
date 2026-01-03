@@ -228,7 +228,7 @@ class PurchaseModel
         }
     }
 
-    public function UpdateCurrentApproval(int $prId, array $payload): void
+    public function UpdateCurrentApprovalPr(int $prId, array $payload): void
     {
         $stmt = $this->db->prepare("
             UPDATE purchase_request_approvals

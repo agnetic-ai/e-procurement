@@ -8,54 +8,57 @@
         </div>
     </div>
     <section class="section">
-        <div class="card mb-4">
+        <div class="card">
             <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i data-feather="search" class="me-2"></i> Search & Filter
-                </h5>
+                <h5 class="card-title"><i data-feather="filter"></i> Filter</h5>
             </div>
             <div class="card-body">
-                <form id="searchForm">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i data-feather="search"></i>
-                                </span>
-                                <input type="text" name="filterName" class="form-control"
-                                    placeholder="Search by name">
+                <form method="get" action="<?php echo BASE_URL; ?>goodsReceipts">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>PO Number</label>
+                                <input type="text" class="form-control" name="po_number"
+                                    placeholder="Enter PO Number" value="<?= $_GET['po_number'] ?? '' ?>">
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <select class="choices form-select">
-                                    <option value="square">Square</option>
-                                    <option value="rectangle">Rectangle</option>
-                                    <option value="rombo">Rombo</option>
+                                <label>Status</label>
+                                <select class="form-control" name="status">
+                                    <option value="">All Status</option>
+                                    <option value="GR_DRAFT" <?= ($_GET['status'] ?? '') == 'GR_DRAFT' ? 'selected' : '' ?>>Draft</option>
+                                    <option value="GR_PROCESS" <?= ($_GET['status'] ?? '') == 'GR_PROCESS' ? 'selected' : '' ?>>Process</option>
+                                    <option value="GR_COMPLETE" <?= ($_GET['status'] ?? '') == 'GR_COMPLETE' ? 'selected' : '' ?>>Complete</option>
                                 </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-sm btn-primary w-100" id="btnRefresh" onclick="GetGoodsReceiptsList();">
-                                <i data-feather="search" class="me-2"></i> Search
-                            </button>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Vendor</label>
+                                <input type="text" class="form-control" name="vendor"
+                                    placeholder="Search vendor" value="<?= $_GET['vendor'] ?? '' ?>">
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-sm btn-secondary w-100" type="button" onclick="cearFilter();">
-                                <i data-feather="refresh-cw" class="me-2"></i> Refresh
-                            </button>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12 d-flex justify-content-end">
+                            <button type="reset" class="btn btn-secondary me-2">Reset</button>
+                            <button type="submit" class="btn btn-primary">Filter</button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
+
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">
-                    <i data-feather="list" class="me-2"></i> Goods Receipts List
-                </h5>
+            <div class="card-header">
+                <h5 class="card-title"><i data-feather="truck"></i> Goods Receipt List</h5>
+                <div class="header-actions">
+                    <a href="<?php echo BASE_URL; ?>GoodsReceipts/CreateGoodsReceipts" class="btn btn-primary">
+                        <i data-feather="plus"></i> Create New GR
+                    </a>
+                </div>
             </div>
             <div class="card-body card-over">
                 <div class="responsive-container">
@@ -63,6 +66,7 @@
                         <thead>
                             <tr>
                                 <th>GR Number</th>
+                                <th>PO Number</th>
                                 <th>PR Number</th>
                                 <th>Department</th>
                                 <th>Status</th>

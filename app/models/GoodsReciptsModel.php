@@ -13,7 +13,9 @@ class GoodsReciptsModel
         $filter_name = htmlentities($_POST['filterName'] ?? '');
         $query = "SELECT GR.id grId,
                         GR.gr_number grNumber,
-                        GR.purchase_request_id purchaseId,
+                        PR.id purchaseId,
+                        PO.id purchaseOrderId,
+                        PO.po_number poNumber,
                         PR.pr_number prNumber,
                         PR.department,
                         SC.status_name statusName,
@@ -21,8 +23,10 @@ class GoodsReciptsModel
                         DATE_FORMAT(GR.receipt_date, '%d %b %Y') receiptDate,
                         UR.full_name receivedBy
                     FROM goods_receipts GR
+                        JOIN purchase_orders PO
+                            ON GR.purchase_order_id = PO.id
                         JOIN purchase_requests PR
-                            ON GR.purchase_request_id = PR.id
+                        	ON PO.purchase_request_id = PR.id
                         JOIN status_codes SC
                             ON GR.status_code = SC.status_code
                             AND SC.module_code = 'GR'
@@ -42,21 +46,53 @@ class GoodsReciptsModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function GetHistoryGoodsReceipts($poNumber)
+    {
+        $query = "SELECT gr.gr_number AS grNumber,
+                    DATE_FORMAT(gr.receipt_date, '%d %b %Y') AS receiptDate,
+                    CONCAT(COUNT(grd.id), ' items (', SUM(grd.qty_received), ' units)') AS totalItemsReceived,
+                    sc.status_name AS statusName,
+                    u.full_name AS receivedBy,
+                    sc.status_code statusCode
+                FROM goods_receipts gr
+                    JOIN purchase_orders po
+                        ON po.id = gr.purchase_order_id
+                    JOIN goods_receipt_details grd
+                        ON grd.goods_receipt_id = gr.id
+                    JOIN status_codes sc
+                        ON sc.status_code = gr.status_code
+                    LEFT JOIN users u
+                        ON u.id = gr.received_by
+                WHERE po.po_number = :po_number
+                GROUP BY gr.id,
+                        gr.gr_number,
+                        gr.receipt_date,
+                        sc.status_name,
+                        u.full_name
+                ORDER BY gr.receipt_date ASC;";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([":po_number" => $poNumber]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function GetGoodsReciptsByGrNumber($grNumber)
     {
         $query = "SELECT GR.id grId,
                         GR.gr_number grNumber,
-                        GR.purchase_request_id purchaseId,
+                        PR.id purchaseId,
+                        PO.id purchaseOrderId,
+                        PO.po_number poNumber,
                         PR.pr_number prNumber,
                         PR.department,
                         SC.status_name statusName,
                         GR.status_code statusCode,
-                        DATE_FORMAT(GR.receipt_date, '%Y-%m-%d') receiptDate,
-                        UR.full_name receivedBy,
-                        GR.notes
+                        DATE_FORMAT(GR.receipt_date, '%d %b %Y') receiptDate,
+                        UR.full_name receivedBy
                     FROM goods_receipts GR
+                        JOIN purchase_orders PO
+                            ON GR.purchase_order_id = PO.id
                         JOIN purchase_requests PR
-                            ON GR.purchase_request_id = PR.id
+                        	ON PO.purchase_request_id = PR.id
                         JOIN status_codes SC
                             ON GR.status_code = SC.status_code
                             AND SC.module_code = 'GR'
@@ -76,13 +112,13 @@ class GoodsReciptsModel
         $query = "SELECT 
                       GRD.id goodsDetailId,
                       PD.name productName,
-                      PRD.quantity,
-                      PRD.unit,
+                      POD.quantity,
+                      POD.unit,
                       GRD.qty_received
                   FROM goods_receipts GR
                   JOIN goods_receipt_details GRD ON GR.id = GRD.goods_receipt_id
-                  JOIN purchase_request_details PRD ON GRD.purchase_request_detail_id = PRD.id
-                  JOIN products PD ON PRD.product_id = PD.id
+                  JOIN purchase_order_details POD ON GRD.purchase_order_detail_id = POD.id
+                  JOIN products PD ON POD.product_id = PD.id
                   WHERE GR.gr_number = :gr_number;";
 
         $stmt = $this->db->prepare($query);
@@ -92,112 +128,168 @@ class GoodsReciptsModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function GetAssetUnitsByGrNumber($grNumber)
+    public function GetGoodsReceiptsDetailByPoNumber($poNumber)
+    {
+        $query = "SELECT pod.id AS poDetailId,
+                    pod.product_id AS productId,
+                    p.name AS productName,
+                    p.description AS productDescription,
+                    pod.unit AS unit,
+                    pod.quantity AS quantityOrdered,
+                    IFNULL(SUM(grd.qty_received), 0) AS totalReceived,
+                    (pod.quantity - IFNULL(SUM(grd.qty_received), 0)) AS remainingQty,
+                    pod.unit_price AS unitPriceRaw,
+                    pod.subtotal AS subtotalRaw,
+                    FORMAT(pod.unit_price, 'id-ID') AS unitPrice,
+                    FORMAT(pod.subtotal, 'id-ID') AS subtotal,
+                    FORMAT(SUM(pod.subtotal) OVER (), 'id-ID') AS grandTotal
+                FROM purchase_order_details pod
+                    JOIN purchase_orders po
+                        ON pod.purchase_order_id = po.id
+                    JOIN products p
+                        ON pod.product_id = p.id
+                    LEFT JOIN goods_receipt_details grd
+                        ON grd.purchase_order_detail_id = pod.id
+                    LEFT JOIN goods_receipts gr
+                        ON gr.id = grd.goods_receipt_id
+                        AND gr.status_code NOT IN ( 'GR_CANCELLED' )
+                WHERE po.po_number = :po_number
+                GROUP BY pod.id
+                ORDER BY pod.id;";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([
+            ':po_number' => $poNumber,
+        ]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function GetAssetUnitsByPoNumber($poNumber)
     {
         $query = "SELECT 
                         AU.id assetId,
                         GRD.id goodsDetailId,
                         PD.name productName,
                         AU.serial_number serialNumber
-                    FROM goods_receipts GR
+                    FROM purchase_orders po
+                    LEFT JOIN goods_receipts GR ON GR.purchase_order_id = po.id
                     JOIN goods_receipt_details GRD ON GR.id = GRD.goods_receipt_id
                     JOIN asset_units AU ON GRD.id = AU.goods_receipt_detail_id
                     JOIN products PD ON AU.product_id = PD.id
-                    WHERE GR.gr_number = :gr_number;";
+                    WHERE po.po_number =:po_number;";
 
         $stmt = $this->db->prepare($query);
         $stmt->execute([
-            ':gr_number' => $grNumber,
+            ':po_number' => $poNumber,
         ]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function DraftGoodsRecipt($purchaseId)
+
+    public function DraftGoodsRecipt($purchaseOrderId)
     {
         try {
+            $this->db->beginTransaction();
+
             $grNumber = $this->GenerateGrNumber();
+
             $query = "INSERT INTO goods_receipts (
-                        gr_number,
-                        purchase_request_id,
-                        status_code
-                    )
-                    SELECT
-                        :gr_number,
-                        id,
-                        'GR_DRAFT'
-                    FROM purchase_requests
-                    WHERE id = :pr_id
-                    AND status_code = 'PR_APPROVED';";
+                    gr_number,
+                    purchase_order_id,
+                    status_code
+                )
+                SELECT
+                    :gr_number,
+                    id,
+                    'GR_DRAFT'
+                FROM purchase_orders
+                WHERE id = :po_id
+                AND status_code = 'PO_APPROVED'";
+
             $stmt = $this->db->prepare($query);
             $stmt->execute([
                 ':gr_number' => $grNumber,
-                ':pr_id' => $purchaseId,
+                ':po_id' => $purchaseOrderId,
             ]);
 
-            $goodsId = $this->db->lastInsertId();
+            if ($stmt->rowCount() === 0) {
+                throw new Exception('Purchase Order tidak valid atau belum approved.');
+            }
 
-            $queryDetail = "INSERT INTO goods_receipt_details  (
+            $goodsReceiptId = $this->db->lastInsertId();
+
+            $queryDetail = "INSERT INTO goods_receipt_details (
                             goods_receipt_id,
-                            purchase_request_detail_id,
+                            purchase_order_detail_id,
                             qty_received
-                        ) 
-                        SELECT 
+                        )
+                        SELECT
                             :goods_receipt_id,
                             id,
                             0
-                        FROM purchase_request_details
-                        WHERE purchase_request_id = :pr_id;";
+                        FROM purchase_order_details
+                        WHERE purchase_order_id = :po_id";
+
             $stmtDetail = $this->db->prepare($queryDetail);
             $stmtDetail->execute([
-                ':goods_receipt_id' => $goodsId,
-                ':pr_id' => $purchaseId,
+                ':goods_receipt_id' => $goodsReceiptId,
+                ':po_id' => $purchaseOrderId,
             ]);
 
-            $isUnit = "SELECT PRD.quantity,
-                                PRD.unit,
+            $queryUnitCheck = "SELECT 
+                                POD.quantity,
+                                POD.unit,
                                 GRD.id AS goods_receipt_detail_id,
-                                PRD.product_id
-                        FROM purchase_request_details PRD
-                        JOIN goods_receipt_details GRD ON PRD.id = GRD.purchase_request_detail_id
-                        WHERE purchase_request_id = :pr_id
-                        AND unit = 'Unit';";
-            $stmtUnit = $this->db->prepare($isUnit);
+                                POD.product_id
+                           FROM purchase_order_details POD
+                           JOIN goods_receipt_details GRD
+                                ON POD.id = GRD.purchase_order_detail_id
+                           WHERE POD.purchase_order_id = :po_id
+                           AND POD.unit = 'Unit'";
+
+            $stmtUnit = $this->db->prepare($queryUnitCheck);
             $stmtUnit->execute([
-                ':pr_id' => $purchaseId,
+                ':po_id' => $purchaseOrderId,
             ]);
 
-            $unitExists = $stmtUnit->fetchAll(PDO::FETCH_ASSOC);
+            $unitItems = $stmtUnit->fetchAll(PDO::FETCH_ASSOC);
 
-            if (!empty($unitExists)) {
-                $queryUnit = "INSERT INTO asset_units (
+            if (!empty($unitItems)) {
+                $queryAsset = "INSERT INTO asset_units (
                                 goods_receipt_detail_id,
                                 product_id,
                                 status_code
-                            ) VALUES (
+                           )
+                           VALUES (
                                 :goods_receipt_detail_id,
                                 :product_id,
                                 'ASSET_DRAFT'
-                            );";
+                           )";
 
-                $stmtUnitInsert = $this->db->prepare($queryUnit);
-                foreach ($unitExists as $unit) {
-                    for ($i = 1; $i <= $unit['quantity']; $i++) {
-                        $stmtUnitInsert->execute([
-                            ':goods_receipt_detail_id' => $unit['goods_receipt_detail_id'],
-                            ':product_id' => $unit['product_id'],
+                $stmtAsset = $this->db->prepare($queryAsset);
+
+                foreach ($unitItems as $item) {
+                    for ($i = 1; $i <= (int)$item['quantity']; $i++) {
+                        $stmtAsset->execute([
+                            ':goods_receipt_detail_id' => $item['goods_receipt_detail_id'],
+                            ':product_id' => $item['product_id'],
                         ]);
                     }
                 }
             }
 
+            $this->db->commit();
+
             return [
                 'success' => true,
-                'message' => 'Draft Saved Successfully',
+                'message' => 'Draft Goods Receipt berhasil dibuat.'
             ];
         } catch (Throwable $e) {
+            $this->db->rollBack();
+
             return [
                 'success' => false,
-                'message' => 'Failed Submit Goods: ' . $e->getMessage()
+                'message' => 'Gagal membuat Goods Receipt: ' . $e->getMessage()
             ];
         }
     }
@@ -310,10 +402,10 @@ class GoodsReciptsModel
             SELECT COUNT(*) 
             FROM goods_receipts gr
             JOIN goods_receipt_details grd ON gr.id = grd.goods_receipt_id
-            JOIN purchase_request_details prd
-              ON prd.id = grd.purchase_request_detail_id
+            JOIN purchase_order_details pod
+              ON pod.id = grd.purchase_order_detail_id
             WHERE gr.gr_number = :gr_number
-              AND grd.qty_received < prd.quantity");
+              AND grd.qty_received < pod.quantity");
             $stmtQty->execute([':gr_number' => $dto['grNumber']]);
             $qtyNotComplete = $stmtQty->fetchColumn();
 

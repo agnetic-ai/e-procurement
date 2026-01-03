@@ -2,12 +2,14 @@
 class GoodsReceiptsController extends Controller
 {
 
-    private $goods;
+    private $gr;
+    private $po;
     public function __construct()
     {
         parent::__construct();
         $this->checkLogin();
-        $this->goods = new GoodsReciptsModel();
+        $this->gr = new GoodsReciptsModel();
+        $this->po = new PurchaseOrdersModel();
     }
 
     public function index()
@@ -19,10 +21,48 @@ class GoodsReceiptsController extends Controller
         $this->view('goodsReceipts/index', $data);
     }
 
+    public function create()
+    {
+        $data = [
+            'title' => 'Goods Receipts',
+            "subtitle" => "Manage Goods Receipts"
+        ];
+        $this->view('goodsReceipts/create', $data);
+    }
+
+    public function draft()
+    {
+        $data = [
+            'title' => 'Goods Receipts',
+            "subtitle" => "Manage Goods Receipts"
+        ];
+        $this->view('goodsReceipts/draft', $data);
+    }
+
+    public function index2()
+    {
+        $data = [
+            'title' => 'Goods Receipts',
+            "subtitle" => "Manage Goods Receipts"
+        ];
+        $this->view('goodsReceipts/index2', $data);
+    }
+
+    public function CreateGoodsReceipts()
+    {
+        $data = [
+            'title' => 'Create Goods Receipts',
+            'subtitle' => "Manage Goods Receipts",
+            'PurchaseOrder' => $this->po->GetPurchaseOrderNumberApproved(),
+            'GrNumber' => $this->gr->GenerateGrNumber()
+        ];
+        $this->view('goodsReceipts/CreateGoodsReceipts', $data);
+    }
+
     public function GetGoodsReciptsList()
     {
         try {
-            $response = $this->goods->GetGoodsReciptsList();
+            $response = $this->gr->GetGoodsReciptsList();
             ResponseHelper::success($response, 'Success');
         } catch (Exception $e) {
             echo json_encode([
@@ -38,12 +78,34 @@ class GoodsReceiptsController extends Controller
         $data = [
             'title' => 'Goods Receipt',
             'subtitle' => 'Manage Goods Receipt',
-            'GrHeader' => $this->goods->GetGoodsReciptsByGrNumber($grNumber),
-            'GrDetails' => $this->goods->GetGoodsReceiptsDetailByGrNumber($grNumber),
-            'AssetUnits' => $this->goods->GetAssetUnitsByGrNumber($grNumber)
+            'GrHeader' => $this->gr->GetGoodsReciptsByGrNumber($grNumber),
+            'GrDetails' => $this->gr->GetGoodsReceiptsDetailByGrNumber($grNumber),
+            'AssetUnits' => $this->gr->GetAssetUnitsByPoNumber($grNumber)
         ];
         $this->view('goodsReceipts/GoodsReceiptsDetail', $data);
     }
+
+    public function GetDraftCreateGoodsRecipts()
+    {
+        $poNumber = $_GET['poNumber'] ?? null;
+
+        try {
+            if (!$poNumber) {
+                throw new Exception('PO Number tidak boleh kosong');
+            }
+
+            $response = [
+                'PoHeader' => $this->po->GetPurchaseOrdersByPoNumber($poNumber),
+                'HistoryGr' => $this->gr->GetHistoryGoodsReceipts($poNumber),
+                'GrDetail' => $this->gr->GetGoodsReceiptsDetailByPoNumber($poNumber),
+                'AssetUnits' => $this->gr->GetAssetUnitsByPoNumber($poNumber)
+            ];
+            ResponseHelper::success($response, 'Success');
+        } catch (Exception $e) {
+            ResponseHelper::badRequest($e->getMessage());
+        }
+    }
+
 
     public function SubmitGoodsReceipt()
     {
@@ -52,7 +114,7 @@ class GoodsReceiptsController extends Controller
         try {
             $payload = json_decode(file_get_contents('php://input'), true);
 
-            $result = $this->goods->SubmitGoodsReceipt($payload);
+            $result = $this->gr->SubmitGoodsReceipt($payload);
             if ($result['success']) {
                 ResponseHelper::created(
                     [

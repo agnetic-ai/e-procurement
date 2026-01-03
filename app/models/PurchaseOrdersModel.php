@@ -47,6 +47,19 @@ class PurchaseOrdersModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function GetPurchaseOrderNumberApproved()
+    {
+        $query = "SELECT 
+                    po.id purchaseOrderId,
+                    po.po_number poNumber
+                FROM purchase_orders po 
+                WHERE po.status_code = 'PO_APPROVED'";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
     public function GetPurchaseOrdersByPoNumber($poNumber)
     {
         $query = "SELECT 
@@ -61,12 +74,16 @@ class PurchaseOrdersModel
                     vn.company_name companyName,
                     FORMAT(po.total_amount, 'id-ID') totalAmount,
                     po.notes,
-                    po.payment_terms_id paymentTermsId
-                FROM purchase_orders po
+                    po.payment_terms_id paymentTermsId,
+		            CONCAT(pt.payment_code, ' - ', pt.payment_name, '(', pt.payment_description, ')') paymentTerms,
+                    po.current_approval_level currentApprovalLevel,
+                    po.max_approval_level maxApprovalLevel
+                FROM purchase_orders po 
                 JOIN purchase_requests pr ON po.purchase_request_id = pr.id
                 JOIN vendors vn ON po.vendor_id = vn.id
                 JOIN status_codes sc ON po.status_code = sc.status_code AND sc.module_code ='PO'
                 LEFT JOIN users u ON po.received_by = u.id
+                LEFT JOIN payment_terms pt ON po.payment_terms_id = pt.id
                 WHERE po.po_number = :poNumber";
 
         $stmt = $this->db->prepare($query);
@@ -279,5 +296,78 @@ class PurchaseOrdersModel
         }
 
         return $prefix . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+    }
+
+
+    public function UpdateCurrentApprovalPo(int $poId, array $payload): void
+    {
+        $stmt = $this->db->prepare("
+        UPDATE purchase_orders_approvals
+            SET status_code = :status,
+                approved_at = NOW(),
+                remarks = :remarks
+            WHERE purchase_order_id = :po_id
+              AND level = :level
+              AND status_code = 'APR_PROCESS'
+        ");
+
+        $stmt->execute([
+            ':status'      => $payload['approvalStatus'],
+            ':remarks'     => $payload['remarks'] ?? null,
+            ':po_id'       => $poId,
+            ':level'       => $payload['level']
+        ]);
+
+        if ($stmt->rowCount() === 0) {
+            throw new Exception('Approval ini sudah diproses atau tidak valid');
+        }
+    }
+
+    public function RejectPurchaseOrder(int $poId): void
+    {
+        $stmt = $this->db->prepare("
+            UPDATE purchase_orders
+            SET status_code = 'PR_REJECTED'
+            WHERE id = :po_id
+        ");
+        $stmt->execute([':po_id' => $poId]);
+    }
+
+    public function ActivateNextApproval(int $poId, int $nextLevel): void
+    {
+        $stmt = $this->db->prepare("
+            UPDATE purchase_orders_approvals
+            SET status_code = 'APR_PROCESS'
+            WHERE purchase_order_id = :po_id
+              AND level = :level
+        ");
+        $stmt->execute([
+            ':po_id' => $poId,
+            ':level' => $nextLevel
+        ]);
+    }
+
+    public function UpdatePurchaseOrderLevel(int $poId, int $nextLevel): void
+    {
+        $stmt = $this->db->prepare("
+            UPDATE purchase_orders
+            SET current_approval_level = :level,
+                status_code = 'PO_PROCESS'
+            WHERE id = :po_id
+        ");
+        $stmt->execute([
+            ':level' => $nextLevel,
+            ':po_id' => $poId
+        ]);
+    }
+
+    public function ApprovePurchaseOrder(int $poId): void
+    {
+        $stmt = $this->db->prepare("
+            UPDATE purchase_orders
+            SET status_code = 'PO_APPROVED'
+            WHERE id = :po_id
+        ");
+        $stmt->execute([':po_id' => $poId]);
     }
 }

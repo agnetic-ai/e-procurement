@@ -152,7 +152,7 @@
                         <?= in_array($data["GrHeader"]["statusCode"], ["GR_DRAFT", "GR_PROCESS"])
                             ? 'required'
                             : 'readonly' ?>
-                        name="notes" style="resize: none;" id="gr_notes"><?= $data["GrHeader"]["notes"] ?></textarea>
+                        name="notes" style="resize: none;" id="gr_notes"><?= htmlentities($data["GrHeader"]["notes"] ?? "") ?></textarea>
                 </div>
             </div>
             <div class="col-12 d-flex justify-content-end">

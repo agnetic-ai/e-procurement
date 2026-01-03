@@ -78,7 +78,7 @@ class OrdersApprovalModel
                 ];
             }
 
-            $this->purchase->UpdateCurrentApproval($GetPr['purchaseId'], $payload);
+            $this->purchase->UpdateCurrentApprovalPr($GetPr['purchaseId'], $payload);
 
             if ($payload['approvalStatus'] === 'APR_REJECTED') {
                 $this->purchase->RejectPurchaseRequest($GetPr['purchaseId']);

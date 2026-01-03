@@ -33,6 +33,22 @@ class PurchaseOrdersController extends Controller
             ]);
         }
     }
+    public function GetPurchseOrderByPoNumber()
+    {
+        try {
+            $poNumber = $_GET['poNumber'] ?? null;
+
+            if (!$poNumber) {
+                throw new Exception('PO Number tidak boleh kosong');
+            }
+
+            $response = $this->po->GetPurchaseOrdersByPoNumber($poNumber);
+            ResponseHelper::success($response, 'Success');
+        } catch (Exception $e) {
+            ResponseHelper::badRequest($e->getMessage());
+        }
+    }
+
 
     public function GetPurchaseOrderDetail()
     {

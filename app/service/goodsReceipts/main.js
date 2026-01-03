@@ -18,6 +18,7 @@ function GetGoodsReceiptsList() {
           let badge = StatusHandler(element.statusCode);
           body += ` <tr>
                         <td class="fw-semibold">${element.grNumber}</td>
+                        <td>${element.poNumber}</td>
                         <td>${element.prNumber}</td>
                         <td>${element.department}</td>
                         <td><label class='status-badge ${badge}'>${
