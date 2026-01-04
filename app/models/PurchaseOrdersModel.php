@@ -53,7 +53,7 @@ class PurchaseOrdersModel
                     po.id purchaseOrderId,
                     po.po_number poNumber
                 FROM purchase_orders po 
-                WHERE po.status_code = 'PO_APPROVED'";
+                WHERE po.status_code IN ('PO_APPROVED' , 'PO_PARTIAL')";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

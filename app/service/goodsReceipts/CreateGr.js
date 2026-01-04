@@ -12,6 +12,7 @@ function ChoosePurchaseOrder() {
     dataType: "json",
     success: function (response) {
       let result = response.result;
+      window.currentPurchaseOrderId = result.PoHeader.purchaseOrderId;
       SetHeaderPo(result);
 
       if (result.HistoryGr && result.HistoryGr.length > 0) {
@@ -86,19 +87,6 @@ function renderGrDetails(params) {
     let unitCell = `<td><span class="unit-badge">${detail.unit}</span></td>`;
     let qtyOrderedCell = `<td>${qtyOrdered}</td>`;
 
-    // let qtyReceivedInput = `
-    //   <input type="number"
-    //       class="form-control received-qty"
-    //       name="receivedQty[${detail.poDetailId}]"
-    //       min="0"
-    //       max="${remaining}"
-    //       value="0"
-    //       ${isComplete ? "readonly" : ""}>
-    //   <small class="form-text mt-1 text-muted">
-    //     Received: ${qtyReceivedBefore} / ${qtyOrdered}<br>
-    //     Remaining: ${remaining}
-    //   </small>`;
-
     let qtyReceivedInput = `
   <input type="number"
       class="form-control received-qty"
@@ -139,7 +127,7 @@ function renderGrDetails(params) {
     let serialCell = `<td>${serialInputs}</td>`;
 
     rows += `
-      <tr data-id="${detail.poDetailId}">
+      <tr data-id="${detail.poDetailId}" data-product-id="${detail.productId}">
         ${productNameCell}
         ${unitCell}
         ${qtyOrderedCell}
@@ -186,3 +174,88 @@ $(document).on("blur", ".received-qty", function () {
     `);
   }
 });
+
+function SubmitGoodsReceipts() {
+  try {
+    const payload = buildSubmitPayload();
+    showLoading();
+    $.ajax({
+      type: "POST",
+      url: BASE_URL + "GoodsReceipts/SubmitGoodsReceipts",
+      data: JSON.stringify(payload),
+      contentType: "application/json",
+      dataType: "json",
+      success: function (response) {
+        hideLoading();
+        if (response.status == 201) {
+          Swal.fire({
+            title: "Success!",
+            text: response.message,
+            icon: "success",
+          }).then(() => {
+            window.location = BASE_URL + "GoodsReceipts";
+          });
+        }
+      },
+      error: function (err) {
+        hideLoading();
+        Swal.fire("Error", err.responseJSON.message, "error");
+      },
+    });
+  } catch (e) {
+    hideLoading();
+    Swal.fire("Warning", e.message, "warning");
+  }
+}
+
+function buildSubmitPayload() {
+  const payload = {
+    purchaseOrderId: null,
+    notes: $("#gr_notes").val() || "",
+    receivedQty: {},
+    serialNumber: {},
+    productMap: {},
+  };
+
+  payload.purchaseOrderId = window.currentPurchaseOrderId;
+  if (!payload.purchaseOrderId) {
+    throw new Error("Purchase Order ID not found.");
+  }
+
+  $("#goodsReceiptsDetailTable tbody tr").each(function () {
+    const poDetailId = $(this).data("id");
+    const qty = parseInt($(this).find(".received-qty").val()) || 0;
+
+    if (qty <= 0) return;
+
+    payload.receivedQty[poDetailId] = qty;
+
+    const serialInputs = $(this).find(".serial-input");
+    if (serialInputs.length > 0) {
+      payload.serialNumber[poDetailId] = [];
+      serialInputs.each(function () {
+        const val = $(this).val().trim();
+        if (!val) {
+          throw new Error("Serial number wajib diisi.");
+        }
+        payload.serialNumber[poDetailId].push(val);
+      });
+    }
+
+    // productMap wajib (diambil dari attribute data)
+    const productId = $(this).data("product-id");
+    if (!productId) {
+      throw new Error(
+        "Product ID tidak ditemukan untuk PO detail " + poDetailId
+      );
+    }
+
+    payload.productMap[poDetailId] = productId;
+  });
+
+  if (Object.keys(payload.receivedQty).length === 0) {
+    throw new Error("Minimal satu item harus di-receive.");
+  }
+
+  return payload;
+}

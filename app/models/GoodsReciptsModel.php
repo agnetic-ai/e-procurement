@@ -185,114 +185,182 @@ class GoodsReciptsModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-
-    public function DraftGoodsRecipt($purchaseOrderId)
+    public function SubmitGoodsReceipt($payload = [])
     {
         try {
             $this->db->beginTransaction();
 
             $grNumber = $this->GenerateGrNumber();
 
-            $query = "INSERT INTO goods_receipts (
-                    gr_number,
-                    purchase_order_id,
-                    status_code
-                )
-                SELECT
-                    :gr_number,
-                    id,
-                    'GR_DRAFT'
-                FROM purchase_orders
-                WHERE id = :po_id
-                AND status_code = 'PO_APPROVED'";
+            $stmtGr = $this->db->prepare("
+            INSERT INTO goods_receipts (
+                gr_number,
+                purchase_order_id,
+                receipt_date,
+                received_by,
+                notes,
+                status_code
+            ) VALUES (
+                :gr_number,
+                :purchase_order_id,
+                :receipt_date,
+                :received_by,
+                :notes,
+                'GR_PROCESS'
+            )
+        ");
 
-            $stmt = $this->db->prepare($query);
-            $stmt->execute([
+            $stmtGr->execute([
                 ':gr_number' => $grNumber,
-                ':po_id' => $purchaseOrderId,
+                ':purchase_order_id' => $payload['purchaseOrderId'],
+                ':receipt_date' => date('Y-m-d'),
+                ':received_by' => $_SESSION['user_id'],
+                ':notes' => $payload['notes'] ?? null
             ]);
 
-            if ($stmt->rowCount() === 0) {
-                throw new Exception('Purchase Order tidak valid atau belum approved.');
-            }
+            $grId = $this->db->lastInsertId();
 
-            $goodsReceiptId = $this->db->lastInsertId();
+            $stmtDetail = $this->db->prepare("
+            INSERT INTO goods_receipt_details (
+                goods_receipt_id,
+                purchase_order_detail_id,
+                qty_received
+            ) VALUES (
+                :goods_receipt_id,
+                :po_detail_id,
+                :qty_received
+            )
+        ");
 
-            $queryDetail = "INSERT INTO goods_receipt_details (
-                            goods_receipt_id,
-                            purchase_order_detail_id,
-                            qty_received
-                        )
-                        SELECT
-                            :goods_receipt_id,
-                            id,
-                            0
-                        FROM purchase_order_details
-                        WHERE purchase_order_id = :po_id";
+            $stmtRemaining = $this->db->prepare("
+            SELECT 
+                pod.quantity - IFNULL(SUM(grd.qty_received), 0) AS remaining
+            FROM purchase_order_details pod
+            LEFT JOIN goods_receipt_details grd 
+                ON grd.purchase_order_detail_id = pod.id
+            LEFT JOIN goods_receipts gr 
+                ON gr.id = grd.goods_receipt_id
+                AND gr.status_code IN ('GR_PROCESS','GR_COMPLETED')
+            WHERE pod.id = :po_detail_id
+            GROUP BY pod.id
+        ");
 
-            $stmtDetail = $this->db->prepare($queryDetail);
-            $stmtDetail->execute([
-                ':goods_receipt_id' => $goodsReceiptId,
-                ':po_id' => $purchaseOrderId,
-            ]);
+            $stmtAsset = $this->db->prepare("
+            INSERT INTO asset_units (
+                goods_receipt_detail_id,
+                product_id,
+                serial_number,
+                status_code
+            ) VALUES (
+                :goods_receipt_detail_id,
+                :product_id,
+                :serial_number,
+                'ASSET_IN_STOCK'
+            )
+        ");
 
-            $queryUnitCheck = "SELECT 
-                                POD.quantity,
-                                POD.unit,
-                                GRD.id AS goods_receipt_detail_id,
-                                POD.product_id
-                           FROM purchase_order_details POD
-                           JOIN goods_receipt_details GRD
-                                ON POD.id = GRD.purchase_order_detail_id
-                           WHERE POD.purchase_order_id = :po_id
-                           AND POD.unit = 'Unit'";
+            foreach ($payload['receivedQty'] as $poDetailId => $qtyReceived) {
 
-            $stmtUnit = $this->db->prepare($queryUnitCheck);
-            $stmtUnit->execute([
-                ':po_id' => $purchaseOrderId,
-            ]);
+                if ($qtyReceived <= 0) {
+                    continue;
+                }
 
-            $unitItems = $stmtUnit->fetchAll(PDO::FETCH_ASSOC);
+                $stmtRemaining->execute([':po_detail_id' => $poDetailId]);
+                $remaining = (int)$stmtRemaining->fetchColumn();
 
-            if (!empty($unitItems)) {
-                $queryAsset = "INSERT INTO asset_units (
-                                goods_receipt_detail_id,
-                                product_id,
-                                status_code
-                           )
-                           VALUES (
-                                :goods_receipt_detail_id,
-                                :product_id,
-                                'ASSET_DRAFT'
-                           )";
+                if ($qtyReceived > $remaining) {
+                    throw new Exception("Qty received melebihi sisa PO.");
+                }
 
-                $stmtAsset = $this->db->prepare($queryAsset);
+                $stmtDetail->execute([
+                    ':goods_receipt_id' => $grId,
+                    ':po_detail_id' => $poDetailId,
+                    ':qty_received' => $qtyReceived
+                ]);
 
-                foreach ($unitItems as $item) {
-                    for ($i = 1; $i <= (int)$item['quantity']; $i++) {
+                $grDetailId = $this->db->lastInsertId();
+
+                if (!empty($payload['serialNumber'][$poDetailId])) {
+                    foreach ($payload['serialNumber'][$poDetailId] as $serial) {
+                        if (empty($serial)) {
+                            throw new Exception("Serial number wajib diisi.");
+                        }
+
                         $stmtAsset->execute([
-                            ':goods_receipt_detail_id' => $item['goods_receipt_detail_id'],
-                            ':product_id' => $item['product_id'],
+                            ':goods_receipt_detail_id' => $grDetailId,
+                            ':product_id' => $payload['productMap'][$poDetailId],
+                            ':serial_number' => $serial
                         ]);
                     }
                 }
             }
 
+            $stmtCheckRemaining = $this->db->prepare("
+            SELECT COUNT(*) 
+            FROM purchase_order_details pod
+            LEFT JOIN (
+                SELECT 
+                    grd.purchase_order_detail_id,
+                    SUM(grd.qty_received) AS total_received
+                FROM goods_receipt_details grd
+                JOIN goods_receipts gr 
+                    ON gr.id = grd.goods_receipt_id
+                    AND gr.status_code IN ('GR_PROCESS','GR_COMPLETED')
+                GROUP BY grd.purchase_order_detail_id
+            ) r ON r.purchase_order_detail_id = pod.id
+            WHERE pod.purchase_order_id = :po_id
+            AND (pod.quantity - IFNULL(r.total_received, 0)) > 0
+        ");
+
+            $stmtCheckRemaining->execute([
+                ':po_id' => $payload['purchaseOrderId']
+            ]);
+
+            $remainingItems = (int)$stmtCheckRemaining->fetchColumn();
+
+            $poStatus = ($remainingItems === 0)
+                ? 'PO_COMPLETED'
+                : 'PO_PARTIAL';
+
+            $grStatus = ($poStatus === 'PO_COMPLETED')
+                ? 'GR_COMPLETED'
+                : 'GR_PROCESS';
+
+            $this->db->prepare("
+            UPDATE purchase_orders
+            SET status_code = :status
+            WHERE id = :po_id
+        ")->execute([
+                ':status' => $poStatus,
+                ':po_id' => $payload['purchaseOrderId']
+            ]);
+
+            $this->db->prepare("
+            UPDATE goods_receipts
+            SET status_code = :status
+            WHERE id = :gr_id
+        ")->execute([
+                ':status' => $grStatus,
+                ':gr_id' => $grId
+            ]);
+
             $this->db->commit();
 
             return [
                 'success' => true,
-                'message' => 'Draft Goods Receipt berhasil dibuat.'
+                'message' => 'Goods Receipt berhasil disubmit.',
+                'grNumber' => $grNumber
             ];
         } catch (Throwable $e) {
             $this->db->rollBack();
 
             return [
                 'success' => false,
-                'message' => 'Gagal membuat Goods Receipt: ' . $e->getMessage()
+                'message' => $e->getMessage()
             ];
         }
     }
+
 
     function GenerateGrNumber()
     {
@@ -320,137 +388,5 @@ class GoodsReciptsModel
         }
 
         return $prefix . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
-    }
-
-    function SubmitGoodsReceipt($dto = [])
-    {
-        try {
-            $this->db->beginTransaction();
-            $allSerialNumbers = [];
-
-            foreach ($dto['goodsDetails'] as $detail) {
-                if (!empty($detail['serialNumbers'])) {
-                    foreach ($detail['serialNumbers'] as $sn) {
-                        $snValue = trim($sn['serialNumber']);
-
-                        if ($snValue === '') continue;
-                        if (in_array($snValue, $allSerialNumbers)) {
-                            throw new Exception('Duplicate Serial Number detected: ' . $snValue);
-                        }
-
-                        $allSerialNumbers[] = $snValue;
-                    }
-                }
-            }
-
-            $stmtCheckSN = $this->db->prepare("
-            SELECT COUNT(*) 
-            FROM asset_units 
-            WHERE serial_number = :serial_number");
-
-            foreach ($allSerialNumbers as $snValue) {
-                $stmtCheckSN->execute([':serial_number' => $snValue]);
-                if ($stmtCheckSN->fetchColumn() > 0) {
-                    throw new Exception('Serial Number already exists: ' . $snValue);
-                }
-            }
-
-            $stmtGR = $this->db->prepare("
-            UPDATE goods_receipts
-            SET received_by = :received_by,
-                receipt_date = :receipt_date,
-                notes = :notes,
-                status_code = 'GR_PROCESS'
-            WHERE gr_number = :gr_number
-              AND status_code = 'GR_DRAFT'");
-
-            $stmtGR->execute([
-                ':received_by'  => $dto['receiveBy'],
-                ':receipt_date' => $dto['receiveDate'],
-                ':notes' => trim($dto["notes"]),
-                ':gr_number'    => $dto['grNumber'],
-            ]);
-
-            foreach ($dto['goodsDetails'] as $detail) {
-                $stmtDetail = $this->db->prepare("
-                UPDATE goods_receipt_details
-                SET qty_received = :qty_received
-                WHERE id = :id");
-
-                $stmtDetail->execute([
-                    ':qty_received' => $detail['receivedQty'],
-                    ':id' => $detail['goodsDetailId'],
-                ]);
-
-                if (!empty($detail['serialNumbers'])) {
-                    foreach ($detail['serialNumbers'] as $sn) {
-                        $stmtAsset = $this->db->prepare("
-                        UPDATE asset_units
-                        SET serial_number = :serial_number,
-                            status_code = 'ASSET_IN_STOCK'
-                        WHERE id = :asset_id
-                    ");
-                        $stmtAsset->execute([
-                            ':serial_number' => $sn['serialNumber'],
-                            ':asset_id'      => $sn['assetId'],
-                        ]);
-                    }
-                }
-            }
-
-            $stmtQty = $this->db->prepare("
-            SELECT COUNT(*) 
-            FROM goods_receipts gr
-            JOIN goods_receipt_details grd ON gr.id = grd.goods_receipt_id
-            JOIN purchase_order_details pod
-              ON pod.id = grd.purchase_order_detail_id
-            WHERE gr.gr_number = :gr_number
-              AND grd.qty_received < pod.quantity");
-            $stmtQty->execute([':gr_number' => $dto['grNumber']]);
-            $qtyNotComplete = $stmtQty->fetchColumn();
-
-            $stmtSN = $this->db->prepare("
-                SELECT COUNT(*)
-                FROM asset_units au
-                JOIN goods_receipt_details grd
-                ON grd.id = au.goods_receipt_detail_id
-                JOIN goods_receipts gr
-                ON gr.id = grd.goods_receipt_id
-                WHERE gr.gr_number = :gr_number
-                AND (au.serial_number IS NULL OR au.serial_number = '')
-            ");
-
-            $stmtSN->execute([':gr_number' => $dto['grNumber']]);
-            $snNotComplete = $stmtSN->fetchColumn();
-
-            $finalStatus = ($qtyNotComplete == 0 && $snNotComplete == 0)
-                ? 'GR_COMPLETE'
-                : 'GR_PROCESS';
-
-            $stmtFinal = $this->db->prepare("
-            UPDATE goods_receipts
-            SET status_code = :status,
-                notes = :notes
-            WHERE gr_number = :gr_number");
-            $stmtFinal->execute([
-                ':status' => $finalStatus,
-                ':notes' => trim($dto["notes"]),
-                ':gr_number' => $dto['grNumber'],
-            ]);
-
-            $this->db->commit();
-
-            return [
-                'success' => true,
-                'message' => 'Goods Receipt Submitted Successfully',
-                'RequestNumber' => $dto['grNumber']
-            ];
-        } catch (Throwable $e) {
-            $this->db->rollBack();
-            return [
-                'success' => false,
-                'message' => $e->getMessage()
-            ];
-        }
     }
 }

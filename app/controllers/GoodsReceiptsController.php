@@ -107,7 +107,7 @@ class GoodsReceiptsController extends Controller
     }
 
 
-    public function SubmitGoodsReceipt()
+    public function SubmitGoodsReceipts()
     {
         header('Content-Type: application/json');
 
@@ -118,7 +118,7 @@ class GoodsReceiptsController extends Controller
             if ($result['success']) {
                 ResponseHelper::created(
                     [
-                        'RequestNumber' => $result['RequestNumber']
+                        'RequestNumber' => $result['grNumber']
                     ],
                     $result['message']
                 );

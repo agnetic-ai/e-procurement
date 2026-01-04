@@ -44,7 +44,6 @@ function submitApproval() {
     data: JSON.stringify(dto),
     dataType: "json",
     success: function (response) {
-      console.log(response);
       hideLoading();
       if (response.status == 201) {
         Swal.fire({

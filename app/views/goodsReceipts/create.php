@@ -229,7 +229,6 @@
             po_date: $option.data('po-date')
         };
 
-        // Simulasi: load dari dummy data
         const items = DUMMY_PO_DETAILS[poNumber] || [{
             id: 1,
             name: 'Mouse Wireless',
@@ -240,7 +239,6 @@
         }];
         const history = DUMMY_GR_HISTORY[poNumber] || [];
 
-        // Update PO header
         $('#poNumberDisplay').text(poData.po_number);
         $('#vendorDisplay').text(poData.vendor_name);
         $('#poDateDisplay').text(poData.po_date);
@@ -248,7 +246,6 @@
         $('#hidden_po_number').val(poData.po_number);
         $('#poHistoryLabel').text(poData.po_number);
 
-        // Render history & items
         renderGRHistory(history);
         renderGRItems(items);
 
@@ -256,7 +253,6 @@
         $('#poSection').removeClass('d-none');
         $('#grFormSection').removeClass('d-none');
 
-        // UI: GR_DRAFT (editable)
         setGRStatusUi('GR_DRAFT');
     }
 
