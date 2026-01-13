@@ -21,33 +21,6 @@ class GoodsReceiptsController extends Controller
         $this->view('goodsReceipts/index', $data);
     }
 
-    public function create()
-    {
-        $data = [
-            'title' => 'Goods Receipts',
-            "subtitle" => "Manage Goods Receipts"
-        ];
-        $this->view('goodsReceipts/create', $data);
-    }
-
-    public function draft()
-    {
-        $data = [
-            'title' => 'Goods Receipts',
-            "subtitle" => "Manage Goods Receipts"
-        ];
-        $this->view('goodsReceipts/draft', $data);
-    }
-
-    public function index2()
-    {
-        $data = [
-            'title' => 'Goods Receipts',
-            "subtitle" => "Manage Goods Receipts"
-        ];
-        $this->view('goodsReceipts/index2', $data);
-    }
-
     public function CreateGoodsReceipts()
     {
         $data = [

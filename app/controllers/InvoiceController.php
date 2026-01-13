@@ -1,0 +1,103 @@
+<?php
+class InvoiceController extends Controller
+{
+    private $invoice;
+    private $status;
+    private $po;
+    private $helpers;
+    public function __construct()
+    {
+        parent::__construct();
+        $this->checkLogin();
+        $this->invoice = new InvoiceModel();
+        $this->status = new StatusCodeModel();
+        $this->po = new PurchaseOrdersModel();
+        $this->helpers = new HelpersModel();
+    }
+
+    public function index()
+    {
+        $data = [
+            'title' => 'Invoice',
+            'subtitle' => 'Manage yout invoice and detail',
+            'invoice_statuses' => $this->status->GetStatusByModuleCode("INV")
+        ];
+        $this->view('invoice/index', $data);
+    }
+
+    public function CreateInvoice()
+    {
+        $data = [
+            'title' => 'Create Invoice Management',
+            'subtitle' => 'Manage yout invoice and detail',
+            'PoComplete' => $this->po->GetPoCompleteWithGr(),
+            'InvoiceNumber' => $this->helpers->GenerateRequestNumber(
+                'INV',
+                'invoices',
+                'invoice_number'
+            )
+        ];
+        $this->view('invoice/CreateInvoice', $data);
+    }
+
+    public function hh()
+    {
+        $data = [
+            'title' => 'Invoice',
+            'subtitle' => 'Manage yout invoice and detail',
+            'PoComplete' => $this->po->GetPoCompleteWithGr()
+        ];
+        $this->view('invoice/hh', $data);
+    }
+
+    public function GetDraftCreateInvoice()
+    {
+        $poNumber = $_GET['poNumber'] ?? null;
+
+        try {
+            if (!$poNumber) {
+                throw new Exception('PO Number tidak boleh kosong');
+            }
+
+            $response = [
+                'PoHeader' => $this->po->GetPurchaseOrdersByPoNumber($poNumber),
+                'InvoiceNumber' => $this->helpers->GenerateRequestNumber(
+                    'INV',
+                    'invoices',
+                    'invoice_number'
+                ),
+                'InvoiceItem' => $this->invoice->GetInvoiceByPoNumber($poNumber)
+            ];
+            ResponseHelper::success($response, 'Success');
+        } catch (Exception $e) {
+            ResponseHelper::badRequest($e->getMessage());
+        }
+    }
+
+    public function SubmitDraftInvoice()
+    {
+        header('Content-Type: application/json');
+
+        try {
+            $payload = json_decode(file_get_contents('php://input'), true);
+            $payload["createdBy"] = $this->session->get("user_id");
+
+            $result = $this->invoice->DraftInvoice($payload);
+            if ($result['success']) {
+                ResponseHelper::created(
+                    [
+                        'productName' => $result['productName']
+                    ],
+                    $result['message']
+                );
+            } else {
+                ResponseHelper::badRequest($result['message']);
+            }
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+}

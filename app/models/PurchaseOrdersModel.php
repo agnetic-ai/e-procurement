@@ -47,6 +47,50 @@ class PurchaseOrdersModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function GetPoCompleteWithGr()
+    {
+        $query = "SELECT 
+                po.id AS purchaseOrderId,
+                po.po_number AS poNumber,
+                po.po_date AS poDate,
+                v.company_name AS vendorName,
+                v.id AS vendorId,
+                pt.payment_name AS paymentName,
+                pt.payment_days AS paymentDays,
+                po.total_amount AS poTotal,
+                COUNT(DISTINCT gr.id) AS grCount,
+                COALESCE(SUM(grd.qty_received), 0) AS totalQtyReceived,
+                COALESCE(SUM(inv.total_amount), 0) AS totalInvoiced,
+                CASE 
+                    WHEN COALESCE(SUM(inv.total_amount), 0) >= po.total_amount THEN 'FULL'
+                    WHEN COALESCE(SUM(inv.total_amount), 0) > 0 THEN 'PARTIAL'
+                    ELSE 'NONE'
+                END AS invoicingStatus
+            FROM purchase_orders po
+            INNER JOIN vendors v 
+                ON po.vendor_id = v.id
+            INNER JOIN payment_terms pt 
+                ON po.payment_terms_id = pt.id
+            INNER JOIN goods_receipts gr 
+                ON po.id = gr.purchase_order_id 
+                AND gr.status_code = 'GR_COMPLETED'
+            INNER JOIN goods_receipt_details grd 
+                ON gr.id = grd.goods_receipt_id
+            LEFT JOIN invoices inv 
+                ON po.id = inv.purchase_order_id 
+                AND inv.status_code IN ('INV_DRAFT', 'INV_VERIFIED', 'INV_PAID')
+            WHERE 
+                po.status_code = 'PO_COMPLETED'
+            GROUP BY 
+                po.id, po.po_number, po.po_date, v.company_name, v.id, 
+                pt.payment_name, pt.payment_days, po.total_amount
+            ORDER BY 
+                po.po_date DESC, po.po_number DESC;";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function GetPurchaseOrderNumberApproved()
     {
         $query = "SELECT 
@@ -162,7 +206,6 @@ class PurchaseOrdersModel
                     ':status_code' => $aprStatus
                 ]);
             }
-
             $this->db->commit();
             return [
                 'success' => true,

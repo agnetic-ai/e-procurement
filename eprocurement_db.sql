@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 04, 2026 at 01:35 PM
+-- Generation Time: Jan 11, 2026 at 04:06 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.0
 
@@ -374,7 +374,7 @@ INSERT INTO `menus` (`id`, `title`, `icon`, `url`, `parent_id`, `menu_order`, `i
 (12, 'Purchase Order', 'file-text', 'purchaseOrders', NULL, 7, 1, '2025-12-30 08:50:13', '2025-12-31 03:33:29'),
 (13, 'Approval PO', 'check-circle', 'ApprovalPo', 8, 3, 1, '2026-01-01 14:54:27', '2026-01-01 14:57:34'),
 (14, 'Finance', 'dollar-sign', NULL, NULL, 8, 1, '2026-01-04 12:09:40', '2026-01-04 12:09:40'),
-(15, 'Inventory', NULL, 'Inventory', 14, 1, 1, '2026-01-04 12:10:19', '2026-01-04 12:10:19'),
+(15, 'Invoice', NULL, 'Invoice', 14, 1, 1, '2026-01-04 12:10:19', '2026-01-04 12:45:43'),
 (16, 'Payment', NULL, 'Payment', 14, 2, 1, '2026-01-04 12:10:19', '2026-01-04 12:10:19');
 
 -- --------------------------------------------------------
@@ -835,12 +835,12 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `full_name`, `email`, `role_id`, `login_attempts`, `last_login_attempt`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'admin', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Administrator', 'admin@eprocurement.com', 1, 0, NULL, 1, '2025-12-07 17:00:00', '2026-01-04 12:06:35'),
+(1, 'admin', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Administrator', 'admin@eprocurement.com', 1, 0, NULL, 1, '2025-12-07 17:00:00', '2026-01-11 11:14:32'),
 (2, 'procurement', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Procurement Staff', 'proc@eprocurement.com', 2, 0, NULL, 1, '2025-12-08 14:17:56', '2025-12-23 08:24:59'),
 (3, 'manager01', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Andi Pratama', 'andi.manager@company.com', 4, 0, NULL, 1, '2025-12-14 09:34:12', '2026-01-04 08:35:27'),
 (4, 'head01', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Siti Aisyah', 'siti.head@company.com', 7, 0, NULL, 1, '2025-12-14 09:34:12', '2026-01-04 09:04:59'),
 (5, 'director01', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Rudi Hartono', 'rudi.director@company.com', 6, 0, NULL, 1, '2025-12-14 09:34:12', '2026-01-04 08:36:34'),
-(6, 'finance02', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Siti Romlah', 'romlah@gmail.com', 5, 0, NULL, 1, '2026-01-04 08:57:17', '2026-01-04 12:11:25');
+(6, 'finance02', '$2y$10$hGL4XFXjy6r30NZ1r8kkROv5gSGIgQG76T0/FQ3z3RhrYiLp8UT1C', 'Siti Romlah', 'romlah@gmail.com', 5, 0, NULL, 1, '2026-01-04 08:57:17', '2026-01-11 14:52:14');
 
 -- --------------------------------------------------------
 
