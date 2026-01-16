@@ -23,7 +23,6 @@ function GetDraftCreate(poNumber) {
       console.log(result);
       $("#poId").val(result.PoHeader.purchaseOrderId);
       SetPoSummary(result);
-      SetInvoiceInformation(result);
       SetInvoiceItems(result);
     },
     error: function (err) {
@@ -42,10 +41,6 @@ function SetPoSummary(result) {
   $("#po_date").val(result.PoHeader.poDate);
   $("#po_amount").val(result.PoHeader.totalAmount);
   $("#payment_terms").val(result.PoHeader.paymentTerms);
-}
-
-function SetInvoiceInformation(result) {
-  $("#inv_number").val(result.InvoiceNumber);
 }
 
 function SetInvoiceItems(result) {
@@ -90,6 +85,7 @@ function SubmitDraftInvoice() {
     createdBy: 0,
     notes: notes,
   };
+  showLoading();
   $.ajax({
     type: "POST",
     url: BASE_URL + "invoice/SubmitDraftInvoice",
@@ -97,7 +93,16 @@ function SubmitDraftInvoice() {
     data: JSON.stringify(dto),
     dataType: "json",
     success: function (response) {
-      console.log(response);
+      hideLoading();
+      if (response.status == 201) {
+        Swal.fire({
+          title: "Success!",
+          text: response.message,
+          icon: "success",
+        }).then(() => {
+          window.location = BASE_URL + "invoice";
+        });
+      }
     },
     error: function (err) {
       Swal.fire({

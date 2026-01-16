@@ -18,7 +18,7 @@ class InvoiceController extends Controller
     public function index()
     {
         $data = [
-            'title' => 'Invoice',
+            'title' => 'Invoice Management',
             'subtitle' => 'Manage yout invoice and detail',
             'invoice_statuses' => $this->status->GetStatusByModuleCode("INV")
         ];
@@ -30,24 +30,28 @@ class InvoiceController extends Controller
         $data = [
             'title' => 'Create Invoice Management',
             'subtitle' => 'Manage yout invoice and detail',
-            'PoComplete' => $this->po->GetPoCompleteWithGr(),
-            'InvoiceNumber' => $this->helpers->GenerateRequestNumber(
-                'INV',
-                'invoices',
-                'invoice_number'
-            )
+            'PoComplete' => $this->po->GetPoReadyForInvoice()
+            // ,
+            // 'InvoiceNumber' => $this->helpers->GenerateRequestNumber(
+            //     'INV',
+            //     'invoices',
+            //     'invoice_number'
+            // )
         ];
         $this->view('invoice/CreateInvoice', $data);
     }
 
-    public function hh()
+    public function GetInvoiceProcurement()
     {
-        $data = [
-            'title' => 'Invoice',
-            'subtitle' => 'Manage yout invoice and detail',
-            'PoComplete' => $this->po->GetPoCompleteWithGr()
-        ];
-        $this->view('invoice/hh', $data);
+        try {
+            $invoices = $this->invoice->GetInvoiceProcurementView();
+            ResponseHelper::success($invoices, 'Success');
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 
     public function GetDraftCreateInvoice()
@@ -86,7 +90,7 @@ class InvoiceController extends Controller
             if ($result['success']) {
                 ResponseHelper::created(
                     [
-                        'productName' => $result['productName']
+                        'InvoiceNumber' => $result['InvoiceNumber']
                     ],
                     $result['message']
                 );

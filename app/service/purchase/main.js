@@ -62,6 +62,8 @@ function updateStepper() {
 function SelectedProduct(params) {
   let productId = parseInt($(params).val());
   let unitPrice = $(params).find("option:selected").data("price");
+  let uof = $(params).find("option:selected").data("uof");
+  console.log(uof);
   var dto = {
     productId: productId,
   };
@@ -90,6 +92,7 @@ function SelectedProduct(params) {
           vendors.append(newOption);
         });
         vendors.trigger("change");
+        $('select[name="uof"]').val(`${uof}`).trigger("change");
         $('input[name="unit_price"]').val(unitPrice);
         $('input[name="estimated"]').val(0);
       }

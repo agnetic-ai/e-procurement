@@ -37,6 +37,13 @@ function SearchInvoice() {
                         <td>${element.dueDate}</td>
                         <td><label class='status-badge ${badge}'>${element.statusName}</label></td>
                         <td>${element.createdAt}</td>
+                        <td>
+                        <div class="buttons">
+                           <a href="${BASE_URL}InvoiceVerification/InvoiceVerify?invNumber=${element.invoiceNumber}" class="btn btn-outline-primary btn-sm">
+                              <i data-feather="edit"></i>
+                          </a>
+                          </div>
+                        </td>
                     </tr>`;
         });
         Header.append(body);

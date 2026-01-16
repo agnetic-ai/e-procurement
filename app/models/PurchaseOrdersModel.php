@@ -46,6 +46,33 @@ class PurchaseOrdersModel
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function GetPoReadyForInvoice()
+    {
+        $query = "
+                SELECT DISTINCT
+                    po.id AS purchaseOrderId,
+                    po.po_number AS poNumber,
+                    v.company_name AS vendorName
+                FROM purchase_orders po
+                JOIN vendors v ON po.vendor_id = v.id
+                WHERE po.status_code = 'PO_COMPLETED'
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM invoices inv
+                    WHERE inv.purchase_order_id = po.id
+                )AND EXISTS (
+                    SELECT 1
+                    FROM goods_receipts gr
+                    WHERE gr.purchase_order_id = po.id
+                    AND gr.status_code = 'GR_COMPLETED'
+                )
+                ORDER BY po.po_number ASC
+            ";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     public function GetPoCompleteWithGr()
     {

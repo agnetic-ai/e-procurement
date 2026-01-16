@@ -23,14 +23,9 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label><strong>Select PO Number</strong> <span class="text-danger">*</span></label>
-                            <select c class="choices form-select" id="poSelect" onchange="ChangePo(this);" require>
+                            <select class="choices form-select" id="poSelect" onchange="ChangePo(this);" require>
                                 <option value="">— Choose PO (Status: Completed) —</option>
-                                <?php foreach ($data["PoComplete"] as $id => $po): ?>
-                                    <option value="<?= $po["poNumber"] ?>" data-id="<?= $po["purchaseOrderId"] ?>">
-                                        <?= htmlspecialchars($po['poNumber']) ?> —
-                                        <?= htmlspecialchars($po['vendorName']) ?>
-                                    </option>
-                                <?php endforeach; ?>
+
                             </select>
                             <input type="text" hidden id="poId">
                             <div class="form-text">
@@ -79,7 +74,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label class="required">Invoice Number</label>
-                                        <input type="text" class="form-control" id="inv_number">
+                                        <input type="text" class="form-control" id="inv_number" readonly>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
@@ -130,6 +125,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="tableinvoiceBody">
+
                                             </tbody>
                                         </table>
                                     </div>

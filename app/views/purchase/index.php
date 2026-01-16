@@ -83,6 +83,7 @@
                                                 <?php foreach ($data['product'] as $product): ?>
                                                     <option value="<?php echo $product['productId']; ?>"
                                                         data-price="<?php echo $product['unitPrice']; ?>"
+                                                        data-uof="<?php echo $product['uof']; ?>"
                                                         data-custom-properties='{"price": "<?php echo $product['unitPrice']; ?>", "vendor": "<?php echo $product['vendorName']; ?>"}'>
                                                         <?php echo htmlspecialchars($product['productName']) . ' - ' . $product['vendorName']; ?>
                                                     </option>
@@ -115,7 +116,7 @@
                                 <div class="col-md-6 mb-2">
                                     <div class="form-group">
                                         <label class="required">Unit Of Meansure</label>
-                                        <select class="form-control select2" name="uof">
+                                        <select class="form-control select2" name="uof" disabled>
                                             <option value="">-- Select Unit --</option>
                                             <?php if (!empty($data['units'])): ?>
                                                 <?php foreach ($data['units'] as $unit): ?>

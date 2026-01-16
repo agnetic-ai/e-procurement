@@ -12,7 +12,8 @@ class UnitOfMeansureModel
     {
         return [
             ['value' => "Unit", 'name' => 'Unit'],
-            ['value' => "Pcs", 'name' => 'Pcs']
+            ['value' => "Pcs", 'name' => 'Pcs'],
+            ['value' => "Rim", 'name' => 'Rim']
         ];
     }
 }

@@ -193,22 +193,22 @@ class GoodsReciptsModel
             $grNumber = $this->GenerateGrNumber();
 
             $stmtGr = $this->db->prepare("
-            INSERT INTO goods_receipts (
-                gr_number,
-                purchase_order_id,
-                receipt_date,
-                received_by,
-                notes,
-                status_code
-            ) VALUES (
-                :gr_number,
-                :purchase_order_id,
-                :receipt_date,
-                :received_by,
-                :notes,
-                'GR_PROCESS'
-            )
-        ");
+                INSERT INTO goods_receipts (
+                    gr_number,
+                    purchase_order_id,
+                    receipt_date,
+                    received_by,
+                    notes,
+                    status_code
+                ) VALUES (
+                    :gr_number,
+                    :purchase_order_id,
+                    :receipt_date,
+                    :received_by,
+                    :notes,
+                    'GR_PROCESS'
+                )
+            ");
 
             $stmtGr->execute([
                 ':gr_number' => $grNumber,
@@ -221,43 +221,43 @@ class GoodsReciptsModel
             $grId = $this->db->lastInsertId();
 
             $stmtDetail = $this->db->prepare("
-            INSERT INTO goods_receipt_details (
-                goods_receipt_id,
-                purchase_order_detail_id,
-                qty_received
-            ) VALUES (
-                :goods_receipt_id,
-                :po_detail_id,
-                :qty_received
-            )
-        ");
+                INSERT INTO goods_receipt_details (
+                    goods_receipt_id,
+                    purchase_order_detail_id,
+                    qty_received
+                ) VALUES (
+                    :goods_receipt_id,
+                    :po_detail_id,
+                    :qty_received
+                )
+            ");
 
             $stmtRemaining = $this->db->prepare("
-            SELECT 
-                pod.quantity - IFNULL(SUM(grd.qty_received), 0) AS remaining
-            FROM purchase_order_details pod
-            LEFT JOIN goods_receipt_details grd 
-                ON grd.purchase_order_detail_id = pod.id
-            LEFT JOIN goods_receipts gr 
-                ON gr.id = grd.goods_receipt_id
-                AND gr.status_code IN ('GR_PROCESS','GR_COMPLETED')
-            WHERE pod.id = :po_detail_id
-            GROUP BY pod.id
-        ");
+                    SELECT 
+                        pod.quantity - IFNULL(SUM(grd.qty_received), 0) AS remaining
+                    FROM purchase_order_details pod
+                    LEFT JOIN goods_receipt_details grd 
+                        ON grd.purchase_order_detail_id = pod.id
+                    LEFT JOIN goods_receipts gr 
+                        ON gr.id = grd.goods_receipt_id
+                        AND gr.status_code IN ('GR_PROCESS','GR_COMPLETED')
+                    WHERE pod.id = :po_detail_id
+                    GROUP BY pod.id
+                ");
 
             $stmtAsset = $this->db->prepare("
-            INSERT INTO asset_units (
-                goods_receipt_detail_id,
-                product_id,
-                serial_number,
-                status_code
-            ) VALUES (
-                :goods_receipt_detail_id,
-                :product_id,
-                :serial_number,
-                'ASSET_IN_STOCK'
-            )
-        ");
+                        INSERT INTO asset_units (
+                            goods_receipt_detail_id,
+                            product_id,
+                            serial_number,
+                            status_code
+                        ) VALUES (
+                            :goods_receipt_detail_id,
+                            :product_id,
+                            :serial_number,
+                            'ASSET_IN_STOCK'
+                        )
+                    ");
 
             foreach ($payload['receivedQty'] as $poDetailId => $qtyReceived) {
 

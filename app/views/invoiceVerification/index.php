@@ -76,15 +76,9 @@
                 </form>
             </div>
         </div>
-
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title"><i data-feather="file-text"></i> Invoice List</h5>
-                <div class="header-actions">
-                    <a href="<?= BASE_URL ?>invoice/CreateInvoice" class="btn btn-primary">
-                        <i data-feather="plus"></i> Create New Invoice
-                    </a>
-                </div>
             </div>
             <div class="card-body card-over">
                 <div class="responsive-container">
@@ -98,6 +92,7 @@
                                 <th>Due Date</th>
                                 <th>Status</th>
                                 <th>Created At</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="invoiceBody"></tbody>
@@ -107,4 +102,4 @@
         </div>
     </section>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/invoice/main.js"></script>
+<script src="<?php echo BASE_URL; ?>app/service/invoiceVerification/main.js"></script>

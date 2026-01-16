@@ -1,15 +1,6 @@
 <?php
 class ResponseHelper
 {
-    /**
-     * Format response JSON yang konsisten
-     * 
-     * @param int $status HTTP status code
-     * @param string $message Pesan response
-     * @param array $data Data hasil
-     * @param array $meta Metadata tambahan (pagination, etc)
-     * @return void
-     */
     public static function json($status = 200, $message = '', $data = [], $meta = [])
     {
         http_response_code($status);
@@ -35,25 +26,17 @@ class ResponseHelper
         self::json(200, $message, $data, $meta);
     }
 
-    /**
-     * Success dengan data kosong (204)
-     */
     public static function successNoContent($message = 'No data found')
     {
         self::json(200, $message, []);
     }
 
-    /**
-     * Created response (201)
-     */
+
     public static function created($data = [], $message = 'Resource created successfully')
     {
         self::json(201, $message, $data);
     }
 
-    /**
-     * Bad request (400)
-     */
     public static function badRequest($message = 'Bad request', $errors = [])
     {
         $data = !empty($errors) ? ['errors' => $errors] : [];

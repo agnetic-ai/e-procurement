@@ -8,7 +8,68 @@ class InvoiceModel
         $this->db = Database::getInstance()->getConnection();
     }
 
-    public function GetInvoiceList() {}
+    public function GetInvoiceProcurementView()
+    {
+        $conditions = [];
+        $params = [];
+
+        if (!empty($_POST['inv_number'])) {
+            $conditions[] = "inv.invoice_number LIKE :invNumber";
+            $params[':invNumber'] = '%' . $_POST['inv_number'] . '%';
+        }
+
+        if (!empty($_POST['po_number'])) {
+            $conditions[] = "po.po_number LIKE :poNumber";
+            $params[':poNumber'] = '%' . $_POST['po_number'] . '%';
+        }
+
+        if (!empty($_POST['vendor_id'])) {
+            $conditions[] = "v.id = :vendorId";
+            $params[':vendorId'] = $_POST['vendor_id'];
+        }
+
+        if (!empty($_POST['invoice_status'])) {
+            $conditions[] = "inv.status_code = :status";
+            $params[':status'] = $_POST['invoice_status'];
+        }
+
+        if (!empty($_POST['start_date']) && !empty($_POST['end_date'])) {
+            $conditions[] = "DATE(inv.created_at) BETWEEN :startDate AND :endDate";
+            $params[':startDate'] = $_POST['start_date'];
+            $params[':endDate']   = $_POST['end_date'];
+        }
+
+        $where = '';
+        if (!empty($conditions)) {
+            $where = 'WHERE ' . implode(' AND ', $conditions);
+        }
+
+        $query = "
+            SELECT
+                inv.invoice_number AS invoiceNumber,
+                po.po_number AS poNumber,
+                v.company_name AS vendorName,
+                sc.status_name AS statusName,
+                sc.status_code AS statusCode,
+                FORMAT(inv.total_amount, 'id-ID')  AS totalAmount,
+                DATE_FORMAT(inv.created_at, '%d %b %Y') AS createdAt,
+                DATE_FORMAT(inv.due_date, '%d %b %Y') AS dueDate
+            FROM invoices inv
+            JOIN purchase_orders po ON inv.purchase_order_id = po.id
+            JOIN vendors v ON inv.vendor_id = v.id
+            JOIN status_codes sc 
+                ON inv.status_code = sc.status_code 
+            AND sc.module_code = 'INV'
+            $where
+            ORDER BY inv.created_at DESC
+        ";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function GetInvoiceByPoNumber($poNumber)
     {
         $query = "SELECT po.po_number AS poNumber,
@@ -71,6 +132,16 @@ class InvoiceModel
                 throw new Exception('Invoice can only be created after final GR COMPLETED.');
             }
 
+            $invoiceDate = \DateTime::createFromFormat('Y-m-d', $payload['invoiceDate']);
+            $dueDate = \DateTime::createFromFormat('Y-m-d', $payload['dueDate']);
+
+            if (!$invoiceDate || !$dueDate) {
+                throw new Exception('Invalid date format. Expected YYYY-MM-DD.');
+            }
+
+            if ($invoiceDate > $dueDate) {
+                throw new Exception('Due date must be on or after invoice date.');
+            }
 
             $queryInvoice = "
                 INSERT INTO invoices (
