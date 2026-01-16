@@ -44,9 +44,11 @@ function SetPoSummary(result) {
 }
 
 function SetInvoiceItems(result) {
+  console.table(result);
   let tbInv = $("#tableinvoiceBody");
   let body = ``;
   tbInv.empty();
+  let grandTotal = 0;
   result.InvoiceItem.forEach((element) => {
     body += `<tr>
                  <td>${element.productName}</td>
@@ -59,8 +61,10 @@ function SetInvoiceItems(result) {
                  <td>${element.unitPrice}</td>
                  <td>${element.subtotal}</td>
              </tr>`;
+    grandTotal += unformatMoneyValue(element.subtotal);
   });
   tbInv.append(body);
+  $("#grandTotals").text(formatCurrency(grandTotal));
 }
 
 function ChangeToInvoice(params) {

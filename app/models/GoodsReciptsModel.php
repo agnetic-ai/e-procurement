@@ -2,10 +2,11 @@
 class GoodsReciptsModel
 {
     private $db;
-
+    private $helpers;
     public function __construct()
     {
         $this->db = Database::getInstance()->getConnection();
+        $this->helpers = new HelpersModel();
     }
 
     public function GetGoodsReciptsList()
@@ -190,7 +191,11 @@ class GoodsReciptsModel
         try {
             $this->db->beginTransaction();
 
-            $grNumber = $this->GenerateGrNumber();
+            $grNumber = $$this->helpers->GenerateRequestNumber(
+                'GR',
+                'goods_receipts',
+                'gr_number'
+            );
 
             $stmtGr = $this->db->prepare("
                 INSERT INTO goods_receipts (
@@ -233,31 +238,35 @@ class GoodsReciptsModel
             ");
 
             $stmtRemaining = $this->db->prepare("
-                    SELECT 
-                        pod.quantity - IFNULL(SUM(grd.qty_received), 0) AS remaining
-                    FROM purchase_order_details pod
-                    LEFT JOIN goods_receipt_details grd 
-                        ON grd.purchase_order_detail_id = pod.id
-                    LEFT JOIN goods_receipts gr 
-                        ON gr.id = grd.goods_receipt_id
-                        AND gr.status_code IN ('GR_PROCESS','GR_COMPLETED')
-                    WHERE pod.id = :po_detail_id
-                    GROUP BY pod.id
-                ");
+                SELECT 
+                    pod.quantity - IFNULL(SUM(grd.qty_received), 0) AS remaining
+                FROM purchase_order_details pod
+                LEFT JOIN goods_receipt_details grd 
+                    ON grd.purchase_order_detail_id = pod.id
+                LEFT JOIN goods_receipts gr 
+                    ON gr.id = grd.goods_receipt_id
+                    AND gr.status_code IN ('GR_PROCESS','GR_COMPLETED')
+                WHERE pod.id = :po_detail_id
+                GROUP BY pod.id
+            ");
 
             $stmtAsset = $this->db->prepare("
-                        INSERT INTO asset_units (
-                            goods_receipt_detail_id,
-                            product_id,
-                            serial_number,
-                            status_code
-                        ) VALUES (
-                            :goods_receipt_detail_id,
-                            :product_id,
-                            :serial_number,
-                            'ASSET_IN_STOCK'
-                        )
-                    ");
+                INSERT INTO asset_units (
+                    goods_receipt_detail_id,
+                    product_id,
+                    serial_number,
+                    status_code
+                ) VALUES (
+                    :goods_receipt_detail_id,
+                    :product_id,
+                    :serial_number,
+                    'ASSET_IN_STOCK'
+                )
+            ");
+
+            $stmtCheckSerial = $this->db->prepare("
+                SELECT COUNT(*) FROM asset_units WHERE serial_number = :serial
+            ");
 
             foreach ($payload['receivedQty'] as $poDetailId => $qtyReceived) {
 
@@ -272,6 +281,23 @@ class GoodsReciptsModel
                     throw new Exception("Qty received melebihi sisa PO.");
                 }
 
+                if (!empty($payload['serialNumber'][$poDetailId])) {
+                    $serials = $payload['serialNumber'][$poDetailId];
+
+                    if (count($serials) !== count(array_unique($serials))) {
+                        throw new Exception(
+                            "Terdapat serial number yang sama. 
+                        Setiap barang harus memiliki serial number yang berbeda."
+                        );
+                    }
+
+                    if (count($serials) !== (int)$qtyReceived) {
+                        throw new Exception(
+                            "Jumlah serial number harus sama dengan jumlah barang yang diterima."
+                        );
+                    }
+                }
+
                 $stmtDetail->execute([
                     ':goods_receipt_id' => $grId,
                     ':po_detail_id' => $poDetailId,
@@ -282,8 +308,16 @@ class GoodsReciptsModel
 
                 if (!empty($payload['serialNumber'][$poDetailId])) {
                     foreach ($payload['serialNumber'][$poDetailId] as $serial) {
+
                         if (empty($serial)) {
                             throw new Exception("Serial number wajib diisi.");
+                        }
+
+                        $stmtCheckSerial->execute([':serial' => $serial]);
+                        if ($stmtCheckSerial->fetchColumn() > 0) {
+                            throw new Exception(
+                                "Serial number {$serial} sudah terdaftar di sistem."
+                            );
                         }
 
                         $stmtAsset->execute([
@@ -296,21 +330,21 @@ class GoodsReciptsModel
             }
 
             $stmtCheckRemaining = $this->db->prepare("
-            SELECT COUNT(*) 
-            FROM purchase_order_details pod
-            LEFT JOIN (
-                SELECT 
-                    grd.purchase_order_detail_id,
-                    SUM(grd.qty_received) AS total_received
-                FROM goods_receipt_details grd
-                JOIN goods_receipts gr 
-                    ON gr.id = grd.goods_receipt_id
-                    AND gr.status_code IN ('GR_PROCESS','GR_COMPLETED')
-                GROUP BY grd.purchase_order_detail_id
-            ) r ON r.purchase_order_detail_id = pod.id
-            WHERE pod.purchase_order_id = :po_id
-            AND (pod.quantity - IFNULL(r.total_received, 0)) > 0
-        ");
+                SELECT COUNT(*) 
+                FROM purchase_order_details pod
+                LEFT JOIN (
+                    SELECT 
+                        grd.purchase_order_detail_id,
+                        SUM(grd.qty_received) AS total_received
+                    FROM goods_receipt_details grd
+                    JOIN goods_receipts gr 
+                        ON gr.id = grd.goods_receipt_id
+                        AND gr.status_code IN ('GR_PROCESS','GR_COMPLETED')
+                    GROUP BY grd.purchase_order_detail_id
+                ) r ON r.purchase_order_detail_id = pod.id
+                WHERE pod.purchase_order_id = :po_id
+                AND (pod.quantity - IFNULL(r.total_received, 0)) > 0
+            ");
 
             $stmtCheckRemaining->execute([
                 ':po_id' => $payload['purchaseOrderId']
@@ -353,40 +387,17 @@ class GoodsReciptsModel
             ];
         } catch (Throwable $e) {
             $this->db->rollBack();
+            $message = $e->getMessage();
+
+            if (str_contains($message, 'uk_asset_serial')) {
+                $message = 'Terdapat serial number yang sama. 
+                        Setiap barang harus memiliki serial number yang unik.';
+            }
 
             return [
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $message
             ];
         }
-    }
-
-
-    function GenerateGrNumber()
-    {
-        $year   = date('Y');
-        $prefix = "GR-$year-";
-
-        $sql = "SELECT gr_number
-            FROM goods_receipts
-            WHERE gr_number LIKE :prefix
-            ORDER BY gr_number DESC
-            LIMIT 1";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([
-            ':prefix' => $prefix . '%'
-        ]);
-
-        $lastPr = $stmt->fetchColumn();
-
-        if ($lastPr) {
-            $lastNumber = (int) substr($lastPr, -5);
-            $nextNumber = $lastNumber + 1;
-        } else {
-            $nextNumber = 1;
-        }
-
-        return $prefix . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
     }
 }

@@ -134,7 +134,7 @@
                                         </table>
                                     </div>
                                     <div class="text-end mt-3">
-                                        <h5>Grand Total: <strong></strong></h5>
+                                        <h5>Grand Total: <strong id="grandTotals"></strong></h5>
                                     </div>
                                     <div class="row mt-4">
                                         <div class="col-md-6">
@@ -155,7 +155,7 @@
                         <!-- <button type="button" class="btn btn-success" id="submitBtn" onclick="SubmitDraftInvoice();" disabled>
                             <i data-feather="check-square"></i> Submit for Verification
                         </button> -->
-                        <button type="button" class="btn btn-primary" id="submitBtn" onclick="SubmitDraftInvoice();" disabled>
+                        <button type="button" class="btn btn-primary" id="submitBtn" onclick="SubmitDraftInvoice();">
                             Submit
                         </button>
                     </div>
