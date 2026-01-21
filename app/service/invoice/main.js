@@ -19,7 +19,6 @@ function SearchInvoice() {
     data: $("#searchForm").serialize(),
     success: function (response) {
       hideLoading();
-      console.log(response);
       const Header = $("#invoiceBody");
       let body = "";
       if (response.status == 200) {

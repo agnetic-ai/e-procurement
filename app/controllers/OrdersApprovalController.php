@@ -50,6 +50,7 @@ class OrdersApprovalController extends Controller
             'status' => $this->status->GetStatusByModuleCode("APR"),
             'level' => $this->session->get("level")
         ];
+
         $this->view('ordersApproval/ApprovalDetail', $data);
     }
 

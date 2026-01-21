@@ -4,12 +4,14 @@ class GoodsReceiptsController extends Controller
 
     private $gr;
     private $po;
+    private $helpers;
     public function __construct()
     {
         parent::__construct();
         $this->checkLogin();
         $this->gr = new GoodsReciptsModel();
         $this->po = new PurchaseOrdersModel();
+        $this->helpers = new HelpersModel();
     }
 
     public function index()
@@ -26,8 +28,7 @@ class GoodsReceiptsController extends Controller
         $data = [
             'title' => 'Create Goods Receipts',
             'subtitle' => "Manage Goods Receipts",
-            'PurchaseOrder' => $this->po->GetPurchaseOrderNumberApproved(),
-            'GrNumber' => $this->gr->GenerateGrNumber()
+            'PurchaseOrder' => $this->po->GetPurchaseOrderNumberApproved()
         ];
         $this->view('goodsReceipts/CreateGoodsReceipts', $data);
     }

@@ -24,7 +24,7 @@
                         <div class="form-group">
                             <label><strong>Select PO Number</strong> <span class="text-danger">*</span></label>
                             <select c class="choices form-select" id="poSelect" onchange="ChangePo(this);" require>
-                                <option value="">— Choose PO (Status: Completed) —</option>
+                                <option value="">— Choose PO —</option>
                                 <?php foreach ($data["PoComplete"] as $id => $po): ?>
                                     <option value="<?= $po["poNumber"] ?>" data-id="<?= $po["purchaseOrderId"] ?>">
                                         <?= htmlspecialchars($po['poNumber']) ?> —
@@ -34,7 +34,9 @@
                             </select>
                             <input type="text" hidden id="poId">
                             <div class="form-text">
-                                <i class="text-muted">Only PO with status <strong>Completed</strong> are available.</i>
+                                <i class="text-muted">
+                                    Only Purchase Orders with received items that are not fully invoiced are available.
+                                </i>
                             </div>
                         </div>
                     </div>
@@ -70,6 +72,34 @@
                                 </div>
                             </div>
                             <hr>
+                        </div>
+                        <div id="invoiceSummary" class="d-none">
+                            <div class="card-header">
+                                <h4>Invoice Summary</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12 mb-2">
+                                        <div class="responsive-container">
+                                            <table class='table-custom table-preview'>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Invoice Number</th>
+                                                        <th>Invoice Date</th>
+                                                        <th>Qty</th>
+                                                        <th>Amount</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tableInvSummary">
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                            </div>
                         </div>
                         <div class="card-header">
                             <h4>Invoice Information</h4>
@@ -122,9 +152,9 @@
                                                     <th>Product</th>
                                                     <th>Ordered</th>
                                                     <th>Received</th>
-                                                    <th width="10%">To Invoice <i data-feather="help-circle" class="text-muted" data-bs-toggle="tooltip"
+                                                    <th width="15%">To Invoice <i data-feather="help-circle" class="text-muted" data-bs-toggle="tooltip"
                                                             title="Qty to invoice cannot exceed received qty."></i></th>
-                                                    <th>Unit Price <i data-feather="help-circle" class="text-muted" data-bs-toggle="tooltip"
+                                                    <th width="18%">Unit Price <i data-feather="help-circle" class="text-muted" data-bs-toggle="tooltip"
                                                             title="Default from PO. Changes require verification."></i></th>
                                                     <th>Subtotal</th>
                                                 </tr>

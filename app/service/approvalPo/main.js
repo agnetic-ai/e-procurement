@@ -34,8 +34,8 @@ function loadApproval() {
                       <td style="white-space: nowrap;">
                           <div class="buttons">
                               <a href="${BASE_URL}ApprovalPo/GetApprovalPoDetail?poNumber=${
-            element.poNumber
-          }"
+                                element.poNumber
+                              }"
                                 class="btn btn-outline-primary btn-sm">
                                   ${
                                     element.statusCode === "PO_DRAFT"

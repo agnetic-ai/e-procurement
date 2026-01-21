@@ -31,12 +31,6 @@ class InvoiceController extends Controller
             'title' => 'Create Invoice Management',
             'subtitle' => 'Manage yout invoice and detail',
             'PoComplete' => $this->po->GetPoReadyForInvoice()
-            // ,
-            // 'InvoiceNumber' => $this->helpers->GenerateRequestNumber(
-            //     'INV',
-            //     'invoices',
-            //     'invoice_number'
-            // )
         ];
         $this->view('invoice/CreateInvoice', $data);
     }
@@ -65,12 +59,8 @@ class InvoiceController extends Controller
 
             $response = [
                 'PoHeader' => $this->po->GetPurchaseOrdersByPoNumber($poNumber),
-                'InvoiceNumber' => $this->helpers->GenerateRequestNumber(
-                    'INV',
-                    'invoices',
-                    'invoice_number'
-                ),
-                'InvoiceItem' => $this->invoice->GetInvoiceByPoNumber($poNumber)
+                'InvoiceItem' => $this->invoice->GetInvoiceItemByPoNumber($poNumber),
+                'InvoiceSummary' => $this->invoice->GetInvoiceSummary($poNumber)
             ];
             ResponseHelper::success($response, 'Success');
         } catch (Exception $e) {
@@ -87,15 +77,21 @@ class InvoiceController extends Controller
             $payload["createdBy"] = $this->session->get("user_id");
 
             $result = $this->invoice->DraftInvoice($payload);
+
             if ($result['success']) {
                 ResponseHelper::created(
-                    [
-                        'InvoiceNumber' => $result['InvoiceNumber']
-                    ],
+                    ['InvoiceNumber' => $result['InvoiceNumber']],
                     $result['message']
                 );
             } else {
-                ResponseHelper::badRequest($result['message']);
+
+                $message = $result['message'];
+
+                if (str_contains($message, 'uk_vendor_invoice')) {
+                    $message = 'Invoice number already exists for this vendor.';
+                }
+
+                ResponseHelper::badRequest($message);
             }
         } catch (Exception $e) {
             echo json_encode([

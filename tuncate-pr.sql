@@ -200,13 +200,6 @@ ALTER TABLE purchase_request_approvals
     ADD CONSTRAINT fk_pr_approval_user
     FOREIGN KEY (approver_id) REFERENCES users(id);
 
-ALTER TABLE goods_receipts
-    ADD CONSTRAINT fk_gr_purchase_request
-    FOREIGN KEY (purchase_request_id) REFERENCES purchase_requests(id)
-    ON UPDATE CASCADE,
-    ADD CONSTRAINT fk_gr_status
-    FOREIGN KEY (status_code) REFERENCES status_codes(status_code)
-    ON UPDATE CASCADE;
 
 ALTER TABLE goods_receipt_details
     ADD CONSTRAINT fk_grd_receipt

@@ -52,28 +52,38 @@ class ApprovalWorkflowModel
 
     public function GetApprovalPurchaseRequest($prNumber)
     {
-        $query = "SELECT 
-                    PRA.id,
-                    PRA.level,
-                    PRA.status_code,
-                    UA.full_name username,
-                    RL.role_name roleName,
-                    SC.status_name statusName,
-                    SC.status_code statusCode,
-                    PRA.remarks
-                FROM purchase_requests PR
-                JOIN purchase_request_approvals PRA ON PR.id = PRA.purchase_request_id
-                JOIN users UA ON PRA.approver_id = UA.id
-                JOIN roles RL ON UA.role_id = RL.id
-                JOIN status_codes SC ON PRA.status_code = SC.status_code AND SC.module_code = 'APR'
-                WHERE PR.pr_number = :pr_number";
+        $query = "
+            SELECT 
+                PRA.id,
+                PRA.level,
+                PRA.status_code,
+                UA.full_name AS username,
+                RL.role_name AS roleName,
+                SC.status_name AS statusName,
+                SC.status_code AS statusCode,
+                PRA.remarks
+            FROM purchase_requests PR
+            JOIN purchase_request_approvals PRA 
+                ON PR.id = PRA.purchase_request_id
+            JOIN users UA 
+                ON PRA.approver_id = UA.id
+            JOIN roles RL 
+                ON UA.role_id = RL.id
+            JOIN status_codes SC 
+                ON PRA.status_code = SC.status_code 
+            AND SC.module_code = 'APR'
+            WHERE PR.pr_number = :pr_number
+            ORDER BY PRA.level ASC
+        ";
 
         $stmt = $this->db->prepare($query);
         $stmt->execute([
             ":pr_number" => $prNumber
         ]);
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
 
     public function GetApprovalPurchaseOrder($poNumber)
     {
@@ -91,7 +101,8 @@ class ApprovalWorkflowModel
                 JOIN users UA ON POA.approver_id = UA.id
                 JOIN roles RL ON UA.role_id = RL.id
                 JOIN status_codes SC ON POA.status_code = SC.status_code AND SC.module_code = 'APR'
-                WHERE PO.po_number = :po_number";
+                WHERE PO.po_number = :po_number
+                ORDER BY POA.level ASC";
         $stmt = $this->db->prepare($query);
         $stmt->execute([
             ":po_number" => $poNumber

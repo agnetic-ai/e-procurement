@@ -191,7 +191,7 @@ class GoodsReciptsModel
         try {
             $this->db->beginTransaction();
 
-            $grNumber = $$this->helpers->GenerateRequestNumber(
+            $grNumber = $this->helpers->GenerateRequestNumber(
                 'GR',
                 'goods_receipts',
                 'gr_number'
@@ -211,7 +211,7 @@ class GoodsReciptsModel
                     :receipt_date,
                     :received_by,
                     :notes,
-                    'GR_PROCESS'
+                    'GR_POSTED'
                 )
             ");
 
@@ -245,7 +245,7 @@ class GoodsReciptsModel
                     ON grd.purchase_order_detail_id = pod.id
                 LEFT JOIN goods_receipts gr 
                     ON gr.id = grd.goods_receipt_id
-                    AND gr.status_code IN ('GR_PROCESS','GR_COMPLETED')
+                    AND gr.status_code = 'GR_POSTED'
                 WHERE pod.id = :po_detail_id
                 GROUP BY pod.id
             ");
@@ -339,7 +339,7 @@ class GoodsReciptsModel
                     FROM goods_receipt_details grd
                     JOIN goods_receipts gr 
                         ON gr.id = grd.goods_receipt_id
-                        AND gr.status_code IN ('GR_PROCESS','GR_COMPLETED')
+                        AND gr.status_code = 'GR_POSTED'
                     GROUP BY grd.purchase_order_detail_id
                 ) r ON r.purchase_order_detail_id = pod.id
                 WHERE pod.purchase_order_id = :po_id
@@ -356,26 +356,14 @@ class GoodsReciptsModel
                 ? 'PO_COMPLETED'
                 : 'PO_PARTIAL';
 
-            $grStatus = ($poStatus === 'PO_COMPLETED')
-                ? 'GR_COMPLETED'
-                : 'GR_PROCESS';
 
             $this->db->prepare("
-            UPDATE purchase_orders
-            SET status_code = :status
-            WHERE id = :po_id
-        ")->execute([
+                UPDATE purchase_orders
+                SET status_code = :status
+                WHERE id = :po_id
+            ")->execute([
                 ':status' => $poStatus,
                 ':po_id' => $payload['purchaseOrderId']
-            ]);
-
-            $this->db->prepare("
-            UPDATE goods_receipts
-            SET status_code = :status
-            WHERE id = :gr_id
-        ")->execute([
-                ':status' => $grStatus,
-                ':gr_id' => $grId
             ]);
 
             $this->db->commit();

@@ -164,6 +164,7 @@
                                                     <th>Role</th>
                                                     <th>Status</th>
                                                     <th>Approver</th>
+                                                    <th>Remarks</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -178,6 +179,7 @@
                                                                 </label>
                                                             </td>
                                                             <td><?= htmlspecialchars($workflow['username']); ?></td>
+                                                            <td><?= htmlspecialchars($workflow['remarks'] ?? ""); ?></td>
                                                         </tr>
                                                     <?php endforeach; ?>
                                                 <?php else: ?>

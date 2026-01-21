@@ -49,31 +49,53 @@ class PurchaseOrdersModel
     public function GetPoReadyForInvoice()
     {
         $query = "
-                SELECT DISTINCT
+              SELECT DISTINCT
                     po.id AS purchaseOrderId,
                     po.po_number AS poNumber,
                     v.company_name AS vendorName
                 FROM purchase_orders po
-                JOIN vendors v ON po.vendor_id = v.id
-                WHERE po.status_code = 'PO_COMPLETED'
-                AND NOT EXISTS (
-                    SELECT 1
-                    FROM invoices inv
-                    WHERE inv.purchase_order_id = po.id
-                )AND EXISTS (
+                JOIN vendors v
+                    ON v.id = po.vendor_id
+                WHERE po.status_code IN ('PO_APPROVED','PO_PARTIAL','PO_COMPLETED')
+                AND EXISTS (
                     SELECT 1
                     FROM goods_receipts gr
                     WHERE gr.purchase_order_id = po.id
-                    AND gr.status_code = 'GR_COMPLETED'
+                    AND gr.status_code = 'GR_POSTED'
                 )
-                ORDER BY po.po_number ASC
+                AND EXISTS (
+                    SELECT 1
+                    FROM purchase_order_details pod
+                    LEFT JOIN (
+                        SELECT grd.purchase_order_detail_id,
+                            SUM(grd.qty_received) AS total_gr
+                        FROM goods_receipt_details grd
+                        JOIN goods_receipts gr
+                            ON gr.id = grd.goods_receipt_id
+                            AND gr.status_code = 'GR_POSTED'
+                        GROUP BY grd.purchase_order_detail_id
+                    ) grsum
+                        ON grsum.purchase_order_detail_id = pod.id
+                    LEFT JOIN (
+                        SELECT invd.purchase_order_detail_id,
+                            SUM(invd.qty) AS total_inv
+                        FROM invoice_details invd
+                        JOIN invoices inv
+                            ON inv.id = invd.invoice_id
+                            AND inv.status_code IN ('INV_VERIFIED','INV_PAID')
+                        GROUP BY invd.purchase_order_detail_id
+                    ) invsum
+                        ON invsum.purchase_order_detail_id = pod.id
+                    WHERE pod.purchase_order_id = po.id
+                    AND IFNULL(grsum.total_gr,0) > IFNULL(invsum.total_inv,0)
+                )
+                ORDER BY po.po_number ASC;
             ";
 
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
     public function GetPoCompleteWithGr()
     {
         $query = "SELECT 

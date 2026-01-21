@@ -26,12 +26,8 @@ function loadApproval() {
                         <td><label class='status-badge ${badge}'>${element.statusName}</label></td>
                         <td style="white-space: nowrap;">
                         <div class="buttons">
-                        
-                           <a href="${BASE_URL}ordersApproval/GetApprovalDetail?prNumber=${element.prNumber}" class="btn btn-outline-primary btn-sm">
+                        <a href="${BASE_URL}ordersApproval/GetApprovalDetail?prNumber=${element.prNumber}" class="btn btn-outline-primary btn-sm">
                               <i data-feather="edit"></i>
-                          </a>
-                          <a type="button" class="btn btn-outline-danger btn-sm" onclick="ConfirmDelete(${element.prNumber});">
-                              <i data-feather="trash-2"></i>
                           </a>
                           </div>
                         </td>

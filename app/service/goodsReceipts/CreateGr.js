@@ -69,7 +69,7 @@ function renderGrDetails(params) {
 
   if (!params.GrDetail || params.GrDetail.length === 0) {
     $tbody.html(
-      `<tr><td colspan="5" class="text-center">No items found.</td></tr>`
+      `<tr><td colspan="5" class="text-center">No items found.</td></tr>`,
     );
     return;
   }
@@ -95,9 +95,9 @@ function renderGrDetails(params) {
       max="${remaining}"
       value="0"
       ${isComplete ? "readonly" : ""}>
-  <small class="form-text mt-1 qty-info ${
-    isComplete ? "text-success" : "text-danger"
-  }"
+    <small class="form-text mt-1 qty-info ${
+      isComplete ? "text-success" : "text-danger"
+    }"
       data-qty-order="${qtyOrdered}"
       data-qty-received="${qtyReceivedBefore}">
       ${
@@ -159,7 +159,7 @@ $(document).on("blur", ".received-qty", function () {
 
   if (qty <= 0) {
     $serialContainer.html(
-      `<small class="text-muted">Enter received quantity to generate serial numbers</small>`
+      `<small class="text-muted">Enter received quantity to generate serial numbers</small>`,
     );
     return;
   }
@@ -246,7 +246,7 @@ function buildSubmitPayload() {
     const productId = $(this).data("product-id");
     if (!productId) {
       throw new Error(
-        "Product ID tidak ditemukan untuk PO detail " + poDetailId
+        "Product ID tidak ditemukan untuk PO detail " + poDetailId,
       );
     }
 

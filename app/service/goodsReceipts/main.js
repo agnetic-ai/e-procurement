@@ -22,8 +22,8 @@ function GetGoodsReceiptsList() {
                         <td>${element.prNumber}</td>
                         <td>${element.department}</td>
                         <td><label class='status-badge ${badge}'>${
-            element.statusName
-          }</label></td>
+                          element.statusName
+                        }</label></td>
                         <td>${
                           element.receiptDate == null
                             ? "-"
@@ -33,18 +33,20 @@ function GetGoodsReceiptsList() {
                           element.receivedBy == null ? "-" : element.receivedBy
                         }</td>
                         <td style="white-space: nowrap;">
-                        <div class="button">
                         
-                           <a href="${BASE_URL}goodsReceipts/GetGoodsReciptsDetail?grNumber=${
-            element.grNumber
-          }" class="btn btn-outline-primary btn-sm">
-                              <i data-feather="edit"></i>
-                          </a>
-                          </div>
                         </td>
                     </tr>`;
         });
-
+        {
+          /* <div class="button">
+                        
+                           <a href="${BASE_URL}goodsReceipts/GetGoodsReciptsDetail?grNumber=${
+                             element.grNumber
+                           }" class="btn btn-outline-primary btn-sm">
+                              <i data-feather="edit"></i>
+                          </a>
+                          </div> */
+        }
         Header.append(body);
         feather.replace();
         $("#goodsTable").DataTable({ ordering: false });

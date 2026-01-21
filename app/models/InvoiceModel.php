@@ -70,32 +70,48 @@ class InvoiceModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function GetInvoiceByPoNumber($poNumber)
+    public function GetInvoiceItemByPoNumber($poNumber)
     {
-        $query = "SELECT po.po_number AS poNumber,
+        $query = "SELECT
+                        po.po_number AS poNumber,
                         pod.id AS purchaseOrderDetailId,
                         p.name AS productName,
                         pod.quantity AS orderedQty,
-                        IFNULL(SUM(grd.qty_received), 0) AS receivedQty,
+                        IFNULL(grsum.total_gr, 0) AS receivedQty,
+                        IFNULL(invsum.total_inv, 0) AS invoicedQty,
+                        (IFNULL(grsum.total_gr, 0) - IFNULL(invsum.total_inv, 0)) AS toInvoiceQty,
                         FORMAT(pod.unit_price, 'id-ID') AS unitPrice,
                         FORMAT(pod.subtotal, 'id-ID') AS subtotal,
                         pod.unit
                     FROM purchase_orders po
-                        JOIN purchase_order_details pod
-                            ON pod.purchase_order_id = po.id
-                        JOIN products p
-                            ON p.id = pod.product_id
-                        LEFT JOIN goods_receipt_details grd
-                            ON grd.purchase_order_detail_id = pod.id
-                        LEFT JOIN goods_receipts gr
+                    JOIN purchase_order_details pod
+                        ON pod.purchase_order_id = po.id
+                    JOIN products p
+                        ON p.id = pod.product_id
+                    LEFT JOIN (
+                        SELECT
+                            grd.purchase_order_detail_id,
+                            SUM(grd.qty_received) AS total_gr
+                        FROM goods_receipt_details grd
+                        JOIN goods_receipts gr
                             ON gr.id = grd.goods_receipt_id
+                            AND gr.status_code = 'GR_POSTED'
+                        GROUP BY grd.purchase_order_detail_id
+                    ) grsum
+                        ON grsum.purchase_order_detail_id = pod.id
+                    LEFT JOIN (
+                        SELECT
+                            invd.purchase_order_detail_id,
+                            SUM(invd.qty) AS total_inv
+                        FROM invoice_details invd
+                        JOIN invoices inv
+                            ON inv.id = invd.invoice_id
+                            AND inv.status_code IN ('INV_VERIFIED', 'INV_PAID')
+                        GROUP BY invd.purchase_order_detail_id
+                    ) invsum
+                        ON invsum.purchase_order_detail_id = pod.id
                     WHERE po.po_number = :po_number
-                    GROUP BY pod.id,
-                            po.po_number,
-                            p.name,
-                            pod.quantity,
-                            pod.unit_price,
-                            pod.subtotal
+                    HAVING toInvoiceQty > 0
                     ORDER BY pod.id;";
         $stmt = $this->db->prepare($query);
         $stmt->execute(
@@ -104,46 +120,105 @@ class InvoiceModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function GetInvoiceSummary($poNumber)
+    {
+        $queryPo = "
+            SELECT id 
+            FROM purchase_orders 
+            WHERE po_number = :po_number
+        ";
+
+        $stmt = $this->db->prepare($queryPo);
+        $stmt->execute([
+            ':po_number' => $poNumber
+        ]);
+
+        $poId = $stmt->fetchColumn();
+
+        if (!$poId) {
+            return [];
+        }
+
+        $query = "
+            SELECT
+                inv.invoice_number AS invoiceNumber,
+                DATE_FORMAT(inv.invoice_date, '%d %b %Y') AS invoiceDate,
+                SUM(invd.qty) AS totalQty,
+                FORMAT(inv.total_amount, 'id-ID') AS totalAmount,
+                sc.status_name AS statusName,
+                sc.status_code AS statusCode,
+                FORMAT(invd.subtotal, 'id-ID') AS subtotal
+            FROM invoices inv
+            JOIN invoice_details invd 
+                ON invd.invoice_id = inv.id
+            JOIN status_codes sc 
+                ON sc.status_code = inv.status_code
+                AND sc.module_code = 'INV'
+            WHERE inv.purchase_order_id = :po_id
+          AND inv.status_code IN ('INV_VERIFIED', 'INV_PAID')
+            GROUP BY
+                inv.id,
+                inv.invoice_number,
+                inv.invoice_date,
+                inv.total_amount,
+                sc.status_name,
+                sc.status_code
+            ORDER BY inv.created_at DESC
+        ";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([
+            ':po_id' => $poId
+        ]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function DraftInvoice(array $payload)
     {
         try {
             $this->db->beginTransaction();
 
-            $stmt = $this->db->prepare("
-                SELECT COUNT(*) 
-                FROM invoices 
-                WHERE purchase_order_id = :poId
-            ");
+            if (empty($payload['items']) || !is_array($payload['items'])) {
+                throw new Exception('Invoice items cannot be empty.');
+            }
 
-            $stmt->execute([':poId' => $payload['poId']]);
-            if ($stmt->fetchColumn() > 0) {
-                throw new Exception('Invoice for this PO already exists.');
+            $invoiceDate = DateTime::createFromFormat('Y-m-d', $payload['invoiceDate']);
+            $dueDate     = DateTime::createFromFormat('Y-m-d', $payload['dueDate']);
+
+            if (!$invoiceDate || !$dueDate) {
+                throw new Exception('Invalid date format.');
+            }
+
+            if ($dueDate < $invoiceDate) {
+                throw new Exception('Due date must be after invoice date.');
             }
 
             $stmt = $this->db->prepare("
-                    SELECT COUNT(*) 
-                    FROM goods_receipts
-                    WHERE purchase_order_id = :poId
-                    AND status_code = 'GR_COMPLETED'
-                ");
+                SELECT vendor_id 
+                FROM purchase_orders 
+                WHERE id = :poId
+            ");
+            $stmt->execute([':poId' => $payload['poId']]);
+            $po = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$po) {
+                throw new Exception('Purchase Order not found.');
+            }
+
+            $stmt = $this->db->prepare("
+                SELECT COUNT(*) 
+                FROM goods_receipts
+                WHERE purchase_order_id = :poId
+                AND status_code = 'GR_POSTED'
+            ");
             $stmt->execute([':poId' => $payload['poId']]);
 
             if ($stmt->fetchColumn() == 0) {
-                throw new Exception('Invoice can only be created after final GR COMPLETED.');
+                throw new Exception('Invoice can only be created after GR POSTED.');
             }
 
-            $invoiceDate = \DateTime::createFromFormat('Y-m-d', $payload['invoiceDate']);
-            $dueDate = \DateTime::createFromFormat('Y-m-d', $payload['dueDate']);
-
-            if (!$invoiceDate || !$dueDate) {
-                throw new Exception('Invalid date format. Expected YYYY-MM-DD.');
-            }
-
-            if ($invoiceDate > $dueDate) {
-                throw new Exception('Due date must be on or after invoice date.');
-            }
-
-            $queryInvoice = "
+            $stmt = $this->db->prepare("
                 INSERT INTO invoices (
                     invoice_number,
                     purchase_order_id,
@@ -153,33 +228,66 @@ class InvoiceModel
                     status_code,
                     created_by,
                     notes
-                )
-                SELECT
+                ) VALUES (
                     :invoiceNumber,
-                    po.id,
-                    po.vendor_id,
+                    :poId,
+                    :vendorId,
                     :invoiceDate,
                     :dueDate,
                     'INV_DRAFT',
                     :createdBy,
                     :notes
-                FROM purchase_orders po
-                WHERE po.id = :poId
-            ";
+                )
+            ");
 
-            $stmt = $this->db->prepare($queryInvoice);
             $stmt->execute([
                 ':invoiceNumber' => $payload['invoiceNumber'],
+                ':poId'          => $payload['poId'],
+                ':vendorId'      => $po['vendor_id'],
                 ':invoiceDate'   => $payload['invoiceDate'],
                 ':dueDate'       => $payload['dueDate'],
                 ':createdBy'     => $payload['createdBy'],
-                ':notes'         => $payload['notes'] ?? null,
-                ':poId'          => $payload['poId'],
+                ':notes'         => $payload['notes'] ?? null
             ]);
 
             $invoiceId = $this->db->lastInsertId();
 
-            $queryDetails = "
+            $stmtRemaining = $this->db->prepare("
+                SELECT
+                    pod.product_id,
+                    pod.unit_price AS po_price,
+                    (
+                        IFNULL(SUM(
+                            CASE 
+                                WHEN gr.status_code = 'GR_POSTED'
+                                THEN grd.qty_received 
+                                ELSE 0 
+                            END
+                        ), 0)
+                        -
+                        IFNULL(SUM(
+                            CASE
+                                WHEN inv.status_code IN ('INV_VERIFIED','INV_PAID')
+                                THEN invd.qty
+                                ELSE 0
+                            END
+                        ), 0)
+                    ) AS remaining_qty
+                FROM purchase_order_details pod
+                LEFT JOIN goods_receipt_details grd 
+                    ON grd.purchase_order_detail_id = pod.id
+                LEFT JOIN goods_receipts gr 
+                    ON gr.id = grd.goods_receipt_id
+                LEFT JOIN invoice_details invd 
+                    ON invd.purchase_order_detail_id = pod.id
+                LEFT JOIN invoices inv 
+                    ON inv.id = invd.invoice_id
+                WHERE pod.id = :podId
+                AND pod.purchase_order_id = :poId
+                GROUP BY pod.id;
+            ");
+
+            $stmtDetail = $this->db->prepare("
                 INSERT INTO invoice_details (
                     invoice_id,
                     purchase_order_detail_id,
@@ -187,40 +295,109 @@ class InvoiceModel
                     qty,
                     unit_price,
                     subtotal
+                ) VALUES (
+                    :invoice_id,
+                    :pod_id,
+                    :product_id,
+                    :qty,
+                    :unit_price,
+                    :subtotal
                 )
-                SELECT
-                    :invoiceId,
-                    pod.id,
-                    pod.product_id,
-                    pod.quantity,
-                    pod.unit_price,
-                    (pod.quantity * pod.unit_price)
-                FROM purchase_order_details pod
-                WHERE pod.purchase_order_id = :poId
-            ";
+            ");
 
-            $stmt = $this->db->prepare($queryDetails);
-            $stmt->execute([
-                ':invoiceId' => $invoiceId,
-                ':poId'      => $payload['poId']
-            ]);
+            $totalAmount = 0;
 
-            $queryTotal = "
+            foreach ($payload['items'] as $item) {
+                if ($item['qty'] <= 0 || $item['unitPrice'] <= 0) {
+                    throw new Exception('Invalid qty or unit price.');
+                }
+
+                $stmtRemaining->execute([
+                    ':podId' => $item['purchaseOrderDetailId'],
+                    ':poId'  => $payload['poId']
+                ]);
+
+                $row = $stmtRemaining->fetch(PDO::FETCH_ASSOC);
+
+                if (!$row) {
+                    throw new Exception('Invalid PO item.');
+                }
+
+                if ($item['qty'] > $row['remaining_qty']) {
+                    throw new Exception('Invoice qty exceeds remaining GR quantity.');
+                }
+
+                if ((float)$item['unitPrice'] != (float)$row['po_price'] && empty($payload['notes'])) {
+                    throw new Exception('Price change requires notes.');
+                }
+
+                $subtotal = $item['qty'] * $item['unitPrice'];
+
+                $stmtDetail->execute([
+                    ':invoice_id' => $invoiceId,
+                    ':pod_id'     => $item['purchaseOrderDetailId'],
+                    ':product_id' => $row['product_id'],
+                    ':qty'        => $item['qty'],
+                    ':unit_price' => $item['unitPrice'],
+                    ':subtotal'   => $subtotal
+                ]);
+
+                $totalAmount += $subtotal;
+                if ((float)$item['unitPrice'] != (float)$row['po_price']) {
+                    $invoiceDetailId = $this->db->lastInsertId();
+                    $priceDiff = $item['unitPrice'] - $row['po_price'];
+                    $changeType = $priceDiff < 0 ? 'DISCOUNT' : 'PRICE_ADJUSTMENT';
+
+                    $stmtAudit = $this->db->prepare("
+                    INSERT INTO invoice_price_audits (
+                        invoice_id,
+                        invoice_detail_id,
+                        purchase_order_detail_id,
+                        product_id,
+                        po_unit_price,
+                        invoice_unit_price,
+                        price_diff,
+                        change_type,
+                        reason,
+                        created_by
+                    ) VALUES (
+                        :invoiceId,
+                        :invoiceDetailId,
+                        :podId,
+                        :productId,
+                        :poPrice,
+                        :invPrice,
+                        :diff,
+                        :type,
+                        :reason,
+                        :userId
+                    )
+                ");
+
+                    $stmtAudit->execute([
+                        ':invoiceId'        => $invoiceId,
+                        ':invoiceDetailId'  => $invoiceDetailId,
+                        ':podId'            => $item['purchaseOrderDetailId'],
+                        ':productId'        => $row['product_id'],
+                        ':poPrice'          => $row['po_price'],
+                        ':invPrice'         => $item['unitPrice'],
+                        ':diff'             => $priceDiff,
+                        ':type'             => $changeType,
+                        ':reason'           => $payload['notes'],
+                        ':userId'           => $payload['createdBy']
+                    ]);
+                }
+            }
+
+            $stmt = $this->db->prepare("
                 UPDATE invoices
-                SET total_amount = (
-                    SELECT SUM(subtotal)
-                    FROM invoice_details
-                    WHERE invoice_id = :invoiceIdSub
-                )
-                WHERE id = :invoiceIdMain
-            ";
-
-            $stmt = $this->db->prepare($queryTotal);
+                SET total_amount = :total
+                WHERE id = :invoiceId
+            ");
             $stmt->execute([
-                ':invoiceIdSub'  => $invoiceId,
-                ':invoiceIdMain' => $invoiceId
+                ':total'     => $totalAmount,
+                ':invoiceId' => $invoiceId
             ]);
-
 
             $this->db->commit();
 
