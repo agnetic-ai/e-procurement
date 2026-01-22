@@ -23,7 +23,7 @@ Sebelum memulai, pastikan Anda memiliki:
 - **MySQL** 5.7 atau lebih tinggi
 - **Node.js & npm** (untuk install dependencies frontend)
 - **XAMPP/LAMPP/MAMP** (atau server web lainnya) - opsional
-- **Composer** (opsional, jika perlu additional packages)
+- **Composer** composer require phpmailer/phpmailer
 
 ---
 
@@ -167,7 +167,6 @@ npm list
    ```
 
 2. **Jalankan XAMPP Control Panel**
-
    - Start **Apache**
    - Start **MySQL**
 
@@ -210,7 +209,6 @@ http://localhost:8000/
 ### Login ke Sistem
 
 1. **Default User** (dari database):
-
    - Username: `admin`
    - Password: `password123` (atau sesuai data di `master-vendor.sql`)
 

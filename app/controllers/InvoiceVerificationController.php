@@ -29,6 +29,7 @@ class InvoiceVerificationController extends Controller
             'InvHeader' => $this->verify->GetInvoiceVerifyHeader($invNumber),
             'InvItem' => $this->verify->GetInvoiceVerifyItem($invNumber)
         ];
+
         $this->view('invoiceVerification/invoiceVerify', $data);
     }
 
@@ -82,5 +83,34 @@ class InvoiceVerificationController extends Controller
                 'message' => $e->getMessage()
             ]);
         }
+    }
+
+    public function verify()
+    {
+        $body = $this->renderView('email/invoice_verified', [
+            'invoiceNumber' => 'NUMBRE_INVOICE',
+            'totalAmount'   => 10000000
+        ]);
+        $filePath = ROOT_PATH . '/uploads/payments/2026/01/pay_69724200c7cbd5.29117769.pdf';
+
+        $sent = EmailHelper::send(
+            "lsqbangkit@gmail.com", //to
+            'Invoice Verified - NUMBRE_INVOICE', //sub
+            $body, // content
+            [
+                'cc' => ['oraruhya@company.com'], //cc 
+                'attachments' => [ //attach
+                    [
+                        'path' => $filePath,
+                        'name' => "invoiceNumber" . '.pdf'
+                    ]
+                ]
+            ]
+        );
+
+        echo json_encode([
+            'status'  => $sent ? 200 : 500,
+            'message' => $sent ? 'Email berhasil dikirim' : 'Email gagal dikirim'
+        ]);
     }
 }

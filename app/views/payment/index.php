@@ -68,7 +68,7 @@
                                 <i data-feather="rotate-ccw"></i> Reset
                             </button>
 
-                            <button type="button" class="btn btn-primary" onclick="SearchInvoice();">
+                            <button type="button" class="btn btn-primary" onclick="SearchInvoicePayment();">
                                 <i data-feather="search"></i> Filter
                             </button>
                         </div>
@@ -76,37 +76,31 @@
                 </form>
             </div>
         </div>
+
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title"><i data-feather="file-text"></i> Invoice List</h5>
-                <button
-                    type="button"
-                    class="btn btn-primary btn-sm"
-                    onclick="SendTestVerifyEmail()">
-                    <i data-feather="mail"></i> Send Test Email
-                </button>
-
+                <h5 class="card-title"><i data-feather="file-text"></i> Invoice Verified</h5>
             </div>
             <div class="card-body card-over">
                 <div class="responsive-container">
-                    <table class="table-custom" id="invoiceTable">
+                    <table class="table-custom" id="paymentTable">
                         <thead>
                             <tr>
-                                <th>Invoice Number</th>
-                                <th>PO Number</th>
+                                <th>Invoice No.</th>
                                 <th>Vendor</th>
-                                <th class="text-end">Amount</th>
                                 <th>Due Date</th>
+                                <th>Total Amount</th>
+                                <th>Paid</th>
+                                <th>Remaining</th>
                                 <th>Status</th>
-                                <th>Created At</th>
-                                <th>Action</th>
+                                <th class="text-end">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="invoiceBody"></tbody>
+                        <tbody id="paymentBody"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </section>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/invoiceVerification/main.js"></script>
+<script src="<?php echo BASE_URL; ?>app/service/payment/main.js"></script>

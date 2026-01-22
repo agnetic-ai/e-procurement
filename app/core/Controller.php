@@ -64,6 +64,22 @@ class Controller
         }
     }
 
+    protected function renderView($view, $data = [])
+    {
+        $path = VIEWS_PATH . '/' . $view . '.php';
+
+        if (!file_exists($path)) {
+            throw new Exception("View {$view} not found");
+        }
+
+        extract($data);
+
+        ob_start();
+        include $path;
+        return ob_get_clean();
+    }
+
+
     private function loadVolerHeader($data = [])
     {
         extract($data);

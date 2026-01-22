@@ -26,26 +26,39 @@ function SearchInvoice() {
         if ($.fn.DataTable.isDataTable("#invoiceTable")) {
           $("#invoiceTable").DataTable().destroy();
         }
+
         Header.empty();
         response.result.forEach((element) => {
           let badge = StatusHandler(element.statusCode);
-          body += ` <tr>
-                        <td class="fw-semibold">${element.invoiceNumber}</td>
-                        <td>${element.poNumber}</td>
-                        <td>${element.vendorName}</td>
-                        <td>${element.totalAmount}</td>
-                        <td>${element.dueDate}</td>
-                        <td><label class='status-badge ${badge}'>${element.statusName}</label></td>
-                        <td>${element.createdAt}</td>
-                        <td>
-                        <div class="buttons">
-                           <a href="${BASE_URL}InvoiceVerification/InvoiceVerify?invNumber=${element.invoiceNumber}" class="btn btn-outline-primary btn-sm">
-                              <i data-feather="edit"></i>
-                          </a>
-                          </div>
-                        </td>
-                    </tr>`;
+
+          let actionButton = "";
+          if (element.statusCode === "INV_DRAFT") {
+            actionButton = `
+            <div class="buttons">
+                <a href="${BASE_URL}InvoiceVerification/InvoiceVerify?invNumber=${element.invoiceNumber}"
+                   class="btn btn-outline-primary btn-sm">
+                    <i data-feather="edit"></i>
+                </a>
+            </div>`;
+          }
+
+          body += `
+          <tr>
+              <td class="fw-semibold">${element.invoiceNumber}</td>
+              <td>${element.poNumber}</td>
+              <td>${element.vendorName}</td>
+              <td>${element.totalAmount}</td>
+              <td>${element.dueDate}</td>
+              <td>
+                  <label class="status-badge ${badge}">
+                      ${element.statusName}
+                  </label>
+              </td>
+              <td>${element.createdAt}</td>
+              <td>${actionButton}</td>
+          </tr>`;
         });
+
         Header.append(body);
         feather.replace();
         $("#invoiceTable").DataTable();
@@ -53,6 +66,34 @@ function SearchInvoice() {
     },
     error: function (err) {
       alert("Error loading data");
+    },
+  });
+}
+
+function SendTestVerifyEmail() {
+  showLoading();
+
+  $.ajax({
+    type: "POST",
+    url: BASE_URL + "InvoiceVerification/verify",
+    dataType: "json",
+    success: function (response) {
+      hideLoading();
+
+      Swal.fire({
+        title: "Success!",
+        text: response?.message || "Email berhasil dikirim",
+        icon: "success",
+      });
+    },
+    error: function (err) {
+      hideLoading();
+
+      Swal.fire({
+        title: "Failed!",
+        text: err.responseJSON?.message || "Gagal kirim email",
+        icon: "error",
+      });
     },
   });
 }

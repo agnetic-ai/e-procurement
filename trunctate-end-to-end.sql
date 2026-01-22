@@ -1,0 +1,15 @@
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE payments;
+TRUNCATE TABLE invoice_price_audits;
+TRUNCATE TABLE invoice_details;
+TRUNCATE TABLE invoices;
+TRUNCATE TABLE asset_units;
+TRUNCATE TABLE goods_receipt_details;
+TRUNCATE TABLE goods_receipts;
+TRUNCATE TABLE purchase_orders_approvals;
+TRUNCATE TABLE purchase_order_details;
+TRUNCATE TABLE purchase_orders;
+TRUNCATE TABLE purchase_request_approvals;
+TRUNCATE TABLE purchase_request_details;
+TRUNCATE TABLE purchase_requests;
+SET FOREIGN_KEY_CHECKS = 1;
