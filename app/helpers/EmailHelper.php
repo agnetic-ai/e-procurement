@@ -8,10 +8,7 @@ class EmailHelper
     public static function send($to, $subject, $body, $options = [])
     {
         $config = require __DIR__ . '/../config/email.php';
-
-
         $mail = new PHPMailer(true);
-
         try {
             $mail->isSMTP();
             $mail->Host       = $config['host'];
@@ -49,7 +46,6 @@ class EmailHelper
             $mail->send();
             return true;
         } catch (Exception $e) {
-            // log_message('error', 'Email Error: ' . $mail->ErrorInfo);
             return false;
         }
     }

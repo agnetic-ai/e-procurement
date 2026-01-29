@@ -87,26 +87,61 @@ class InvoiceVerificationController extends Controller
 
     public function verify()
     {
-        $body = $this->renderView('email/invoice_verified', [
-            'invoiceNumber' => 'NUMBRE_INVOICE',
-            'totalAmount'   => 10000000
+        $items = [
+            [
+                'product_name'    => 'Laptop Dell XPS 13',
+                'vendor_name'     => 'PT Supplier Jaya Abadi',
+                'quantity'        => 2,
+                'unit'            => 'Unit',
+                'estimated_price' => 18500000,
+                'subtotal'        => 37000000
+            ],
+            [
+                'product_name'    => 'Printer HP LaserJet',
+                'vendor_name'     => 'CV Mandiri Sejahtera',
+                'quantity'        => 1,
+                'unit'            => 'Unit',
+                'estimated_price' => 3850000,
+                'subtotal'        => 3850000
+            ]
+        ];
+
+        $body = $this->renderView('email/pr_submitted', [
+            'approverName'   => "ESTRI WULANDARI",
+            'prNumber'       => "pr->pr_number",
+            'prTitle'        => "title",
+            'department'     => "department",
+            'requesterName'  => "requesterName",
+            'items' => $items,
+            'totalEstimated' => 10000000,
+            'approvalUrl'    => BASE_URL . 'ordersapproval/detail?pr=' . "pr->pr_number"
         ]);
-        $filePath = ROOT_PATH . '/uploads/payments/2026/01/pay_69724200c7cbd5.29117769.pdf';
 
         $sent = EmailHelper::send(
-            "lsqbangkit@gmail.com", //to
-            'Invoice Verified - NUMBRE_INVOICE', //sub
-            $body, // content
+            "lsqbangkit@gmail.com",
+            'Approval Required - PR ' . "pr->pr_number",
+            $body,
             [
-                'cc' => ['oraruhya@company.com'], //cc 
-                'attachments' => [ //attach
-                    [
-                        'path' => $filePath,
-                        'name' => "invoiceNumber" . '.pdf'
-                    ]
-                ]
+                'cc' => ['estriwulandari13@gmail.com']
             ]
         );
+
+        // $filePath = ROOT_PATH . '/uploads/payments/2026/01/pay_69724200c7cbd5.29117769.pdf';
+
+        // $sent = EmailHelper::send(
+        //     "lsqbangkit@gmail.com", //to
+        //     'Invoice Verified - NUMBRE_INVOICE', //sub
+        //     $body, // content
+        //     [
+        //         'cc' => ['oraruhya@company.com'], //cc 
+        //         'attachments' => [ //attach
+        //             [
+        //                 'path' => $filePath,
+        //                 'name' => "invoiceNumber" . '.pdf'
+        //             ]
+        //         ]
+        //     ]
+        // );
 
         echo json_encode([
             'status'  => $sent ? 200 : 500,

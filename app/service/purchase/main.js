@@ -23,7 +23,7 @@ function nextStep() {
       Swal.fire(
         "Warning!",
         "Minimal harus ada 1 item pada Preview Request.",
-        "warning"
+        "warning",
       );
       return;
     }
@@ -69,7 +69,7 @@ function SelectedProduct(params) {
   };
   $.ajax({
     type: "POST",
-    url: BASE_URL + "vendor/GetVendorProduct",
+    url: BASE_URL + "vendors/GetVendorProduct",
     contentType: "application/json",
     data: JSON.stringify(dto),
     dataType: "json",
@@ -78,7 +78,7 @@ function SelectedProduct(params) {
       vendors
         .empty()
         .append(
-          '<option value="" style="opacity: 0.5; !important">--Pilih Vendor--</option>'
+          '<option value="" style="opacity: 0.5; !important">--Pilih Vendor--</option>',
         );
 
       if (response.status == 200) {
@@ -87,7 +87,7 @@ function SelectedProduct(params) {
             element.companyName,
             element.vendorId,
             false,
-            false
+            false,
           );
           vendors.append(newOption);
         });
@@ -139,7 +139,7 @@ function PreviewProduct() {
   let productDesc = $('textarea[name="product_desc"]').val();
   let quantity = parseFloat($('input[name="qty"]').val());
   let unitPrice = parseFloat(
-    unformatMoneyValue($('input[name="unit_price"]').val())
+    unformatMoneyValue($('input[name="unit_price"]').val()),
   );
 
   if (!productId) {
@@ -166,7 +166,7 @@ function PreviewProduct() {
     Swal.fire(
       "Warning!",
       "Harga satuan harus diisi dan lebih dari 0.",
-      "warning"
+      "warning",
     );
     return;
   }
@@ -188,7 +188,7 @@ function PreviewProduct() {
     Swal.fire(
       "Warning!",
       "Produk dengan vendor yang sama sudah ada.",
-      "warning"
+      "warning",
     );
     return;
   }
@@ -231,8 +231,8 @@ function PreviewProduct() {
     >
       <td class="row-number">${rowNumber}</td>
       <td><span name='vendor_id' hidden>${vendorId}</span>${productName}${
-      vendorName.text() ? " - " + vendorName.text() : ""
-    }</td>
+        vendorName.text() ? " - " + vendorName.text() : ""
+      }</td>
       <td>${productDesc || "-"}</td>
       <td>${quantity}</td>
       <td>${unit}</td>

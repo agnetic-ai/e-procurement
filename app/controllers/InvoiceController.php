@@ -19,7 +19,7 @@ class InvoiceController extends Controller
     {
         $data = [
             'title' => 'Invoice Management',
-            'subtitle' => 'Manage yout invoice and detail',
+            'subtitle' => 'Manage your invoice and detail',
             'invoice_statuses' => $this->status->GetStatusByModuleCode("INV")
         ];
         $this->view('invoice/index', $data);

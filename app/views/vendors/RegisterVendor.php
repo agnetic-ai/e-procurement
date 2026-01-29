@@ -126,4 +126,4 @@
         </div>
     </div>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/vendor/RegisterVendor.js"></script>
+<script src="<?php echo BASE_URL; ?>app/service/vendors/RegisterVendor.js"></script>

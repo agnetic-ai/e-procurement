@@ -1,5 +1,5 @@
 <?php
-class VendorController extends Controller
+class VendorsController extends Controller
 {
     private $vendor;
     private $cities;
@@ -20,7 +20,7 @@ class VendorController extends Controller
             'title' => 'Vendor Management',
         ];
 
-        $this->view('vendor/index', $data);
+        $this->view('vendors/index', $data);
     }
 
     public function RegisterVendor()
@@ -31,7 +31,7 @@ class VendorController extends Controller
             'payment' => $this->payment->GetPaymentTerms(),
             'business' => $this->business->GetBusiness()
         ];
-        $this->view('vendor/RegisterVendor', $data);
+        $this->view('vendors/RegisterVendor', $data);
     }
 
     public function UpdateVendor()
@@ -44,7 +44,7 @@ class VendorController extends Controller
             'payment' => $this->payment->GetPaymentTerms(),
             'business' => $this->business->GetBusiness()
         ];
-        $this->view('vendor/UpdateVendor', $data);
+        $this->view('vendors/UpdateVendor', $data);
     }
 
     public function GetVendorList()

@@ -8,7 +8,7 @@
             <div class="col-12 col-md-6 order-md-2 order-first">
                 <nav aria-label="breadcrumb" class='breadcrumb-header'>
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="<?php echo BASE_URL; ?>vendor/index">Vendor</a></li>
+                        <li class="breadcrumb-item"><a href="<?php echo BASE_URL; ?>vendors/index">Vendor</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Manage Vendors</li>
                     </ol>
                 </nav>
@@ -115,7 +115,7 @@
                     <div class="col-12 mt-3">
                         <button type="submit" class="btn btn-primary">
                             Submit</button>
-                        <a href="<?php echo BASE_URL; ?>vendor/index" class="btn btn-secondary">
+                        <a href="<?php echo BASE_URL; ?>vendors/index" class="btn btn-secondary">
                             <i data-feather="chevron-left"></i>
                             Back
                         </a>
@@ -125,4 +125,4 @@
         </div>
     </div>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/vendor/UpdateVendor.js"></script>
+<script src="<?php echo BASE_URL; ?>app/service/vendors/UpdateVendor.js"></script>

@@ -1,12 +1,12 @@
 $(function () {
-  $("#vendorFormUpdate").on("submit", function (e) {
+  $("#vendorForm").on("submit", function (e) {
     e.preventDefault();
-    submitUpdateVendor();
+    submitVendor();
   });
 });
 
-function submitUpdateVendor() {
-  let formVendor = $("#vendorFormUpdate");
+function submitVendor() {
+  let formVendor = $("#vendorForm");
   let name = formVendor.find('input[name="name"]').val();
   let email = formVendor.find('input[name="email"]').val();
   let phone = formVendor.find('input[name="phone"]').val();
@@ -16,11 +16,11 @@ function submitUpdateVendor() {
     .val();
   let tax_number = formVendor.find('input[name="tax_number"]').val();
   let payment_terms = parseInt(
-    formVendor.find('select[name="payment_terms"]').val()
+    formVendor.find('select[name="payment_terms"]').val(),
   );
   let website = formVendor.find('input[name="website"]').val();
   let address = formVendor.find('textarea[name="address"]').val();
-  let vendorCode = formVendor.find('label[name="vendor_code"]').text();
+
   let dto = {
     vendorName: name,
     vendorEmail: email,
@@ -31,22 +31,21 @@ function submitUpdateVendor() {
     paymentTerms: payment_terms,
     website: website,
     address: address,
-    vendorCode: vendorCode,
   };
-  console.log(JSON.stringify(dto));
+
   $.ajax({
     type: "POST",
-    url: BASE_URL + "vendor/SubmitUpdateVendor",
+    url: BASE_URL + "vendors/SubmitNewVendor",
     contentType: "application/json",
     data: JSON.stringify(dto),
     dataType: "json",
     success: function (response) {
       Swal.fire({
         title: "Success!",
-        text: "Vendor updated successfully.",
+        text: "Vendor created successfully.",
         icon: "success",
       }).then(() => {
-        window.location = BASE_URL + "vendor/index";
+        window.location = BASE_URL + "vendors/index";
       });
     },
     error: function (err) {

@@ -24,7 +24,6 @@
                                 }
                             }
                         }
-
                         $menuClass = 'sidebar-item';
                         if ($isActive) {
                             $menuClass .= ' active';

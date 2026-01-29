@@ -5,7 +5,7 @@ $(document).ready(function () {
 function loadVendors() {
   $.ajax({
     type: "POST",
-    url: BASE_URL + "vendor/GetVendorList",
+    url: BASE_URL + "vendors/GetVendorList",
     data: $("#searchForm").serialize(),
     success: function (response) {
       const Header = $("#vendorTableBody");
@@ -26,7 +26,7 @@ function loadVendors() {
                                     <td><small class="text-muted">${element.registrationDate}</small></td>
                                     <td>
                                     <div class="buttons">
-                                       <a href="${BASE_URL}vendor/UpdateVendor?vendorCode=${element.vendorCode}" class="btn btn-outline-primary btn-sm">
+                                       <a href="${BASE_URL}vendors/UpdateVendor?vendorCode=${element.vendorCode}" class="btn btn-outline-primary btn-sm">
                                           <i data-feather="edit"></i>
                                       </a>
                                       <a href="#" class="btn btn-outline-danger btn-sm">

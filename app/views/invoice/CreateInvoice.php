@@ -23,7 +23,7 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label><strong>Select PO Number</strong> <span class="text-danger">*</span></label>
-                            <select c class="choices form-select" id="poSelect" onchange="ChangePo(this);" require>
+                            <select class="choices form-select" id="poSelect" onchange="ChangePo(this);" require>
                                 <option value="">— Choose PO —</option>
                                 <?php foreach ($data["PoComplete"] as $id => $po): ?>
                                     <option value="<?= $po["poNumber"] ?>" data-id="<?= $po["purchaseOrderId"] ?>">
@@ -92,7 +92,6 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody id="tableInvSummary">
-
                                                 </tbody>
                                             </table>
                                         </div>
