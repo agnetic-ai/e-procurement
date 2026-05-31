@@ -5,7 +5,7 @@
 // APPLICATION CONSTANTS
 // ======================
 if (!defined('BASE_URL')) {
-    define('BASE_URL', 'http://localhost/e-procurement/');
+    define('BASE_URL', 'http://150.109.23.12/eprocurement/');
 }
 
 if (!defined('SITE_NAME')) {

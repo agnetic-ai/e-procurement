@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>E-Procurement ERD — All Tables Connected</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', system-ui, sans-serif; padding: 40px 20px; }
+h1 { text-align: center; font-size: 28px; font-weight: 600; color: #f0f6fc; margin-bottom: 8px; }
+.subtitle { text-align: center; color: #8b949e; font-size: 14px; margin-bottom: 40px; }
+.stats { display: flex; gap: 24px; justify-content: center; margin-bottom: 32px; flex-wrap: wrap; }
+.stat { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px 20px; text-align: center; }
+.stat-num { font-size: 28px; font-weight: 700; color: #f0f6fc; }
+.stat-label { font-size: 11px; color: #8b949e; margin-top: 4px; }
+
+/* Table node */
+.tn { background: #161b22; border: 2px solid #30363d; border-radius: 10px; min-width: 180px; max-width: 220px; display: inline-block; vertical-align: top; }
+.tn.h { padding: 10px 14px; font-size: 14px; font-weight: 700; color: #f0f6fc; border-bottom: 1px solid #30363d; text-align: center; border-radius: 8px 8px 0 0; }
+.tn.b { padding: 8px 14px; font-size: 11px; color: #8b949e; text-align: center; }
+.tn.b .pk { color: #da3633; font-weight: 600; }
+.tn.b .fk { color: #1f6feb; font-weight: 600; }
+
+/* Diamond */
+.dia { display: inline-block; width: 80px; height: 40px; vertical-align: middle; margin: 0 8px; }
+.dia svg { width: 100%; height: 100%; }
+.dia-label { font-size: 9px; font-weight: 700; color: #fff; text-align: center; display: block; margin-top: -28px; position: relative; z-index: 1; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+
+/* Arrow */
+.arr { display: inline-block; width: 60px; height: 2px; background: #58a6ff; vertical-align: middle; position: relative; }
+.arr::after { content: ''; position: absolute; right: 0; top: -4px; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 8px solid #58a6ff; }
+.arr.r::after { right: auto; left: 0; border-left: none; border-right: 8px solid #58a6ff; }
+
+/* Cardinality badge */
+.card { display: inline-block; font-size: 16px; font-weight: 800; width: 28px; height: 28px; border-radius: 50%; line-height: 28px; text-align: center; vertical-align: middle; }
+.card.c1 { background: #1f6feb; color: #fff; }
+.card.cn { background: #8957e5; color: #fff; }
+
+/* Group colors */
+.gm .tn { border-left: 3px solid #3fb950; }
+.gm .tn .h { background: linear-gradient(135deg, #0d2818, #161b22); }
+.ga .tn { border-left: 3px solid #d29922; }
+.ga .tn .h { background: linear-gradient(135deg, #2d1b00, #161b22); }
+.gp .tn { border-left: 3px solid #58a6ff; }
+.gp .tn .h { background: linear-gradient(135deg, #0d1b2e, #161b22); }
+.go .tn { border-left: 3px solid #bc8cff; }
+.go .tn .h { background: linear-gradient(135deg, #1c0d33, #161b22); }
+.gg .tn { border-left: 3px solid #3fb950; }
+.gg .tn .h { background: linear-gradient(135deg, #0d2818, #161b22); }
+.gi .tn { border-left: 3px solid #f0883e; }
+.gi .tn .h { background: linear-gradient(135deg, #2d1500, #161b22); }
+.gt .tn { border-left: 3px solid #39d2c0; }
+.gt .tn .h { background: linear-gradient(135deg, #0d2826, #161b22); }
+.gv .tn { border-left: 3px solid #8957e5; }
+.gv .tn .h { background: linear-gradient(135deg, #1c0d33, #161b22); }
+
+/* Flow section */
+.flow { max-width: 1200px; margin: 0 auto 40px; }
+.flow-title { font-size: 16px; font-weight: 600; color: #f0f6fc; margin-bottom: 20px; padding: 0 20px; display: flex; align-items: center; gap: 8px; }
+.flow-title::before { content: ''; width: 3px; height: 16px; border-radius: 2px; }
+.ft-core::before { background: #58a6ff; }
+.ft-auth::before { background: #d29922; }
+.ft-master::before { background: #3fb950; }
+.ft-asset::before { background: #39d2c0; }
+
+/* Relationship row */
+.rr { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 12px; padding: 0 20px; flex-wrap: wrap; }
+.rr-info { text-align: center; color: #6e7681; font-size: 11px; margin: -4px 0 12px 0; padding: 0 20px; }
+
+.footer { text-align: center; margin-top: 40px; color: #484f58; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<h1>E-Procurement System</h1>
+<div class="subtitle">Complete Entity Relationship Diagram — All 32 Tables Connected</div>
+
+<div class="stats">
+    <div class="stat"><div class="stat-num">32</div><div class="stat-label">Tables</div></div>
+    <div class="stat"><div class="stat-num">44</div><div class="stat-label">Relationships</div></div>
+    <div class="stat"><div class="stat-num">◆</div><div class="stat-label">Diamond Notation</div></div>
+</div>
+
+<!-- ==================== CORE PROCUREMENT FLOW ==================== -->
+<div class="flow">
+<div class="flow-title ft-core">🔄 Core Procurement Flow (PR → PO → GR → Invoice → Payment)</div>
+
+<!-- R1: users → membuat → purchase_requests -->
+<div class="rr">
+    <div class="tn gp"><div class="h">users</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> role_id</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#da3633" stroke="#ff6b6b" stroke-width="1"/></svg><span class="dia-label">membuat</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gp"><div class="h">purchase_requests</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> requested_by</div></div>
+</div>
+<div class="rr-info">1 User membuat banyak PR • User A buat 10 PR</div>
+
+<!-- R2: purchase_requests → memiliki → purchase_request_details -->
+<div class="rr">
+    <div class="tn gp"><div class="h">purchase_requests</div><div class="b"><span class="pk">PK</span> id | pr_number</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#238636" stroke="#3fb950" stroke-width="1"/></svg><span class="dia-label">memiliki</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gp"><div class="h">purchase_request_details</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> purchase_request_id</div></div>
+</div>
+<div class="rr-info">1 PR memiliki banyak detail • PR001: Laptop(1), Mouse(5), Monitor(2)</div>
+
+<!-- R3: purchase_requests → diapprove → purchase_request_approvals -->
+<div class="rr">
+    <div class="tn gp"><div class="h">purchase_requests</div><div class="b"><span class="pk">PK</span> id | pr_number</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#1f6feb" stroke="#58a6ff" stroke-width="1"/></svg><span class="dia-label">diapprove</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gp"><div class="h">purchase_request_approvals</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> purchase_request_id</div></div>
+</div>
+<div class="rr-info">1 PR diapprove oleh banyak level • Level 1: Manager, Level 2: Director</div>
+
+<!-- R4: purchase_requests → diubah menjadi → purchase_orders -->
+<div class="rr">
+    <div class="tn gp"><div class="h">purchase_requests</div><div class="b"><span class="pk">PK</span> id | status_code</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#f0883e" stroke="#f9a84d" stroke-width="1"/></svg><span class="dia-label">diubah jd</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn go"><div class="h">purchase_orders</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> purchase_request_id</div></div>
+</div>
+<div class="rr-info">1 PR bisa jadi banyak PO (split order) • PR001 → PO001(Laptop), PO002(Mouse)</div>
+
+<!-- R5: purchase_orders → memiliki → purchase_order_details -->
+<div class="rr">
+    <div class="tn go"><div class="h">purchase_orders</div><div class="b"><span class="pk">PK</span> id | po_number</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#238636" stroke="#3fb950" stroke-width="1"/></svg><span class="dia-label">memiliki</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn go"><div class="h">purchase_order_details</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> purchase_order_id</div></div>
+</div>
+<div class="rr-info">1 PO memiliki banyak detail • PO001: Laptop x10 @Rp15juta</div>
+
+<!-- R6: purchase_orders → diapprove → purchase_orders_approvals -->
+<div class="rr">
+    <div class="tn go"><div class="h">purchase_orders</div><div class="b"><span class="pk">PK</span> id | po_number</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#1f6feb" stroke="#58a6ff" stroke-width="1"/></svg><span class="dia-label">diapprove</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn go"><div class="h">purchase_orders_approvals</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> purchase_order_id</div></div>
+</div>
+<div class="rr-info">1 PO diapprove oleh banyak level approval</div>
+
+<!-- R7: purchase_orders → diterima oleh → goods_receipts -->
+<div class="rr">
+    <div class="tn go"><div class="h">purchase_orders</div><div class="b"><span class="pk">PK</span> id | po_number</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#3fb950" stroke="#56d364" stroke-width="1"/></svg><span class="dia-label">diterima</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gg"><div class="h">goods_receipts</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> purchase_order_id</div></div>
+</div>
+<div class="rr-info">1 PO bisa diterima bertahap (partial receiving) • PO001 → GR001, GR002</div>
+
+<!-- R8: goods_receipts → memiliki → goods_receipt_details -->
+<div class="rr">
+    <div class="tn gg"><div class="h">goods_receipts</div><div class="b"><span class="pk">PK</span> id | gr_number</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#238636" stroke="#3fb950" stroke-width="1"/></svg><span class="dia-label">memiliki</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gg"><div class="h">goods_receipt_details</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> goods_receipt_id</div></div>
+</div>
+<div class="rr-info">1 GR memiliki banyak detail barang diterima</div>
+
+<!-- R9: purchase_orders → ditagihkan → invoices -->
+<div class="rr">
+    <div class="tn go"><div class="h">purchase_orders</div><div class="b"><span class="pk">PK</span> id | po_number</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#da3633" stroke="#ff6b6b" stroke-width="1"/></svg><span class="dia-label">ditagihkan</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gi"><div class="h">invoices</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> purchase_order_id</div></div>
+</div>
+<div class="rr-info">1 PO bisa ditagih banyak invoice • PO001 → INV001(DP 50%), INV002(Pelunasan)</div>
+
+<!-- R10: invoices → memiliki → invoice_details -->
+<div class="rr">
+    <div class="tn gi"><div class="h">invoices</div><div class="b"><span class="pk">PK</span> id | invoice_number</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#238636" stroke="#3fb950" stroke-width="1"/></svg><span class="dia-label">memiliki</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gi"><div class="h">invoice_details</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> invoice_id</div></div>
+</div>
+<div class="rr-info">1 Invoice memiliki banyak detail item</div>
+
+<!-- R11: invoices → diaudit → invoice_price_audits -->
+<div class="rr">
+    <div class="tn gi"><div class="h">invoices</div><div class="b"><span class="pk">PK</span> id | invoice_number</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#f0883e" stroke="#f9a84d" stroke-width="1"/></svg><span class="dia-label">diaudit</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gi"><div class="h">invoice_price_audits</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> invoice_id</div></div>
+</div>
+<div class="rr-info">1 Invoice bisa punya banyak audit perubahan harga</div>
+
+<!-- R12: invoices → dibayar dengan → payments -->
+<div class="rr">
+    <div class="tn gi"><div class="h">invoices</div><div class="b"><span class="pk">PK</span> id | total_amount</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#d29922" stroke="#e3b341" stroke-width="1"/></svg><span class="dia-label">dibayar</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gi"><div class="h">payments</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> invoice_id</div></div>
+</div>
+<div class="rr-info">1 Invoice bisa dicicil banyak pembayaran • INV001 → PAY001(DP), PAY002(Lunas)</div>
+
+<!-- R13: invoices → diverifikasi oleh → users -->
+<div class="rr">
+    <div class="tn gi"><div class="h">invoices</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> verified_by</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#1f6feb" stroke="#58a6ff" stroke-width="1"/></svg><span class="dia-label">diverifikasi</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gp"><div class="h">users</div><div class="b"><span class="pk">PK</span> id | full_name</div></div>
+</div>
+<div class="rr-info">Banyak Invoice diverifikasi oleh 1 Finance user</div>
+</div>
+
+<!-- ==================== PR/PO DETAIL → MASTER DATA ==================== -->
+<div class="flow">
+<div class="flow-title ft-core">🔗 PR/PO Detail → Master Data Connections</div>
+
+<!-- PR Details → Products -->
+<div class="rr">
+    <div class="tn gp"><div class="h">purchase_request_details</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> product_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#238636" stroke="#3fb950" stroke-width="1"/></svg><span class="dia-label">merujuk</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gm"><div class="h">products</div><div class="b"><span class="pk">PK</span> id | code, name</div></div>
+</div>
+<div class="rr-info">Banyak PR Detail merujuk 1 Product • 1 Product ada di banyak PR</div>
+
+<!-- PR Details → Vendors -->
+<div class="rr">
+    <div class="tn gp"><div class="h">purchase_request_details</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> vendor_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#f0883e" stroke="#f9a84d" stroke-width="1"/></svg><span class="dia-label">disediakan</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gm"><div class="h">vendors</div><div class="b"><span class="pk">PK</span> id | company_name</div></div>
+</div>
+<div class="rr-info">Banyak PR Detail dari 1 Vendor</div>
+
+<!-- PO Details → Products -->
+<div class="rr">
+    <div class="tn go"><div class="h">purchase_order_details</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> product_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#238636" stroke="#3fb950" stroke-width="1"/></svg><span class="dia-label">merujuk</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gm"><div class="h">products</div><div class="b"><span class="pk">PK</span> id | code, name</div></div>
+</div>
+<div class="rr-info">Banyak PO Detail merujuk 1 Product</div>
+
+<!-- GR Details → PO Details -->
+<div class="rr">
+    <div class="tn gg"><div class="h">goods_receipt_details</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> purchase_order_detail_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#1f6feb" stroke="#58a6ff" stroke-width="1"/></svg><span class="dia-label">merujuk</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn go"><div class="h">purchase_order_details</div><div class="b"><span class="pk">PK</span> id | product_id</div></div>
+</div>
+<div class="rr-info">Banyak GR Detail merujuk 1 PO Detail</div>
+
+<!-- Invoice Details → Products -->
+<div class="rr">
+    <div class="tn gi"><div class="h">invoice_details</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> product_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#238636" stroke="#3fb950" stroke-width="1"/></svg><span class="dia-label">merujuk</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gm"><div class="h">products</div><div class="b"><span class="pk">PK</span> id | code, name</div></div>
+</div>
+<div class="rr-info">Banyak Invoice Detail merujuk 1 Product</div>
+
+<!-- Approvals → Users -->
+<div class="rr">
+    <div class="tn gp"><div class="h">purchase_request_approvals</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> approver_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#1f6feb" stroke="#58a6ff" stroke-width="1"/></svg><span class="dia-label">dilakukan</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gp"><div class="h">users</div><div class="b"><span class="pk">PK</span> id | full_name</div></div>
+</div>
+<div class="rr-info">Banyak Approval dilakukan oleh 1 User (approver)</div>
+
+<div class="rr">
+    <div class="tn go"><div class="h">purchase_orders_approvals</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> approver_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#1f6feb" stroke="#58a6ff" stroke-width="1"/></svg><span class="dia-label">dilakukan</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gp"><div class="h">users</div><div class="b"><span class="pk">PK</span> id | full_name</div></div>
+</div>
+<div class="rr-info">Banyak PO Approval dilakukan oleh 1 User</div>
+</div>
+
+<!-- ==================== AUTH & RBAC ==================== -->
+<div class="flow">
+<div class="flow-title ft-auth">🔐 Auth & Access Control</div>
+
+<!-- users → mempunyai → roles -->
+<div class="rr">
+    <div class="tn ga"><div class="h">users</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> role_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#d29922" stroke="#e3b341" stroke-width="1"/></svg><span class="dia-label">mempunyai</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn ga"><div class="h">roles</div><div class="b"><span class="pk">PK</span> id | role_code</div></div>
+</div>
+<div class="rr-info">Banyak User mempunyai 1 Role • Role "Manager" dipakai User A, B, C</div>
+
+<!-- roles → mengakses → role_menus -->
+<div class="rr">
+    <div class="tn ga"><div class="h">roles</div><div class="b"><span class="pk">PK</span> id | role_code</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#d29922" stroke="#e3b341" stroke-width="1"/></svg><span class="dia-label">mengakses</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn ga"><div class="h">role_menus</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> role_id</div></div>
+</div>
+<div class="rr-info">1 Role mengakses banyak Menu permissions</div>
+
+<!-- role_menus → memuat → menus -->
+<div class="rr">
+    <div class="tn ga"><div class="h">role_menus</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> menu_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#d29922" stroke="#e3b341" stroke-width="1"/></svg><span class="dia-label">memuat</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn ga"><div class="h">menus</div><div class="b"><span class="pk">PK</span> id | title, url | <span class="fk">FK</span> parent_id</div></div>
+</div>
+<div class="rr-info">Banyak role_menus merujuk 1 Menu • Self-referencing via parent_id</div>
+
+<!-- approval_levels → diisi oleh → approval_level_roles -->
+<div class="rr">
+    <div class="tn gv"><div class="h">approval_levels</div><div class="b"><span class="pk">PK</span> id | level, level_name</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#8957e5" stroke="#bc8cff" stroke-width="1"/></svg><span class="dia-label">diisi oleh</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gv"><div class="h">approval_level_roles</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> approval_level_id</div></div>
+</div>
+<div class="rr-info">1 Level bisa diisi oleh banyak Role</div>
+
+<!-- approval_level_roles → untuk role → roles -->
+<div class="rr">
+    <div class="tn gv"><div class="h">approval_level_roles</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> role_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#8957e5" stroke="#bc8cff" stroke-width="1"/></svg><span class="dia-label">untuk role</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn ga"><div class="h">roles</div><div class="b"><span class="pk">PK</span> id | role_code</div></div>
+</div>
+<div class="rr-info">Banyak level_role merujuk 1 Role</div>
+
+<!-- approval_rules → mengatur → purchase_requests -->
+<div class="rr">
+    <div class="tn gv"><div class="h">approval_rules</div><div class="b"><span class="pk">PK</span> id | min_amount, max_amount</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#8957e5" stroke="#bc8cff" stroke-width="1"/></svg><span class="dia-label">mengatur</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gp"><div class="h">purchase_requests</div><div class="b"><span class="pk">PK</span> id | total_estimated</div></div>
+</div>
+<div class="rr-info">1 Rule mengatur banyak PR berdasarkan nominal</div>
+
+<!-- status_codes → menentukan → purchase_requests -->
+<div class="rr">
+    <div class="tn ga"><div class="h">status_codes</div><div class="b"><span class="pk">PK</span> id | status_code</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#d29922" stroke="#e3b341" stroke-width="1"/></svg><span class="dia-label">menentukan</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gp"><div class="h">purchase_requests</div><div class="b"><span class="pk">PK</span> id | status_code</div></div>
+</div>
+<div class="rr-info">1 Status menentukan banyak PR • PR_DRAFT, PR_PROCESS, PR_APPROVED</div>
+
+<div class="rr">
+    <div class="tn ga"><div class="h">status_codes</div><div class="b"><span class="pk">PK</span> id | status_code</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#d29922" stroke="#e3b341" stroke-width="1"/></svg><span class="dia-label">menentukan</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn go"><div class="h">purchase_orders</div><div class="b"><span class="pk">PK</span> id | status_code</div></div>
+</div>
+<div class="rr-info">1 Status menentukan banyak PO</div>
+
+<div class="rr">
+    <div class="tn ga"><div class="h">status_codes</div><div class="b"><span class="pk">PK</span> id | status_code</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#d29922" stroke="#e3b341" stroke-width="1"/></svg><span class="dia-label">menentukan</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gi"><div class="h">invoices</div><div class="b"><span class="pk">PK</span> id | status_code</div></div>
+</div>
+<div class="rr-info">1 Status menentukan banyak Invoice</div>
+
+<div class="rr">
+    <div class="tn ga"><div class="h">status_codes</div><div class="b"><span class="pk">PK</span> id | status_code</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#d29922" stroke="#e3b341" stroke-width="1"/></svg><span class="dia-label">menentukan</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gg"><div class="h">goods_receipts</div><div class="b"><span class="pk">PK</span> id | status_code</div></div>
+</div>
+<div class="rr-info">1 Status menentukan banyak Goods Receipt</div>
+</div>
+
+<!-- ==================== MASTER DATA ==================== -->
+<div class="flow">
+<div class="flow-title ft-master">📦 Master Data Connections</div>
+
+<!-- products → berasal dari → categories -->
+<div class="rr">
+    <div class="tn gm"><div class="h">products</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> category_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#3fb950" stroke="#56d364" stroke-width="1"/></svg><span class="dia-label">berkategori</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gm"><div class="h">categories</div><div class="b"><span class="pk">PK</span> id | name</div></div>
+</div>
+<div class="rr-info">Banyak Product berasal dari 1 Kategori</div>
+
+<!-- vendors → berlokasi di → cities -->
+<div class="rr">
+    <div class="tn gm"><div class="h">vendors</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> city_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#3fb950" stroke="#56d364" stroke-width="1"/></svg><span class="dia-label">berlokasi</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gm"><div class="h">cities</div><div class="b"><span class="pk">PK</span> id | city_name</div></div>
+</div>
+<div class="rr-info">Banyak Vendor berlokasi di 1 Kota</div>
+
+<!-- vendors → berjenis → business_types -->
+<div class="rr">
+    <div class="tn gm"><div class="h">vendors</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> business_type_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#3fb950" stroke="#56d364" stroke-width="1"/></svg><span class="dia-label">berjenis</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gm"><div class="h">business_types</div><div class="b"><span class="pk">PK</span> id | type_name</div></div>
+</div>
+<div class="rr-info">Banyak Vendor berjenis 1 Tipe usaha</div>
+
+<!-- vendors → dibayar dengan → payment_terms -->
+<div class="rr">
+    <div class="tn gm"><div class="h">vendors</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> payment_terms_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#3fb950" stroke="#56d364" stroke-width="1"/></svg><span class="dia-label">dibayar</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gm"><div class="h">payment_terms</div><div class="b"><span class="pk">PK</span> id | payment_days</div></div>
+</div>
+<div class="rr-info">Banyak Vendor dibayar dengan 1 ketentuan pembayaran (Net 30, dll)</div>
+
+<!-- vendors → memiliki → vendor_bank_accounts -->
+<div class="rr">
+    <div class="tn gm"><div class="h">vendors</div><div class="b"><span class="pk">PK</span> id | company_name</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#3fb950" stroke="#56d364" stroke-width="1"/></svg><span class="dia-label">memiliki</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gm"><div class="h">vendor_bank_accounts</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> vendor_id</div></div>
+</div>
+<div class="rr-info">1 Vendor memiliki banyak rekening bank</div>
+
+<!-- vendors → memiliki → vendor_contacts -->
+<div class="rr">
+    <div class="tn gm"><div class="h">vendors</div><div class="b"><span class="pk">PK</span> id | company_name</div></div>
+    <span class="card c1">1</span>
+    <span class="arr"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#3fb950" stroke="#56d364" stroke-width="1"/></svg><span class="dia-label">memiliki</span></div>
+    <span class="arr"></span>
+    <span class="card cn">N</span>
+    <div class="tn gm"><div class="h">vendor_contacts</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> vendor_id</div></div>
+</div>
+<div class="rr-info">1 Vendor memiliki banyak kontak person</div>
+
+<!-- product_vendor_prices → untuk produk → products -->
+<div class="rr">
+    <div class="tn gm"><div class="h">product_vendor_prices</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> product_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#8957e5" stroke="#bc8cff" stroke-width="1"/></svg><span class="dia-label">untuk</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gm"><div class="h">products</div><div class="b"><span class="pk">PK</span> id | name</div></div>
+</div>
+<div class="rr-info">Banyak price record untuk 1 Product</div>
+
+<!-- product_vendor_prices → dari vendor → vendors -->
+<div class="rr">
+    <div class="tn gm"><div class="h">product_vendor_prices</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> vendor_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#8957e5" stroke="#bc8cff" stroke-width="1"/></svg><span class="dia-label">dari</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gm"><div class="h">vendors</div><div class="b"><span class="pk">PK</span> id | company_name</div></div>
+</div>
+<div class="rr-info">Banyak price record dari 1 Vendor (M:N junction table)</div>
+</div>
+
+<!-- ==================== ASSET MANAGEMENT ==================== -->
+<div class="flow">
+<div class="flow-title ft-asset">🏗️ Asset Management</div>
+
+<!-- asset_units → adalah → products -->
+<div class="rr">
+    <div class="tn gt"><div class="h">asset_units</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> product_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#39d2c0" stroke="#56d364" stroke-width="1"/></svg><span class="dia-label">adalah</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gm"><div class="h">products</div><div class="b"><span class="pk">PK</span> id | name</div></div>
+</div>
+<div class="rr-info">Banyak Asset Unit adalah dari 1 Product type</div>
+
+<!-- asset_units → digunakan oleh → employees -->
+<div class="rr">
+    <div class="tn gt"><div class="h">asset_units</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> employee_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#39d2c0" stroke="#56d364" stroke-width="1"/></svg><span class="dia-label">digunakan</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gt"><div class="h">employees</div><div class="b"><span class="pk">PK</span> id | full_name</div></div>
+</div>
+<div class="rr-info">Banyak Asset digunakan oleh 1 Employee</div>
+
+<!-- asset_assignments → mengalokasikan → asset_units -->
+<div class="rr">
+    <div class="tn gt"><div class="h">asset_assignments</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> asset_unit_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#39d2c0" stroke="#56d364" stroke-width="1"/></svg><span class="dia-label">alokasi</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gt"><div class="h">asset_units</div><div class="b"><span class="pk">PK</span> id | serial_number</div></div>
+</div>
+<div class="rr-info">Banyak Assignment merujuk 1 Asset Unit</div>
+
+<!-- asset_assignments → kepada → employees -->
+<div class="rr">
+    <div class="tn gt"><div class="h">asset_assignments</div><div class="b"><span class="pk">PK</span> id | <span class="fk">FK</span> employee_id</div></div>
+    <span class="card cn">N</span>
+    <span class="arr r"></span>
+    <div class="dia"><svg viewBox="0 0 80 40"><polygon points="40,2 78,20 40,38 2,20" fill="#39d2c0" stroke="#56d364" stroke-width="1"/></svg><span class="dia-label">kepada</span></div>
+    <span class="arr r"></span>
+    <span class="card c1">1</span>
+    <div class="tn gt"><div class="h">employees</div><div class="b"><span class="pk">PK</span> id | full_name</div></div>
+</div>
+<div class="rr-info">Banyak Assignment untuk 1 Employee</div>
+</div>
+
+<div class="footer">E-Procurement System ERD — 32 Tables, 44 Relationships, All Connected with Diamond Notation</div>
+
+</body>
+</html>

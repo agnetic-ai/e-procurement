@@ -24,6 +24,12 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
+                            <label class="required">Product Code</label>
+                            <input type="text" class="form-control" name="code" placeholder="e.g. PRD-001" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
                             <label class="required">Product Name</label>
                             <input type="text" class="form-control" name="name" required>
                         </div>
@@ -120,4 +126,4 @@
         </div>
     </div>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/product/NewProduct.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/product/NewProduct.js"></script>

@@ -34,6 +34,14 @@ class PurchaseController extends Controller
             $payload["requestedBy"] = $this->session->getUserId();
             $result = $this->purchase->SubmitPurchaseRequest($payload);
             if ($result['success']) {
+                // Send email to approvers (async-like, non-blocking)
+                try {
+                    $emailService = new EmailNotificationService();
+                    $emailService->notifyApproversOnSubmit($result['RequestNumber'], $result['purchaseId'] ?? 0);
+                } catch (Exception $e) {
+                    error_log("Email notification failed: " . $e->getMessage());
+                }
+
                 ResponseHelper::created(
                     [
                         'RequestNumber' => $result['RequestNumber']

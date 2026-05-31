@@ -83,4 +83,4 @@
         </div>
     </section>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/goodsReceipts/main.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/goodsReceipts/main.js"></script>

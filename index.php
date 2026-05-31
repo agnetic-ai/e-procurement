@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
 
-define('BASE_URL', 'http://localhost/e-procurement/');
+define('BASE_URL', 'http://150.109.23.12/eprocurement/');
 define('SITE_NAME', 'e-Procurement System');
 define('APP_PATH', __DIR__ . '/app');
 define('VIEWS_PATH', APP_PATH . '/views');
@@ -81,6 +81,47 @@ switch ($controllerPart) {
     case 'login':
         header('Location: ' . BASE_URL . 'auth/login');
         exit();
+        break;
+
+    // Fix routing mismatches — menu URLs that don't match controller filenames
+    case 'vendor':
+        loadController('VendorsController');
+        $controller = new VendorsController();
+        if ($methodPart && method_exists($controller, $methodPart)) {
+            $controller->$methodPart();
+        } else {
+            $controller->index();
+        }
+        break;
+
+    case 'ordersrequest':
+        loadController('OrdersRequestController');
+        $controller = new OrdersRequestController();
+        if ($methodPart && method_exists($controller, $methodPart)) {
+            $controller->$methodPart();
+        } else {
+            $controller->index();
+        }
+        break;
+
+    case 'users':
+        loadController('UsersController');
+        $controller = new UsersController();
+        if ($methodPart && method_exists($controller, $methodPart)) {
+            $controller->$methodPart();
+        } else {
+            $controller->index();
+        }
+        break;
+
+    case 'ordersapproval':
+        loadController('OrdersApprovalController');
+        $controller = new OrdersApprovalController();
+        if ($methodPart && method_exists($controller, $methodPart)) {
+            $controller->$methodPart();
+        } else {
+            $controller->index();
+        }
         break;
 
     default:

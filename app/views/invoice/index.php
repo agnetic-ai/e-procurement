@@ -107,4 +107,4 @@
         </div>
     </section>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/invoice/main.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/invoice/main.js"></script>

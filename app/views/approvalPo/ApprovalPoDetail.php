@@ -260,4 +260,4 @@
         </div>
     </section>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/approvalPo/ApprovalPoDetail.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/approvalPo/ApprovalPoDetail.js"></script>

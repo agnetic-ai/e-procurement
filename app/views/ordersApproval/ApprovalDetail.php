@@ -239,4 +239,4 @@
         </div>
     </section>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/orderApproval/ApprovalDetail.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/orderApproval/ApprovalDetail.js"></script>

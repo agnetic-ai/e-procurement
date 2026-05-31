@@ -103,4 +103,4 @@
         </div>
     </section>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/payment/main.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/payment/main.js"></script>

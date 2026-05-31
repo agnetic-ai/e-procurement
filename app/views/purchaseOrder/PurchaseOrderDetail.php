@@ -215,4 +215,4 @@
         </div>
     </section>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/purchaseOrder/PurchaseOrderDetail.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/purchaseOrder/PurchaseOrderDetail.js"></script>

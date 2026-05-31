@@ -129,4 +129,4 @@
         </div>
     </form>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/assets/assign.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/assets/assign.js"></script>

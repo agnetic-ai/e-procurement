@@ -109,4 +109,4 @@
         </div>
     </section>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/invoiceVerification/main.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/invoiceVerification/main.js"></script>

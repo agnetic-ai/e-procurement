@@ -245,4 +245,4 @@
         </div>
     </section>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/purchase/main.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/purchase/main.js"></script>

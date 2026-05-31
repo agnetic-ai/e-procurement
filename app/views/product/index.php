@@ -71,6 +71,7 @@
                     <table class='table-custom' id="productTable">
                         <thead>
                             <tr>
+                                <th>Code</th>
                                 <th>Product Name</th>
                                 <th>Category</th>
                                 <th>Vendor Name</th>
@@ -90,4 +91,4 @@
         </div>
     </section>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/product/main.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/product/main.js"></script>

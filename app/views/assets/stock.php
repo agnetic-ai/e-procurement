@@ -66,4 +66,4 @@
         </div>
     </div>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/assets/stock.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/assets/stock.js"></script>

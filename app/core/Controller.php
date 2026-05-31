@@ -24,7 +24,7 @@ class Controller
         }
 
         if (!defined('BASE_URL')) {
-            define('BASE_URL', 'http://localhost/e-procurement/');
+            define('BASE_URL', '' . BASE_URL . '');
         }
     }
 
@@ -165,7 +165,7 @@ class Controller
 
     protected function redirect($url)
     {
-        $baseUrl = defined('BASE_URL') ? BASE_URL : 'http://localhost/e-procurement/';
+        $baseUrl = defined('BASE_URL') ? BASE_URL : '' . BASE_URL . '';
         header('Location: ' . $baseUrl . $url);
         exit();
     }

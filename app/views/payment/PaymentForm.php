@@ -187,4 +187,4 @@
         </form>
     </section>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/payment/PaymentForm.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/payment/PaymentForm.js"></script>

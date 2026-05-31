@@ -125,4 +125,4 @@
         </div>
     </div>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/vendors/UpdateVendor.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/vendors/UpdateVendor.js"></script>

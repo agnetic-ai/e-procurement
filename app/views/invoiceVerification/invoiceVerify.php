@@ -198,4 +198,4 @@
     </section>
 </div>
 
-<script src="<?= BASE_URL ?>app/service/invoiceVerification/InvoiceVerify.js"></script>
+<script src="<?= BASE_URL ?>public/js/invoiceVerification/InvoiceVerify.js"></script>

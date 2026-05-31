@@ -194,4 +194,4 @@
     </section>
 </div>
 
-<script src="<?php echo BASE_URL; ?>app/service/invoice/CreateInvoice.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/invoice/CreateInvoice.js"></script>

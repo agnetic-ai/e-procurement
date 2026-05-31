@@ -1,6 +1,6 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /e-procurement/
+    RewriteBase /eproc/
     
     # Jika file/folder tidak ada, arahkan ke index.php
     RewriteCond %{REQUEST_FILENAME} !-f

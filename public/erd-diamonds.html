@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>E-Procurement ERD — Relationship Diagram</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+    background: #0d1117; 
+    color: #c9d1d9; 
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    padding: 40px 20px;
+    min-height: 100vh;
+}
+h1 { 
+    text-align: center; 
+    font-size: 28px; 
+    font-weight: 600;
+    color: #f0f6fc;
+    margin-bottom: 8px;
+}
+.subtitle {
+    text-align: center;
+    color: #8b949e;
+    font-size: 14px;
+    margin-bottom: 40px;
+}
+
+/* Main flow diagram */
+.flow-diagram {
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* Relationship row */
+.rel-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+    padding: 0 20px;
+}
+
+/* Table node */
+.table-node {
+    background: #161b22;
+    border: 2px solid #30363d;
+    border-radius: 10px;
+    min-width: 180px;
+    max-width: 240px;
+    position: relative;
+    transition: all 0.2s;
+}
+.table-node:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.table-node .node-header {
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #f0f6fc;
+    border-bottom: 1px solid #30363d;
+    text-align: center;
+    border-radius: 8px 8px 0 0;
+}
+.table-node .node-body {
+    padding: 8px 14px;
+    font-size: 11px;
+    color: #8b949e;
+    text-align: center;
+}
+.table-node .node-body .pk { color: #da3633; font-weight: 600; }
+.table-node .node-body .fk { color: #1f6feb; font-weight: 600; }
+.table-node .cardinality {
+    position: absolute;
+    font-size: 18px;
+    font-weight: 800;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.table-node .cardinality.one {
+    background: #1f6feb;
+    color: #fff;
+    right: -18px;
+}
+.table-node .cardinality.many {
+    background: #8957e5;
+    color: #fff;
+    left: -18px;
+}
+
+/* Arrow connector */
+.connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 80px;
+}
+.connector .arrow-line {
+    width: 80px;
+    height: 2px;
+    position: relative;
+}
+.connector .arrow-line::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #58a6ff;
+}
+.connector .arrow-line::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 8px solid #58a6ff;
+}
+.connector .arrow-line.reverse::after {
+    right: auto;
+    left: 0;
+    border-left: none;
+    border-right: 8px solid #58a6ff;
+}
+
+/* Diamond shape */
+.diamond {
+    width: 100px;
+    height: 50px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.diamond svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.diamond .diamond-label {
+    position: relative;
+    z-index: 1;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.2;
+    padding: 0 8px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Color variants for diamonds */
+.diamond-red svg polygon { fill: #da3633; stroke: #ff6b6b; stroke-width: 1; }
+.diamond-blue svg polygon { fill: #1f6feb; stroke: #58a6ff; stroke-width: 1; }
+.diamond-green svg polygon { fill: #238636; stroke: #3fb950; stroke-width: 1; }
+.diamond-orange svg polygon { fill: #f0883e; stroke: #f9a84d; stroke-width: 1; }
+.diamond-purple svg polygon { fill: #8957e5; stroke: #bc8cff; stroke-width: 1; }
+.diamond-yellow svg polygon { fill: #d29922; stroke: #e3b341; stroke-width: 1; }
+
+/* Relationship explanation */
+.rel-explain {
+    text-align: center;
+    color: #8b949e;
+    font-size: 12px;
+    margin-top: -32px;
+    margin-bottom: 40px;
+    padding: 0 20px;
+}
+.rel-explain .example {
+    color: #6e7681;
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+/* Section headers */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 40px auto 24px;
+    max-width: 1400px;
+    padding: 0 20px;
+}
+.section-header .divider {
+    flex: 1;
+    height: 1px;
+    background: #30363d;
+}
+.section-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #f0f6fc;
+    white-space: nowrap;
+}
+.section-header .badge {
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: #8b949e;
+    white-space: nowrap;
+}
+
+/* Group label */
+.group-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 32px 0 16px 0;
+    padding-left: 4px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px;
+}
+.group-label::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 14px;
+    border-radius: 2px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* Table grid for full ERD */
+.table-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    max-width: 1400px;
+    margin: 0 auto 24px;
+    padding: 0 20px;
+}
+
+/* Full table cards */
+.table-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    min-width: 220px;
+    max-width: 260px;
+    overflow: hidden;
+}
+.table-card .card-header {
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #f0f6fc;
+    border-bottom: 1px solid #30363d;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.table-card .card-body { padding: 6px 0; }
+.table-card .card-row {
+    padding: 3px 14px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.6;
+}
+.table-card .card-row .badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+.badge-pk { background: #da3633; color: #fff; }
+.badge-fk { background: #1f6feb; color: #fff; }
+.badge-uq { background: #8957e5; color: #fff; }
+.badge-ai { background: #238636; color: #fff; }
+.col-name { color: #c9d1d9; }
+.col-type { color: #6e7681; margin-left: auto; font-size: 11px; }
+
+/* Group colors */
+.group-master .group-label::before { background: #3fb950; }
+.group-auth .group-label::before { background: #d29922; }
+.group-pr .group-label::before { background: #58a6ff; }
+.group-po .group-label::before { background: #bc8cff; }
+.group-gr .group-label::before { background: #3fb950; }
+.group-inv .group-label::before { background: #f0883e; }
+.group-asset .group-label::before { background: #39d2c0; }
+
+/* Stats bar */
+.stats-bar {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+.stat-item {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 12px 20px;
+    text-align: center;
+    min-width: 100px;
+}
+.stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: #f0f6fc;
+}
+.stat-label {
+    font-size: 11px;
+    color: #8b949e;
+    margin-top: 4px;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 40px;
+    color: #484f58;
+    font-size: 12px;
+}
+</style>
+</head>
+<body>
+
+<h1>E-Procurement System</h1>
+<div class="subtitle">Entity Relationship Diagram — with Diamond Notation</div>
+
+<!-- Stats -->
+<div class="stats-bar">
+    <div class="stat-item"><div class="stat-number">32</div><div class="stat-label">Tables</div></div>
+    <div class="stat-item"><div class="stat-number">39</div><div class="stat-label">Relationships</div></div>
+    <div class="stat-item"><div class="stat-number">8</div><div class="stat-label">Groups</div></div>
+    <div class="stat-item"><div class="stat-number" style="color:#da3633;">◆</div><div class="stat-label">Diamond Notation</div></div>
+</div>
+
+<!-- Legend -->
+<div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:40px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:12px;height:12px;background:#da3633;border-radius:3px;"></div>
+        <span style="color:#8b949e;font-size:12px;">PK</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:12px;height:12px;background:#1f6feb;border-radius:3px;"></div>
+        <span style="color:#8b949e;font-size:12px;">FK</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:12px;height:12px;background:#8957e5;border-radius:3px;"></div>
+        <span style="color:#8b949e;font-size:12px;">UQ</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:12px;height:12px;background:#238636;border-radius:3px;"></div>
+        <span style="color:#8b949e;font-size:12px;">AI</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="16" height="16"><polygon points="8,1 15,8 8,15 1,8" fill="#da3633" stroke="#ff6b6b" stroke-width="1"/></svg>
+        <span style="color:#8b949e;font-size:12px;">◆ Relationship</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <span style="color:#1f6feb;font-size:16px;font-weight:bold;">1</span>
+        <span style="color:#8b949e;font-size:12px;">= One</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <span style="color:#8957e5;font-size:16px;font-weight:bold;">N</span>
+        <span style="color:#8b949e;font-size:12px;">= Many</span>
+    </div>
+</div>
+
+<!-- ==================== CORE FLOW WITH DIAMONDS ==================== -->
+<div class="section-header">
+    <div class="divider"></div>
+    <h2>🔄 Core Procurement Flow</h2>
+    <div class="divider"></div>
+</div>
+
+<!-- Flow 1: users → membuat → purchase_requests -->
+<div class="rel-row">
+    <div class="table-node" style="border-color:#1f6feb;">
+        <div class="node-header" style="background:linear-gradient(135deg,#0d2818,#161b22);">users</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div><span class="fk">FK</span> role_id</div>
+            <div>username, email</div>
+        </div>
+        <div class="cardinality one">1</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="diamond diamond-red">
+        <svg viewBox="0 0 100 50">
+            <polygon points="50,2 98,25 50,48 2,25"/>
+        </svg>
+        <div class="diamond-label">membuat</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="table-node" style="border-color:#58a6ff;">
+        <div class="node-header" style="background:linear-gradient(135deg,#0d1b2e,#161b22);">purchase_requests</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div><span class="fk">FK</span> requested_by</div>
+            <div>pr_number, title</div>
+        </div>
+        <div class="cardinality many">N</div>
+    </div>
+</div>
+<div class="rel-explain">
+    1 User bisa membuat banyak Purchase Request (1:N)
+    <div class="example">Contoh: User A buat 10 PR</div>
+</div>
+
+<!-- Flow 2: purchase_requests → memiliki → purchase_request_details -->
+<div class="rel-row">
+    <div class="table-node" style="border-color:#58a6ff;">
+        <div class="node-header" style="background:linear-gradient(135deg,#0d1b2e,#161b22);">purchase_requests</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div>pr_number, title</div>
+            <div>total_estimated</div>
+        </div>
+        <div class="cardinality one">1</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="diamond diamond-green">
+        <svg viewBox="0 0 100 50">
+            <polygon points="50,2 98,25 50,48 2,25"/>
+        </svg>
+        <div class="diamond-label">memiliki</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="table-node" style="border-color:#238636;">
+        <div class="node-header" style="background:linear-gradient(135deg,#0d2818,#161b22);">purchase_request_details</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div><span class="fk">FK</span> purchase_request_id</div>
+            <div><span class="fk">FK</span> product_id</div>
+        </div>
+        <div class="cardinality many">N</div>
+    </div>
+</div>
+<div class="rel-explain">
+    1 Purchase Request memiliki banyak Detail barang (1:N)
+    <div class="example">Contoh: PR001 → Laptop (1), Mouse (5), Monitor (2)</div>
+</div>
+
+<!-- Flow 3: purchase_requests → diubah menjadi → purchase_orders -->
+<div class="rel-row">
+    <div class="table-node" style="border-color:#58a6ff;">
+        <div class="node-header" style="background:linear-gradient(135deg,#0d1b2e,#161b22);">purchase_requests</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div>pr_number</div>
+            <div>status_code</div>
+        </div>
+        <div class="cardinality one">1</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="diamond diamond-orange">
+        <svg viewBox="0 0 100 50">
+            <polygon points="50,2 98,25 50,48 2,25"/>
+        </svg>
+        <div class="diamond-label">diubah<br>menjadi</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="table-node" style="border-color:#bc8cff;">
+        <div class="node-header" style="background:linear-gradient(135deg,#1c0d33,#161b22);">purchase_orders</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div><span class="fk">FK</span> purchase_request_id</div>
+            <div>po_number, total_amount</div>
+        </div>
+        <div class="cardinality many">N</div>
+    </div>
+</div>
+<div class="rel-explain">
+    1 PR bisa diubah menjadi banyak PO (split order) (1:N)
+    <div class="example">Contoh: PR001 → PO001 (Laptop), PO002 (Mouse)</div>
+</div>
+
+<!-- Flow 4: purchase_orders → ditagihkan → invoices -->
+<div class="rel-row">
+    <div class="table-node" style="border-color:#bc8cff;">
+        <div class="node-header" style="background:linear-gradient(135deg,#1c0d33,#161b22);">purchase_orders</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div>po_number</div>
+            <div>total_amount</div>
+        </div>
+        <div class="cardinality one">1</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="diamond diamond-red">
+        <svg viewBox="0 0 100 50">
+            <polygon points="50,2 98,25 50,48 2,25"/>
+        </svg>
+        <div class="diamond-label">ditagihkan</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="table-node" style="border-color:#da3633;">
+        <div class="node-header" style="background:linear-gradient(135deg,#2d1500,#161b22);">invoices</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div><span class="fk">FK</span> purchase_order_id</div>
+            <div>invoice_number, total_amount</div>
+        </div>
+        <div class="cardinality many">N</div>
+    </div>
+</div>
+<div class="rel-explain">
+    1 PO bisa ditagihkan dengan banyak Invoice (1:N)
+    <div class="example">Contoh: PO001 → INV001 (DP 50%), INV002 (Pelunasan)</div>
+</div>
+
+<!-- ==================== AUTH RELATIONSHIPS ==================== -->
+<div class="section-header">
+    <div class="divider"></div>
+    <h2>🔐 Auth & Access Control</h2>
+    <div class="divider"></div>
+</div>
+
+<!-- users ↔ roles -->
+<div class="rel-row">
+    <div class="table-node" style="border-color:#d29922;">
+        <div class="node-header" style="background:linear-gradient(135deg,#2d1b00,#161b22);">users</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div><span class="fk">FK</span> role_id</div>
+            <div>username, full_name</div>
+        </div>
+        <div class="cardinality many">N</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line reverse"></div>
+    </div>
+    
+    <div class="diamond diamond-yellow">
+        <svg viewBox="0 0 100 50">
+            <polygon points="50,2 98,25 50,48 2,25"/>
+        </svg>
+        <div class="diamond-label">mempunyai</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line reverse"></div>
+    </div>
+    
+    <div class="table-node" style="border-color:#d29922;">
+        <div class="node-header" style="background:linear-gradient(135deg,#2d1b00,#161b22);">roles</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div>role_code, role_name</div>
+            <div>is_active</div>
+        </div>
+        <div class="cardinality one" style="left:-18px;right:auto;">1</div>
+    </div>
+</div>
+<div class="rel-explain">
+    Banyak User mempunyai 1 Role (N:1)
+    <div class="example">Contoh: Role "Manager" dipakai oleh User A, B, C</div>
+</div>
+
+<!-- roles ↔ menus via role_menus -->
+<div class="rel-row">
+    <div class="table-node" style="border-color:#d29922;">
+        <div class="node-header" style="background:linear-gradient(135deg,#2d1b00,#161b22);">roles</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div>role_code</div>
+        </div>
+        <div class="cardinality one">1</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="diamond diamond-yellow">
+        <svg viewBox="0 0 100 50">
+            <polygon points="50,2 98,25 50,48 2,25"/>
+        </svg>
+        <div class="diamond-label">mengakses</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="table-node" style="border-color:#d29922;">
+        <div class="node-header" style="background:linear-gradient(135deg,#2d1b00,#161b22);">role_menus</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div><span class="fk">FK</span> role_id</div>
+            <div><span class="fk">FK</span> menu_id</div>
+        </div>
+        <div class="cardinality many">N</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="diamond diamond-yellow">
+        <svg viewBox="0 0 100 50">
+            <polygon points="50,2 98,25 50,48 2,25"/>
+        </svg>
+        <div class="diamond-label">memuat</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="table-node" style="border-color:#d29922;">
+        <div class="node-header" style="background:linear-gradient(135deg,#2d1b00,#161b22);">menus</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div>title, icon, url</div>
+            <div><span class="fk">FK</span> parent_id</div>
+        </div>
+        <div class="cardinality one">1</div>
+    </div>
+</div>
+<div class="rel-explain">
+    1 Role mengakses banyak Menu, 1 Menu memuat banyak Permission (1:N)
+    <div class="example">Contoh: Role "Admin" mengakses Menu "Dashboard", "Users", "Settings"</div>
+</div>
+
+<!-- ==================== MASTER DATA RELATIONSHIPS ==================== -->
+<div class="section-header">
+    <div class="divider"></div>
+    <h2>📦 Master Data</h2>
+    <div class="divider"></div>
+</div>
+
+<!-- vendors ↔ products -->
+<div class="rel-row">
+    <div class="table-node" style="border-color:#3fb950;">
+        <div class="node-header" style="background:linear-gradient(135deg,#0d2818,#161b22);">vendors</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div>vendor_code</div>
+            <div>company_name</div>
+        </div>
+        <div class="cardinality many">N</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="diamond diamond-purple">
+        <svg viewBox="0 0 100 50">
+            <polygon points="50,2 98,25 50,48 2,25"/>
+        </svg>
+        <div class="diamond-label">menyediakan</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="table-node" style="border-color:#3fb950;">
+        <div class="node-header" style="background:linear-gradient(135deg,#0d2818,#161b22);">products</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div>code, name</div>
+            <div><span class="fk">FK</span> category_id</div>
+        </div>
+        <div class="cardinality many">N</div>
+    </div>
+</div>
+<div class="rel-explain">
+    Banyak Vendor menyediakan banyak Product (M:N via product_vendor_prices)
+    <div class="example">Contoh: Vendor A jual Laptop & Mouse, Vendor B jual Laptop & Monitor</div>
+</div>
+
+<!-- vendors → memiliki → vendor_bank_accounts -->
+<div class="rel-row">
+    <div class="table-node" style="border-color:#3fb950;">
+        <div class="node-header" style="background:linear-gradient(135deg,#0d2818,#161b22);">vendors</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div>vendor_code</div>
+            <div>company_name</div>
+        </div>
+        <div class="cardinality one">1</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="diamond diamond-green">
+        <svg viewBox="0 0 100 50">
+            <polygon points="50,2 98,25 50,48 2,25"/>
+        </svg>
+        <div class="diamond-label">memiliki</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="table-node" style="border-color:#3fb950;">
+        <div class="node-header" style="background:linear-gradient(135deg,#0d2818,#161b22);">vendor_bank_accounts</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div><span class="fk">FK</span> vendor_id</div>
+            <div>bank_name, account_number</div>
+        </div>
+        <div class="cardinality many">N</div>
+    </div>
+    
+    <div style="margin:0 20px;"></div>
+    
+    <div class="diamond diamond-green">
+        <svg viewBox="0 0 100 50">
+            <polygon points="50,2 98,25 50,48 2,25"/>
+        </svg>
+        <div class="diamond-label">memiliki</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="table-node" style="border-color:#3fb950;">
+        <div class="node-header" style="background:linear-gradient(135deg,#0d2818,#161b22);">vendor_contacts</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div><span class="fk">FK</span> vendor_id</div>
+            <div>contact_name, email</div>
+        </div>
+        <div class="cardinality many">N</div>
+    </div>
+</div>
+<div class="rel-explain">
+    1 Vendor memiliki banyak Rekening Bank & Kontak (1:N)
+    <div class="example">Contoh: PT Maju memiliki BCA & BNI, Contact: Pak Budi & Pak Andi</div>
+</div>
+
+<!-- ==================== RECEIVING & INVOICE RELATIONSHIPS ==================== -->
+<div class="section-header">
+    <div class="divider"></div>
+    <h2>📥 Receiving & 💰 Payment</h2>
+    <div class="divider"></div>
+</div>
+
+<!-- purchase_orders → menerima → goods_receipts -->
+<div class="rel-row">
+    <div class="table-node" style="border-color:#bc8cff;">
+        <div class="node-header" style="background:linear-gradient(135deg,#1c0d33,#161b22);">purchase_orders</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div>po_number</div>
+            <div>total_amount</div>
+        </div>
+        <div class="cardinality one">1</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="diamond diamond-green">
+        <svg viewBox="0 0 100 50">
+            <polygon points="50,2 98,25 50,48 2,25"/>
+        </svg>
+        <div class="diamond-label">diterima<br>oleh</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="table-node" style="border-color:#3fb950;">
+        <div class="node-header" style="background:linear-gradient(135deg,#0d2818,#161b22);">goods_receipts</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div><span class="fk">FK</span> purchase_order_id</div>
+            <div>gr_number, receipt_date</div>
+        </div>
+        <div class="cardinality many">N</div>
+    </div>
+</div>
+<div class="rel-explain">
+    1 PO bisa diterima dengan banyak GR (partial receiving) (1:N)
+    <div class="example">Contoh: PO001 → GR001 (Laptop diterima), GR002 (Mouse diterima)</div>
+</div>
+
+<!-- invoices → membayar → payments -->
+<div class="rel-row">
+    <div class="table-node" style="border-color:#da3633;">
+        <div class="node-header" style="background:linear-gradient(135deg,#2d1500,#161b22);">invoices</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div>invoice_number</div>
+            <div>total_amount</div>
+        </div>
+        <div class="cardinality one">1</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="diamond diamond-orange">
+        <svg viewBox="0 0 100 50">
+            <polygon points="50,2 98,25 50,48 2,25"/>
+        </svg>
+        <div class="diamond-label">dibayar<br>dengan</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="table-node" style="border-color:#f0883e;">
+        <div class="node-header" style="background:linear-gradient(135deg,#2d1500,#161b22);">payments</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div><span class="fk">FK</span> invoice_id</div>
+            <div>paid_amount, payment_date</div>
+        </div>
+        <div class="cardinality many">N</div>
+    </div>
+</div>
+<div class="rel-explain">
+    1 Invoice bisa dibayar dengan banyak Payment (cicilan) (1:N)
+    <div class="example">Contoh: INV001 → PAY001 (DP 50%), PAY002 (Pelunasan 50%)</div>
+</div>
+
+<!-- ==================== ASSET MANAGEMENT ==================== -->
+<div class="section-header">
+    <div class="divider"></div>
+    <h2>🏗️ Asset Management</h2>
+    <div class="divider"></div>
+</div>
+
+<!-- employees ↔ asset_units -->
+<div class="rel-row">
+    <div class="table-node" style="border-color:#39d2c0;">
+        <div class="node-header" style="background:linear-gradient(135deg,#0d2826,#161b22);">employees</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div>employee_code</div>
+            <div>full_name, department</div>
+        </div>
+        <div class="cardinality one">1</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="diamond diamond-blue">
+        <svg viewBox="0 0 100 50">
+            <polygon points="50,2 98,25 50,48 2,25"/>
+        </svg>
+        <div class="diamond-label">menggunakan</div>
+    </div>
+    
+    <div class="connector">
+        <div class="arrow-line"></div>
+    </div>
+    
+    <div class="table-node" style="border-color:#39d2c0;">
+        <div class="node-header" style="background:linear-gradient(135deg,#0d2826,#161b22);">asset_units</div>
+        <div class="node-body">
+            <div><span class="pk">PK</span> id</div>
+            <div><span class="fk">FK</span> product_id</div>
+            <div>serial_number, status</div>
+        </div>
+        <div class="cardinality many">N</div>
+    </div>
+</div>
+<div class="rel-explain">
+    1 Employee menggunakan banyak Asset (1:N)
+    <div class="example">Contoh: Pak Budi menggunakan Laptop #001, Monitor #005, Keyboard #012</div>
+</div>
+
+<!-- ==================== FULL TABLE LIST ==================== -->
+<div class="section-header">
+    <div class="divider"></div>
+    <h2>📋 Full Table Reference</h2>
+    <div class="divider"></div>
+</div>
+
+<!-- All 32 tables in grid -->
+<div class="group-label group-master">Master Data</div>
+<div class="table-grid">
+    <div class="table-card"><div class="card-header">📦 categories</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="col-name" style="margin-left:36px;">name</span><span class="col-type">VARCHAR</span></div></div></div>
+    <div class="table-card"><div class="card-header">📦 products</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-uq">UQ</span><span class="col-name">code</span><span class="col-type">VARCHAR</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">category_id</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">📦 business_types</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-uq">UQ</span><span class="col-name">type_code</span><span class="col-type">VARCHAR</span></div></div></div>
+    <div class="table-card"><div class="card-header">📦 cities</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="col-name" style="margin-left:36px;">city_name</span><span class="col-type">VARCHAR</span></div></div></div>
+    <div class="table-card"><div class="card-header">📦 payment_terms</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="col-name" style="margin-left:36px;">payment_days</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">📦 vendors</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">city_id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">business_type_id</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">📦 vendor_bank_accounts</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">vendor_id</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">📦 vendor_contacts</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">vendor_id</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">📦 product_vendor_prices</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">product_id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">vendor_id</span><span class="col-type">INT</span></div></div></div>
+</div>
+
+<div class="group-label group-auth">Auth & RBAC</div>
+<div class="table-grid">
+    <div class="table-card"><div class="card-header">🔐 roles</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-uq">UQ</span><span class="col-name">role_code</span><span class="col-type">VARCHAR</span></div></div></div>
+    <div class="table-card"><div class="card-header">🔐 users</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">role_id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-uq">UQ</span><span class="col-name">email</span><span class="col-type">VARCHAR</span></div></div></div>
+    <div class="table-card"><div class="card-header">🔐 menus</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">parent_id</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">🔐 role_menus</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">role_id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">menu_id</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">🔐 status_codes</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-uq">UQ</span><span class="col-name">status_code</span><span class="col-type">VARCHAR</span></div></div></div>
+</div>
+
+<div class="group-label group-pr">Purchase Request</div>
+<div class="table-grid">
+    <div class="table-card"><div class="card-header">📋 purchase_requests</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-uq">UQ</span><span class="col-name">pr_number</span><span class="col-type">VARCHAR</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">requested_by</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">📋 purchase_request_details</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">purchase_request_id</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">📋 purchase_request_approvals</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">purchase_request_id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-uq">UQ</span><span class="col-name">approval_token</span><span class="col-type">VARCHAR</span></div></div></div>
+</div>
+
+<div class="group-label group-po">Purchase Order</div>
+<div class="table-grid">
+    <div class="table-card"><div class="card-header">🛒 purchase_orders</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-uq">UQ</span><span class="col-name">po_number</span><span class="col-type">VARCHAR</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">purchase_request_id</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">🛒 purchase_order_details</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">purchase_order_id</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">🛒 purchase_orders_approvals</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">purchase_order_id</span><span class="col-type">INT</span></div></div></div>
+</div>
+
+<div class="group-label group-gr">Receiving</div>
+<div class="table-grid">
+    <div class="table-card"><div class="card-header">📦 goods_receipts</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">purchase_order_id</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">📦 goods_receipt_details</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">goods_receipt_id</span><span class="col-type">INT</span></div></div></div>
+</div>
+
+<div class="group-label group-inv">Invoice & Payment</div>
+<div class="table-grid">
+    <div class="table-card"><div class="card-header">💰 invoices</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">purchase_order_id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">vendor_id</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">💰 invoice_details</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">invoice_id</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">💰 invoice_price_audits</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">invoice_id</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">💰 payments</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">invoice_id</span><span class="col-type">INT</span></div></div></div>
+</div>
+
+<div class="group-label group-asset">Asset Management</div>
+<div class="table-grid">
+    <div class="table-card"><div class="card-header">🏗️ employees</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-uq">UQ</span><span class="col-name">employee_code</span><span class="col-type">VARCHAR</span></div></div></div>
+    <div class="table-card"><div class="card-header">🏗️ asset_units</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">product_id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">employee_id</span><span class="col-type">INT</span></div></div></div>
+    <div class="table-card"><div class="card-header">🏗️ asset_assignments</div><div class="card-body"><div class="card-row"><span class="badge badge-pk">PK</span><span class="col-name">id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">asset_unit_id</span><span class="col-type">INT</span></div><div class="card-row"><span class="badge badge-fk">FK</span><span class="col-name">employee_id</span><span class="col-type">INT</span></div></div></div>
+</div>
+
+<div class="footer">
+    E-Procurement System ERD — Generated by SUPERAGENT for Om Beng Labs
+</div>
+
+</body>
+</html>

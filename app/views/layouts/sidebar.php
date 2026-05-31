@@ -60,25 +60,6 @@
                             <?php endif; ?>
                         </li>
                     <?php endforeach; ?>
-                    <li class='sidebar-title'>Pages</li>
-                    <li class="sidebar-item  has-sub">
-                        <a href="#" class='sidebar-link'>
-                            <i data-feather="user" width="20"></i>
-                            <span>Authentication</span>
-                        </a>
-                        <ul class="submenu">
-                            <li>
-                                <a href="auth-login.html">Login</a>
-                            </li>
-                            <li>
-                                <a href="auth-register.html">Register</a>
-                            </li>
-                            <li>
-                                <a href="auth-forgot-password.html">Forgot Password</a>
-                            </li>
-                        </ul>
-                    </li>
-
                 </ul>
             </div>
         </div>
@@ -87,7 +68,9 @@
     <!-- MAIN CONTENT WRAPPER -->
     <div id="main" class="d-flex flex-column min-vh-100">
         <nav class="navbar navbar-header navbar-expand navbar-light">
-            <a class="sidebar-toggler" href="#"><span class="navbar-toggler-icon"></span></a>
+            <a class="sidebar-toggler d-flex align-items-center" href="#" style="z-index:1060;">
+                <i data-feather="menu" width="24" height="24"></i>
+            </a>
 
             <div class="navbar-collapse">
                 <ul class="navbar-nav d-flex align-items-center navbar-light ms-auto">

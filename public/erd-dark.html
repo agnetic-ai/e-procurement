@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>E-Procurement ERD — Dark Theme</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+    background: #0d1117; 
+    color: #c9d1d9; 
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    padding: 40px 20px;
+    min-height: 100vh;
+}
+h1 { 
+    text-align: center; 
+    font-size: 28px; 
+    font-weight: 600;
+    color: #f0f6fc;
+    margin-bottom: 8px;
+}
+.subtitle {
+    text-align: center;
+    color: #8b949e;
+    font-size: 14px;
+    margin-bottom: 40px;
+}
+.flow-bar {
+    text-align: center;
+    background: linear-gradient(90deg, #1f6feb, #238636, #da3633, #8957e5, #f0883e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 40px;
+    letter-spacing: 0.5px;
+}
+
+/* Legend */
+.legend {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #8b949e;
+}
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+/* Main grid */
+.erd-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+}
+.group-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 32px 0 16px 0;
+    padding-left: 4px;
+}
+.group-label::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 14px;
+    border-radius: 2px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.table-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 16px;
+}
+
+/* Table cards */
+.table-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    min-width: 240px;
+    max-width: 280px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+.table-card:hover {
+    border-color: #58a6ff;
+}
+.table-header {
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #f0f6fc;
+    border-bottom: 1px solid #30363d;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.table-header .icon {
+    font-size: 14px;
+    opacity: 0.7;
+}
+.table-body {
+    padding: 6px 0;
+}
+.table-row {
+    padding: 3px 14px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.6;
+}
+.table-row .badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+.badge-pk { background: #da3633; color: #fff; }
+.badge-fk { background: #1f6feb; color: #fff; }
+.badge-uq { background: #8957e5; color: #fff; }
+.badge-ai { background: #238636; color: #fff; }
+.col-name { color: #c9d1d9; }
+.col-type { color: #6e7681; margin-left: auto; font-size: 11px; }
+
+/* Group colors */
+.group-master .group-label::before { background: #3fb950; }
+.group-master .table-header { background: linear-gradient(135deg, #0d2818, #161b22); }
+.group-master .table-card { border-left: 3px solid #3fb950; }
+
+.group-auth .group-label::before { background: #d29922; }
+.group-auth .table-header { background: linear-gradient(135deg, #2d1b00, #161b22); }
+.group-auth .table-card { border-left: 3px solid #d29922; }
+
+.group-approval .group-label::before { background: #8957e5; }
+.group-approval .table-header { background: linear-gradient(135deg, #1c0d33, #161b22); }
+.group-approval .table-card { border-left: 3px solid #8957e5; }
+
+.group-pr .group-label::before { background: #58a6ff; }
+.group-pr .table-header { background: linear-gradient(135deg, #0d1b2e, #161b22); }
+.group-pr .table-card { border-left: 3px solid #58a6ff; }
+
+.group-po .group-label::before { background: #bc8cff; }
+.group-po .table-header { background: linear-gradient(135deg, #1c0d33, #161b22); }
+.group-po .table-card { border-left: 3px solid #bc8cff; }
+
+.group-gr .group-label::before { background: #3fb950; }
+.group-gr .table-header { background: linear-gradient(135deg, #0d2818, #161b22); }
+.group-gr .table-card { border-left: 3px solid #3fb950; }
+
+.group-inv .group-label::before { background: #f0883e; }
+.group-inv .table-header { background: linear-gradient(135deg, #2d1500, #161b22); }
+.group-inv .table-card { border-left: 3px solid #f0883e; }
+
+.group-asset .group-label::before { background: #39d2c0; }
+.group-asset .table-header { background: linear-gradient(135deg, #0d2826, #161b22); }
+.group-asset .table-card { border-left: 3px solid #39d2c0; }
+
+/* Relationships */
+.rel-section {
+    margin-top: 40px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 24px;
+}
+.rel-section h2 {
+    font-size: 16px;
+    color: #f0f6fc;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.rel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 6px;
+}
+.rel-item {
+    font-size: 12px;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.rel-from { color: #58a6ff; font-weight: 500; }
+.rel-arrow { color: #6e7681; }
+.rel-to { color: #bc8cff; font-weight: 500; }
+.rel-type { color: #6e7681; font-size: 11px; }
+
+.footer {
+    text-align: center;
+    margin-top: 40px;
+    color: #484f58;
+    font-size: 12px;
+}
+</style>
+</head>
+<body>
+
+<h1>E-Procurement System</h1>
+<div class="subtitle">Entity Relationship Diagram — 32 Tables, 39 Relationships</div>
+
+<div class="flow-bar">PR → PR Details → PR Approvals → PO → PO Details → PO Approvals → Goods Receipt → Invoice → Payment</div>
+
+<div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#da3633;"></div>Primary Key</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#1f6feb;"></div>Foreign Key</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#8957e5;"></div>Unique</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#238636;"></div>Auto Increment</div>
+</div>
+
+<div class="erd-container">
+
+<!-- MASTER DATA -->
+<div class="group-master">
+<div class="group-label">Master Data</div>
+<div class="table-grid">
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">📦</span> categories</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">name</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">description</span><span class="col-type">TEXT</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">📦</span> products</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-uq">UQ</span><span class="col-name">code</span><span class="col-type">VARCHAR(50)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">name</span><span class="col-type">VARCHAR(255)</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">category_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">unit_of_measure</span><span class="col-type">VARCHAR(20)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">status_code</span><span class="col-type">VARCHAR(20)</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">📦</span> business_types</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-uq">UQ</span><span class="col-name">type_code</span><span class="col-type">VARCHAR(50)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">type_name</span><span class="col-type">VARCHAR(100)</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">📦</span> cities</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">city_name</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">province_name</span><span class="col-type">VARCHAR(100)</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">📦</span> payment_terms</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">payment_code</span><span class="col-type">VARCHAR(50)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">payment_name</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">payment_days</span><span class="col-type">INT</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">📦</span> vendors</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-uq">UQ</span><span class="col-name">vendor_code</span><span class="col-type">VARCHAR(50)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">company_name</span><span class="col-type">VARCHAR(255)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">email</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">city_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">business_type_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">payment_terms_id</span><span class="col-type">INT</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">📦</span> vendor_bank_accounts</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">vendor_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">bank_name</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">account_number</span><span class="col-type">VARCHAR(50)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">is_primary</span><span class="col-type">TINYINT</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">📦</span> vendor_contacts</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">vendor_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">contact_name</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">contact_email</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">is_primary</span><span class="col-type">TINYINT</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">📦</span> product_vendor_prices</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">product_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">vendor_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">unit_price</span><span class="col-type">DECIMAL(15,2)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">valid_from</span><span class="col-type">DATE</span></div>
+    </div>
+</div>
+
+</div>
+</div>
+
+<!-- AUTH & RBAC -->
+<div class="group-auth">
+<div class="group-label">Auth & RBAC</div>
+<div class="table-grid">
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">🔐</span> roles</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-uq">UQ</span><span class="col-name">role_code</span><span class="col-type">VARCHAR(50)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">role_name</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">is_active</span><span class="col-type">TINYINT</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">🔐</span> users</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-uq">UQ</span><span class="col-name">username</span><span class="col-type">VARCHAR(50)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">password</span><span class="col-type">VARCHAR(255)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">full_name</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="badge badge-uq">UQ</span><span class="col-name">email</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">role_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">is_active</span><span class="col-type">TINYINT</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">🔐</span> menus</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">title</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">icon</span><span class="col-type">VARCHAR(50)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">url</span><span class="col-type">VARCHAR(255)</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">parent_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">menu_order</span><span class="col-type">INT</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">🔐</span> role_menus</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">role_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">menu_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">can_view</span><span class="col-type">TINYINT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">can_create</span><span class="col-type">TINYINT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">can_edit</span><span class="col-type">TINYINT</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">🔐</span> status_codes</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">module_code</span><span class="col-type">VARCHAR(50)</span></div>
+        <div class="table-row"><span class="badge badge-uq">UQ</span><span class="col-name">status_code</span><span class="col-type">VARCHAR(50)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">status_name</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">is_active</span><span class="col-type">TINYINT</span></div>
+    </div>
+</div>
+
+</div>
+</div>
+
+<!-- APPROVAL CONFIG -->
+<div class="group-approval">
+<div class="group-label">Approval Config</div>
+<div class="table-grid">
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">⚙️</span> approval_levels</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">module_code</span><span class="col-type">VARCHAR(50)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">level</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">level_name</span><span class="col-type">VARCHAR(50)</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">⚙️</span> approval_level_roles</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">module_code</span><span class="col-type">VARCHAR(50)</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">approval_level_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">role_id</span><span class="col-type">INT</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">⚙️</span> approval_rules</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">module_code</span><span class="col-type">VARCHAR(50)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">min_amount</span><span class="col-type">DECIMAL(15,2)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">max_amount</span><span class="col-type">DECIMAL(15,2)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">total_level</span><span class="col-type">INT</span></div>
+    </div>
+</div>
+
+</div>
+</div>
+
+<!-- PURCHASE REQUEST -->
+<div class="group-pr">
+<div class="group-label">Purchase Request</div>
+<div class="table-grid">
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">📋</span> purchase_requests</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-uq">UQ</span><span class="col-name">pr_number</span><span class="col-type">VARCHAR(20)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">title</span><span class="col-type">VARCHAR(255)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">department</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">requested_by</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">status_code</span><span class="col-type">VARCHAR(20)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">total_estimated</span><span class="col-type">DECIMAL(15,2)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">current_approval_level</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">max_approval_level</span><span class="col-type">INT</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">📋</span> purchase_request_details</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">purchase_request_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">product_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">vendor_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">quantity</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">unit</span><span class="col-type">VARCHAR(20)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">estimated_price</span><span class="col-type">DECIMAL(15,2)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">subtotal</span><span class="col-type">DECIMAL(15,2)</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">📋</span> purchase_request_approvals</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">purchase_request_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">approver_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">level</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">status_code</span><span class="col-type">VARCHAR(20)</span></div>
+        <div class="table-row"><span class="badge badge-uq">UQ</span><span class="col-name">approval_token</span><span class="col-type">VARCHAR(64)</span></div>
+    </div>
+</div>
+
+</div>
+</div>
+
+<!-- PURCHASE ORDER -->
+<div class="group-po">
+<div class="group-label">Purchase Order</div>
+<div class="table-grid">
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">🛒</span> purchase_orders</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-uq">UQ</span><span class="col-name">po_number</span><span class="col-type">VARCHAR(20)</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">purchase_request_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">vendor_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">total_amount</span><span class="col-type">DECIMAL(15,2)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">status_code</span><span class="col-type">VARCHAR(20)</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">payment_terms_id</span><span class="col-type">INT</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">🛒</span> purchase_order_details</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">purchase_order_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">product_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">quantity</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">unit_price</span><span class="col-type">DECIMAL(15,2)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">subtotal</span><span class="col-type">DECIMAL(15,2)</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">🛒</span> purchase_orders_approvals</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">purchase_order_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">approver_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">level</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">status_code</span><span class="col-type">VARCHAR(20)</span></div>
+    </div>
+</div>
+
+</div>
+</div>
+
+<!-- RECEIVING -->
+<div class="group-gr">
+<div class="group-label">Receiving</div>
+<div class="table-grid">
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">📦</span> goods_receipts</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">gr_number</span><span class="col-type">VARCHAR(20)</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">purchase_order_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">receipt_date</span><span class="col-type">DATE</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">status_code</span><span class="col-type">VARCHAR(20)</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">📦</span> goods_receipt_details</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">goods_receipt_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">purchase_order_detail_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">qty_received</span><span class="col-type">INT</span></div>
+    </div>
+</div>
+
+</div>
+</div>
+
+<!-- INVOICE & PAYMENT -->
+<div class="group-inv">
+<div class="group-label">Invoice & Payment</div>
+<div class="table-grid">
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">💰</span> invoices</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">invoice_number</span><span class="col-type">VARCHAR(50)</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">purchase_order_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">vendor_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">total_amount</span><span class="col-type">DECIMAL(15,2)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">status_code</span><span class="col-type">VARCHAR(20)</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">verified_by</span><span class="col-type">INT</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">💰</span> invoice_details</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">invoice_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">product_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">qty</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">unit_price</span><span class="col-type">DECIMAL(15,2)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">subtotal</span><span class="col-type">DECIMAL(15,2)</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">💰</span> invoice_price_audits</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">invoice_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">price_diff</span><span class="col-type">DECIMAL(15,2)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">change_type</span><span class="col-type">VARCHAR(20)</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">💰</span> payments</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">invoice_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">payment_date</span><span class="col-type">DATE</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">paid_amount</span><span class="col-type">DECIMAL(15,2)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">payment_method</span><span class="col-type">VARCHAR(50)</span></div>
+    </div>
+</div>
+
+</div>
+</div>
+
+<!-- ASSET MANAGEMENT -->
+<div class="group-asset">
+<div class="group-label">Asset Management</div>
+<div class="table-grid">
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">🏗️</span> employees</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-uq">UQ</span><span class="col-name">employee_code</span><span class="col-type">VARCHAR(50)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">full_name</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">department</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">position</span><span class="col-type">VARCHAR(100)</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">🏗️</span> asset_units</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">product_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-uq">UQ</span><span class="col-name">serial_number</span><span class="col-type">VARCHAR(100)</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">status_code</span><span class="col-type">VARCHAR(20)</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">employee_id</span><span class="col-type">INT</span></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header"><span class="icon">🏗️</span> asset_assignments</div>
+    <div class="table-body">
+        <div class="table-row"><span class="badge badge-pk">PK</span><span class="badge badge-ai">AI</span><span class="col-name">id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">asset_unit_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="badge badge-fk">FK</span><span class="col-name">employee_id</span><span class="col-type">INT</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">assigned_at</span><span class="col-type">DATETIME</span></div>
+        <div class="table-row"><span class="col-name" style="margin-left:42px;">returned_at</span><span class="col-type">DATETIME</span></div>
+    </div>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<!-- RELATIONSHIPS -->
+<div class="rel-section" style="max-width:1400px;margin:40px auto 0;">
+<h2>🔗 Relationships</h2>
+<div class="rel-grid">
+<div class="rel-item"><span class="rel-from">purchase_requests</span><span class="rel-arrow">→ 1:N →</span><span class="rel-to">purchase_request_details</span></div>
+<div class="rel-item"><span class="rel-from">purchase_requests</span><span class="rel-arrow">→ 1:N →</span><span class="rel-to">purchase_request_approvals</span></div>
+<div class="rel-item"><span class="rel-from">purchase_requests</span><span class="rel-arrow">← 1:N ←</span><span class="rel-to">purchase_orders</span></div>
+<div class="rel-item"><span class="rel-from">purchase_request_details</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">products</span></div>
+<div class="rel-item"><span class="rel-from">purchase_request_details</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">vendors</span></div>
+<div class="rel-item"><span class="rel-from">purchase_request_approvals</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">users</span></div>
+<div class="rel-item"><span class="rel-from">purchase_orders</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">vendors</span></div>
+<div class="rel-item"><span class="rel-from">purchase_orders</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">payment_terms</span></div>
+<div class="rel-item"><span class="rel-from">purchase_orders</span><span class="rel-arrow">→ 1:N →</span><span class="rel-to">purchase_order_details</span></div>
+<div class="rel-item"><span class="rel-from">purchase_orders</span><span class="rel-arrow">→ 1:N →</span><span class="rel-to">purchase_orders_approvals</span></div>
+<div class="rel-item"><span class="rel-from">purchase_orders</span><span class="rel-arrow">→ 1:N →</span><span class="rel-to">goods_receipts</span></div>
+<div class="rel-item"><span class="rel-from">purchase_orders</span><span class="rel-arrow">→ 1:N →</span><span class="rel-to">invoices</span></div>
+<div class="rel-item"><span class="rel-from">purchase_order_details</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">products</span></div>
+<div class="rel-item"><span class="rel-from">purchase_order_details</span><span class="rel-arrow">→ 1:N →</span><span class="rel-to">goods_receipt_details</span></div>
+<div class="rel-item"><span class="rel-from">purchase_orders_approvals</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">users</span></div>
+<div class="rel-item"><span class="rel-from">goods_receipts</span><span class="rel-arrow">→ 1:N →</span><span class="rel-to">goods_receipt_details</span></div>
+<div class="rel-item"><span class="rel-from">goods_receipt_details</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">purchase_order_details</span></div>
+<div class="rel-item"><span class="rel-from">invoices</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">vendors</span></div>
+<div class="rel-item"><span class="rel-from">invoices</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">users</span><span class="rel-type">(verified_by)</span></div>
+<div class="rel-item"><span class="rel-from">invoices</span><span class="rel-arrow">→ 1:N →</span><span class="rel-to">invoice_details</span></div>
+<div class="rel-item"><span class="rel-from">invoices</span><span class="rel-arrow">→ 1:N →</span><span class="rel-to">invoice_price_audits</span></div>
+<div class="rel-item"><span class="rel-from">invoices</span><span class="rel-arrow">→ 1:N →</span><span class="rel-to">payments</span></div>
+<div class="rel-item"><span class="rel-from">invoice_details</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">products</span></div>
+<div class="rel-item"><span class="rel-from">products</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">categories</span></div>
+<div class="rel-item"><span class="rel-from">vendors</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">cities</span></div>
+<div class="rel-item"><span class="rel-from">vendors</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">business_types</span></div>
+<div class="rel-item"><span class="rel-from">vendors</span><span class="rel-arrow">→ 1:N →</span><span class="rel-to">vendor_bank_accounts</span></div>
+<div class="rel-item"><span class="rel-from">vendors</span><span class="rel-arrow">→ 1:N →</span><span class="rel-to">vendor_contacts</span></div>
+<div class="rel-item"><span class="rel-from">product_vendor_prices</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">products</span></div>
+<div class="rel-item"><span class="rel-from">product_vendor_prices</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">vendors</span></div>
+<div class="rel-item"><span class="rel-from">users</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">roles</span></div>
+<div class="rel-item"><span class="rel-from">role_menus</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">roles</span></div>
+<div class="rel-item"><span class="rel-from">role_menus</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">menus</span></div>
+<div class="rel-item"><span class="rel-from">approval_level_roles</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">approval_levels</span></div>
+<div class="rel-item"><span class="rel-from">approval_level_roles</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">roles</span></div>
+<div class="rel-item"><span class="rel-from">asset_units</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">products</span></div>
+<div class="rel-item"><span class="rel-from">asset_units</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">employees</span></div>
+<div class="rel-item"><span class="rel-from">asset_assignments</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">asset_units</span></div>
+<div class="rel-item"><span class="rel-from">asset_assignments</span><span class="rel-arrow">→ N:1 →</span><span class="rel-to">employees</span></div>
+</div>
+</div>
+
+
+<!-- RELATIONSHIP DIAGRAM WITH DIAMONDS -->
+<div style="max-width:1400px;margin:40px auto 0;">
+<h2 style="color:#f0f6fc;font-size:20px;margin-bottom:24px;display:flex;align-items:center;gap:8px;">
+    <span style="color:#da3633;">◆</span> Relationship Diagram — Diamond Notation
+</h2>
+
+<div style="background:#161b22;border:1px solid #30363d;border-radius:12px;padding:32px;overflow-x:auto;">
+
+<!-- Legend -->
+<div style="display:flex;gap:24px;margin-bottom:32px;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="24" height="24"><polygon points="12,2 22,12 12,22 2,12" fill="#da3633" stroke="#ff6b6b" stroke-width="1"/></svg>
+        <span style="color:#8b949e;font-size:12px;">Diamond = Relationship</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <span style="color:#58a6ff;font-size:14px;font-weight:bold;">1</span>
+        <span style="color:#8b949e;font-size:12px;">= Satu (One)</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <span style="color:#bc8cff;font-size:14px;font-weight:bold;">N</span>
+        <span style="color:#8b949e;font-size:12px;">= Banyak (Many)</span>
+    </div>
+</div>
+
+<!-- RELATIONSHIP 1: users → membuat → purchase_requests -->
+<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:40px;flex-wrap:wrap;">
+    <div style="background:#1f6feb22;border:1px solid #1f6feb;border-radius:8px;padding:12px 20px;text-align:center;min-width:140px;">
+        <div style="color:#58a6ff;font-size:11px;text-transform:uppercase;letter-spacing:1px;">Table</div>
+        <div style="color:#f0f6fc;font-size:15px;font-weight:600;margin-top:4px;">users</div>
+        <div style="color:#1f6feb;font-size:12px;margin-top:4px;">1</div>
+    </div>
+    
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg width="80" height="16">
+            <line x1="0" y1="8" x2="80" y2="8" stroke="#58a6ff" stroke-width="2"/>
+            <polygon points="75,4 80,8 75,12" fill="#58a6ff"/>
+        </svg>
+        <span style="color:#58a6ff;font-size:10px;">1</span>
+    </div>
+    
+    <div style="position:relative;">
+        <svg width="100" height="60">
+            <polygon points="50,5 95,30 50,55 5,30" fill="#da3633" stroke="#ff6b6b" stroke-width="1.5"/>
+            <text x="50" y="34" text-anchor="middle" fill="white" font-size="11" font-weight="bold">membuat</text>
+        </svg>
+    </div>
+    
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg width="80" height="16">
+            <line x1="0" y1="8" x2="80" y2="8" stroke="#bc8cff" stroke-width="2"/>
+            <polygon points="75,4 80,8 75,12" fill="#bc8cff"/>
+        </svg>
+        <span style="color:#bc8cff;font-size:10px;">N</span>
+    </div>
+    
+    <div style="background:#8957e522;border:1px solid #8957e5;border-radius:8px;padding:12px 20px;text-align:center;min-width:140px;">
+        <div style="color:#bc8cff;font-size:11px;text-transform:uppercase;letter-spacing:1px;">Table</div>
+        <div style="color:#f0f6fc;font-size:15px;font-weight:600;margin-top:4px;">purchase_requests</div>
+        <div style="color:#bc8cff;font-size:12px;margin-top:4px;">N</div>
+    </div>
+</div>
+
+<div style="text-align:center;color:#8b949e;font-size:12px;margin:-20px 0 30px 0;">
+    1 User bisa membuat banyak Purchase Request (1:N)<br>
+    Contoh: User A buat 10 PR
+</div>
+
+<!-- RELATIONSHIP 2: users ↔ roles -->
+<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:40px;flex-wrap:wrap;">
+    <div style="background:#1f6feb22;border:1px solid #1f6feb;border-radius:8px;padding:12px 20px;text-align:center;min-width:140px;">
+        <div style="color:#58a6ff;font-size:11px;text-transform:uppercase;letter-spacing:1px;">Table</div>
+        <div style="color:#f0f6fc;font-size:15px;font-weight:600;margin-top:4px;">users</div>
+        <div style="color:#bc8cff;font-size:12px;margin-top:4px;">N</div>
+    </div>
+    
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg width="80" height="16">
+            <line x1="0" y1="8" x2="80" y2="8" stroke="#bc8cff" stroke-width="2"/>
+            <polygon points="5,4 0,8 5,12" fill="#bc8cff"/>
+        </svg>
+        <span style="color:#bc8cff;font-size:10px;">N</span>
+    </div>
+    
+    <div style="position:relative;">
+        <svg width="100" height="60">
+            <polygon points="50,5 95,30 50,55 5,30" fill="#d29922" stroke="#e3b341" stroke-width="1.5"/>
+            <text x="50" y="34" text-anchor="middle" fill="white" font-size="11" font-weight="bold">mempunyai</text>
+        </svg>
+    </div>
+    
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg width="80" height="16">
+            <line x1="0" y1="8" x2="80" y2="8" stroke="#58a6ff" stroke-width="2"/>
+            <polygon points="75,4 80,8 75,12" fill="#58a6ff"/>
+        </svg>
+        <span style="color:#58a6ff;font-size:10px;">1</span>
+    </div>
+    
+    <div style="background:#d2992222;border:1px solid #d29922;border-radius:8px;padding:12px 20px;text-align:center;min-width:140px;">
+        <div style="color:#e3b341;font-size:11px;text-transform:uppercase;letter-spacing:1px;">Table</div>
+        <div style="color:#f0f6fc;font-size:15px;font-weight:600;margin-top:4px;">roles</div>
+        <div style="color:#1f6feb;font-size:12px;margin-top:4px;">1</div>
+    </div>
+</div>
+
+<div style="text-align:center;color:#8b949e;font-size:12px;margin:-20px 0 30px 0;">
+    Banyak User mempunyai 1 Role (N:1)<br>
+    Contoh: Role "Manager" dipakai banyak user
+</div>
+
+<!-- RELATIONSHIP 3: purchase_requests ↔ purchase_request_details -->
+<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:40px;flex-wrap:wrap;">
+    <div style="background:#58a6ff22;border:1px solid #58a6ff;border-radius:8px;padding:12px 20px;text-align:center;min-width:140px;">
+        <div style="color:#58a6ff;font-size:11px;text-transform:uppercase;letter-spacing:1px;">Table</div>
+        <div style="color:#f0f6fc;font-size:13px;font-weight:600;margin-top:4px;">purchase_requests</div>
+        <div style="color:#1f6feb;font-size:12px;margin-top:4px;">1</div>
+    </div>
+    
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg width="80" height="16">
+            <line x1="0" y1="8" x2="80" y2="8" stroke="#58a6ff" stroke-width="2"/>
+            <polygon points="75,4 80,8 75,12" fill="#58a6ff"/>
+        </svg>
+        <span style="color:#58a6ff;font-size:10px;">1</span>
+    </div>
+    
+    <div style="position:relative;">
+        <svg width="100" height="60">
+            <polygon points="50,5 95,30 50,55 5,30" fill="#238636" stroke="#3fb950" stroke-width="1.5"/>
+            <text x="50" y="34" text-anchor="middle" fill="white" font-size="10" font-weight="bold">memiliki</text>
+        </svg>
+    </div>
+    
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg width="80" height="16">
+            <line x1="0" y1="8" x2="80" y2="8" stroke="#bc8cff" stroke-width="2"/>
+            <polygon points="75,4 80,8 75,12" fill="#bc8cff"/>
+        </svg>
+        <span style="color:#bc8cff;font-size:10px;">N</span>
+    </div>
+    
+    <div style="background:#23863622;border:1px solid #238636;border-radius:8px;padding:12px 20px;text-align:center;min-width:140px;">
+        <div style="color:#3fb950;font-size:11px;text-transform:uppercase;letter-spacing:1px;">Table</div>
+        <div style="color:#f0f6fc;font-size:12px;font-weight:600;margin-top:4px;">purchase_request_details</div>
+        <div style="color:#bc8cff;font-size:12px;margin-top:4px;">N</div>
+    </div>
+</div>
+
+<div style="text-align:center;color:#8b949e;font-size:12px;margin:-20px 0 30px 0;">
+    1 Purchase Request memiliki banyak Detail (1:N)<br>
+    Contoh: PR001 → Laptop (1), Mouse (5), Monitor (2)
+</div>
+
+<!-- RELATIONSHIP 4: purchase_requests → purchase_orders -->
+<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:40px;flex-wrap:wrap;">
+    <div style="background:#58a6ff22;border:1px solid #58a6ff;border-radius:8px;padding:12px 20px;text-align:center;min-width:140px;">
+        <div style="color:#58a6ff;font-size:11px;text-transform:uppercase;letter-spacing:1px;">Table</div>
+        <div style="color:#f0f6fc;font-size:13px;font-weight:600;margin-top:4px;">purchase_requests</div>
+        <div style="color:#1f6feb;font-size:12px;margin-top:4px;">1</div>
+    </div>
+    
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg width="80" height="16">
+            <line x1="0" y1="8" x2="80" y2="8" stroke="#58a6ff" stroke-width="2"/>
+            <polygon points="75,4 80,8 75,12" fill="#58a6ff"/>
+        </svg>
+        <span style="color:#58a6ff;font-size:10px;">1</span>
+    </div>
+    
+    <div style="position:relative;">
+        <svg width="110" height="60">
+            <polygon points="55,5 105,30 55,55 5,30" fill="#f0883e" stroke="#f9a84d" stroke-width="1.5"/>
+            <text x="55" y="34" text-anchor="middle" fill="white" font-size="10" font-weight="bold">diubah menjadi</text>
+        </svg>
+    </div>
+    
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg width="80" height="16">
+            <line x1="0" y1="8" x2="80" y2="8" stroke="#bc8cff" stroke-width="2"/>
+            <polygon points="75,4 80,8 75,12" fill="#bc8cff"/>
+        </svg>
+        <span style="color:#bc8cff;font-size:10px;">N</span>
+    </div>
+    
+    <div style="background:#f0883e22;border:1px solid #f0883e;border-radius:8px;padding:12px 20px;text-align:center;min-width:140px;">
+        <div style="color:#f9a84d;font-size:11px;text-transform:uppercase;letter-spacing:1px;">Table</div>
+        <div style="color:#f0f6fc;font-size:13px;font-weight:600;margin-top:4px;">purchase_orders</div>
+        <div style="color:#bc8cff;font-size:12px;margin-top:4px;">N</div>
+    </div>
+</div>
+
+<div style="text-align:center;color:#8b949e;font-size:12px;margin:-20px 0 30px 0;">
+    1 PR bisa diubah menjadi banyak PO (split order) (1:N)
+</div>
+
+<!-- RELATIONSHIP 5: purchase_orders ↔ invoices -->
+<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:40px;flex-wrap:wrap;">
+    <div style="background:#f0883e22;border:1px solid #f0883e;border-radius:8px;padding:12px 20px;text-align:center;min-width:140px;">
+        <div style="color:#f9a84d;font-size:11px;text-transform:uppercase;letter-spacing:1px;">Table</div>
+        <div style="color:#f0f6fc;font-size:13px;font-weight:600;margin-top:4px;">purchase_orders</div>
+        <div style="color:#1f6feb;font-size:12px;margin-top:4px;">1</div>
+    </div>
+    
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg width="80" height="16">
+            <line x1="0" y1="8" x2="80" y2="8" stroke="#58a6ff" stroke-width="2"/>
+            <polygon points="75,4 80,8 75,12" fill="#58a6ff"/>
+        </svg>
+        <span style="color:#58a6ff;font-size:10px;">1</span>
+    </div>
+    
+    <div style="position:relative;">
+        <svg width="100" height="60">
+            <polygon points="50,5 95,30 50,55 5,30" fill="#da3633" stroke="#ff6b6b" stroke-width="1.5"/>
+            <text x="50" y="34" text-anchor="middle" fill="white" font-size="10" font-weight="bold">ditagihkan</text>
+        </svg>
+    </div>
+    
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg width="80" height="16">
+            <line x1="0" y1="8" x2="80" y2="8" stroke="#bc8cff" stroke-width="2"/>
+            <polygon points="75,4 80,8 75,12" fill="#bc8cff"/>
+        </svg>
+        <span style="color:#bc8cff;font-size:10px;">N</span>
+    </div>
+    
+    <div style="background:#da363322;border:1px solid #da3633;border-radius:8px;padding:12px 20px;text-align:center;min-width:140px;">
+        <div style="color:#ff6b6b;font-size:11px;text-transform:uppercase;letter-spacing:1px;">Table</div>
+        <div style="color:#f0f6fc;font-size:15px;font-weight:600;margin-top:4px;">invoices</div>
+        <div style="color:#bc8cff;font-size:12px;margin-top:4px;">N</div>
+    </div>
+</div>
+
+<div style="text-align:center;color:#8b949e;font-size:12px;margin:-20px 0 30px 0;">
+    1 PO bisa ditagihkan dengan banyak Invoice (1:N)
+</div>
+
+<!-- RELATIONSHIP 6: vendors ↔ products -->
+<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
+    <div style="background:#3fb95022;border:1px solid #3fb950;border-radius:8px;padding:12px 20px;text-align:center;min-width:140px;">
+        <div style="color:#3fb950;font-size:11px;text-transform:uppercase;letter-spacing:1px;">Table</div>
+        <div style="color:#f0f6fc;font-size:15px;font-weight:600;margin-top:4px;">vendors</div>
+        <div style="color:#bc8cff;font-size:12px;margin-top:4px;">N</div>
+    </div>
+    
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg width="80" height="16">
+            <line x1="0" y1="8" x2="80" y2="8" stroke="#bc8cff" stroke-width="2"/>
+            <polygon points="5,4 0,8 5,12" fill="#bc8cff"/>
+        </svg>
+        <span style="color:#bc8cff;font-size:10px;">N</span>
+    </div>
+    
+    <div style="position:relative;">
+        <svg width="100" height="60">
+            <polygon points="50,5 95,30 50,55 5,30" fill="#8957e5" stroke="#bc8cff" stroke-width="1.5"/>
+            <text x="50" y="34" text-anchor="middle" fill="white" font-size="10" font-weight="bold">menyediakan</text>
+        </svg>
+    </div>
+    
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <svg width="80" height="16">
+            <line x1="0" y1="8" x2="80" y2="8" stroke="#bc8cff" stroke-width="2"/>
+            <polygon points="75,4 80,8 75,12" fill="#bc8cff"/>
+        </svg>
+        <span style="color:#bc8cff;font-size:10px;">N</span>
+    </div>
+    
+    <div style="background:#3fb95022;border:1px solid #3fb950;border-radius:8px;padding:12px 20px;text-align:center;min-width:140px;">
+        <div style="color:#3fb950;font-size:11px;text-transform:uppercase;letter-spacing:1px;">Table</div>
+        <div style="color:#f0f6fc;font-size:15px;font-weight:600;margin-top:4px;">products</div>
+        <div style="color:#bc8cff;font-size:12px;margin-top:4px;">N</div>
+    </div>
+</div>
+
+<div style="text-align:center;color:#8b949e;font-size:12px;margin:-20px 0 10px 0;">
+    Banyak Vendor menyediakan banyak Product (M:N) via product_vendor_prices
+</div>
+
+</div>
+</div>
+
+<!-- CARDINALITY EXPLANATION -->
+<div style="max-width:1400px;margin:24px auto 0;">
+<div style="background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px;">
+    <h3 style="color:#f0f6fc;font-size:16px;margin-bottom:16px;">📐 Cardinality Notation</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#0d1117;border-radius:8px;">
+            <span style="color:#58a6ff;font-size:24px;font-weight:bold;">1</span>
+            <div>
+                <div style="color:#f0f6fc;font-size:13px;font-weight:600;">Satu (One)</div>
+                <div style="color:#8b949e;font-size:11px;">Data di tabel ini hanya berhubungan dengan satu data di tabel lain</div>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#0d1117;border-radius:8px;">
+            <span style="color:#bc8cff;font-size:24px;font-weight:bold;">N</span>
+            <div>
+                <div style="color:#f0f6fc;font-size:13px;font-weight:600;">Banyak (Many)</div>
+                <div style="color:#8b949e;font-size:11px;">Data di tabel ini bisa berhubungan dengan banyak data di tabel lain</div>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#0d1117;border-radius:8px;">
+            <svg width="28" height="28"><polygon points="14,2 26,14 14,26 2,14" fill="#da3633" stroke="#ff6b6b" stroke-width="1"/></svg>
+            <div>
+                <div style="color:#f0f6fc;font-size:13px;font-weight:600;">Diamond (Belah Ketupat)</div>
+                <div style="color:#8b949e;font-size:11px;">Menunjukkan hubungan/relasi antar tabel (membuat, memiliki, mempunyai)</div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<div class="footer">
+E-Procurement System ERD — Generated by SUPERAGENT for Om Beng Labs
+</div>
+
+</body>
+</html>

@@ -411,3 +411,181 @@ label.required::after {
     background-color: transparent;
   }
 }
+
+/* ========================================
+   MOBILE RESPONSIVE FIXES
+   ======================================== */
+
+/* Sidebar overlay (mobile only) */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+/* Mobile: < 768px */
+@media screen and (max-width: 767px) {
+  /* Sidebar: fixed overlay on mobile */
+  #sidebar .sidebar-wrapper {
+    position: fixed !important;
+    top: 0;
+    left: -270px;
+    z-index: 1050;
+    width: 260px;
+    height: 100vh;
+    transition: left 0.3s ease;
+    background: #fff;
+    box-shadow: 2px 0 12px rgba(0,0,0,0.15);
+  }
+
+  #sidebar.active .sidebar-wrapper {
+    left: 0 !important;
+  }
+
+  /* Main content: no margin on mobile */
+  #sidebar:not(.active) ~ #main,
+  #sidebar ~ #main {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Navbar: fix padding */
+  .navbar-header {
+    padding-left: 1rem;
+  }
+
+  /* Content: responsive padding */
+  .main-content {
+    padding: 1rem 0.75rem !important;
+  }
+
+  /* Cards: smaller margin */
+  .card {
+    margin-bottom: 1rem;
+  }
+
+  /* Tables: horizontal scroll */
+  .table-responsive {
+    font-size: 0.85rem;
+  }
+
+  /* Buttons: stack on very small screens */
+  .btn-group {
+    flex-wrap: wrap;
+  }
+
+  /* Header nav: fix alignment */
+  .navbar-nav {
+    flex-direction: row !important;
+    align-items: center;
+  }
+
+  /* Dropdown: fix positioning */
+  .dropdown-menu {
+    position: absolute !important;
+    right: 0;
+    left: auto !important;
+  }
+
+  /* Feathers icon in sidebar toggle */
+  .sidebar-toggler .navbar-toggler-icon {
+    width: 1.2em;
+    height: 1.2em;
+  }
+
+  /* Perfect scrollbar on mobile — DISABLED, use native scroll */
+  .sidebar-wrapper .ps {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Native scroll for sidebar menu on mobile */
+  .sidebar-menu {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    height: calc(100vh - 70px) !important;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
+}
+
+/* Tablet: 768px - 991px */
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .main-content {
+    padding: 1rem 1.5rem !important;
+  }
+
+  #sidebar .sidebar-wrapper {
+    width: 220px;
+  }
+
+  #sidebar:not(.active) ~ #main {
+    margin-left: 0 !important;
+  }
+}
+
+/* Desktop: >= 992px */
+@media screen and (min-width: 992px) {
+  #sidebar:not(.active) ~ #main {
+    margin-left: 0 !important;
+  }
+
+  #sidebar.active ~ #main {
+    margin-left: 260px;
+  }
+}
+
+/* Make sure the sidebar toggler is always visible and clickable */
+.sidebar-toggler {
+  cursor: pointer;
+  display: inline-block;
+  padding: 0.5rem;
+  text-decoration: none !important;
+  color: #333;
+}
+
+.sidebar-toggler:hover {
+  opacity: 0.7;
+}
+
+/* Fix for dataTables on mobile */
+@media screen and (max-width: 576px) {
+  .dataTables_wrapper .dataTables_filter,
+  .dataTables_wrapper .dataTables_length {
+    text-align: left !important;
+    margin-bottom: 0.5rem;
+  }
+
+  .dataTables_wrapper .dataTables_info {
+    font-size: 0.8rem;
+  }
+
+  /* Stack form rows */
+  .row .col-md-6,
+  .row .col-md-4,
+  .row .col-md-3 {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Make modals fullscreen on mobile */
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+}
+

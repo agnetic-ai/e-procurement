@@ -18,7 +18,7 @@ class PurchaseModel
                     requested_by AS requestedBy,
                     request_date AS requestDate,
                     status_code AS statusCode,
-                    FORMAT(total_estimated, 'id-ID') AS totalEstimated,
+                    total_estimated AS totalEstimated,
                     current_approval_level AS currentApprovalLevel,
                     max_approval_level AS maxApprovalLevel,
                     notes AS notes,
@@ -191,25 +191,29 @@ class PurchaseModel
                                         purchase_request_id,
                                         approver_id,
                                         level,
-                                        status_code
+                                        status_code,
+                                        approval_token
                                     )
                                     VALUES
                                     (
                                         :purchase_request_id,
                                         :approver_id,
                                         :level,
-                                        :status_code
+                                        :status_code,
+                                        :approval_token
                                     )";
 
             $stmtApr = $this->db->prepare($insPurchaseApproval);
             foreach ($approver as $apr) {
                 $aprStatus = ($apr["level"] == 1) ? "APR_PROCESS" : "APR_PENDING";
+                $token = bin2hex(random_bytes(32));
 
                 $stmtApr->execute([
                     ":purchase_request_id" => $purchaseId,
                     ":approver_id" => $apr["approverId"],
                     ":level" => $apr["level"],
-                    ":status_code" => $aprStatus
+                    ":status_code" => $aprStatus,
+                    ":approval_token" => $token
                 ]);
             }
 
@@ -217,7 +221,8 @@ class PurchaseModel
             return [
                 'success' => true,
                 'message' => 'Submit Purchase Request Successfully',
-                'RequestNumber' => $prNumber
+                'RequestNumber' => $prNumber,
+                'purchaseId' => $purchaseId
             ];
         } catch (PDOException $e) {
             $this->db->rollBack();
@@ -298,5 +303,53 @@ class PurchaseModel
             WHERE id = :pr_id
         ");
         $stmt->execute([':pr_id' => $prId]);
+    }
+
+    public function GetRequestList()
+    {
+        $filter_name = htmlentities($_POST['filterName'] ?? '');
+        $userId = $_SESSION['user_id'] ?? 0;
+        $userRole = $_SESSION['user_role'] ?? '';
+
+        $query = "SELECT
+                    PR.id AS requestId,
+                    PR.pr_number AS prNumber,
+                    PR.title AS title,
+                    PR.department AS department,
+                    UR.full_name AS requestedBy,
+                    DATE_FORMAT(PR.request_date, '%d-%b-%Y') AS requestDate,
+                    PR.status_code AS statusCode,
+                    FORMAT(PR.total_estimated, 0, 'id_ID') AS totalEstimated,
+                    PR.current_approval_level AS currentApprovalLevel,
+                    PR.max_approval_level AS maxApprovalLevel,
+                    (SELECT status_name FROM status_codes SC WHERE PR.status_code = SC.status_code AND SC.module_code = 'PR') AS statusName
+                FROM purchase_requests PR
+                JOIN users UR ON UR.id = PR.requested_by";
+
+        $params = [];
+
+        // Admin/manager sees all PRs, regular users see only their own
+        if (!in_array($userRole, ['admin', 'manager', 'director'])) {
+            $query .= " WHERE PR.requested_by = :userId";
+            $params[':userId'] = $userId;
+        }
+
+        if (!empty($filter_name)) {
+            $whereClause = empty($params) ? " WHERE" : " AND";
+            $query .= "$whereClause (PR.pr_number LIKE :filter OR PR.title LIKE :filter2)";
+            $params[':filter'] = "%$filter_name%";
+            $params[':filter2'] = "%$filter_name%";
+        }
+
+        $query .= " ORDER BY PR.id DESC";
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error fetching request list: " . $e->getMessage());
+            return [];
+        }
     }
 }

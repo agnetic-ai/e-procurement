@@ -13,6 +13,7 @@ class ProductModel
         $filter_name = htmlentities($_POST['filterName'] ?? '');
 
         $query = "SELECT p.id productId,
+                        p.code AS productCode,
                         p.name AS productName,
                         v.company_name AS vendorName,
                         v.id AS vendorId,
@@ -59,6 +60,7 @@ class ProductModel
     public function GetProductActive()
     {
         $query = "SELECT p.id productId,
+                        p.code AS productCode,
                         p.name AS productName,
                         v.company_name AS vendorName,
                         v.id AS vendorId,
@@ -99,6 +101,7 @@ class ProductModel
     {
         $query = "SELECT p.id prodcutId,
                         pvp.id productVendorId,
+                        p.code AS code,
                         p.name AS productName,
                         v.company_name AS vendorName,
                         v.id vendorId,
@@ -137,6 +140,13 @@ class ProductModel
 
     public function AddNewProduct($payload = [])
     {
+        if (empty($payload['productCode'])) {
+            return [
+                'success' => false,
+                'message' => 'Product Code harus diisi'
+            ];
+        }
+
         if (empty($payload['productName'])) {
             return [
                 'success' => false,
@@ -190,6 +200,7 @@ class ProductModel
         try {
             $insProduct = "INSERT INTO products
                             (
+                                code,
                                 name,
                                 description,
                                 category_id,
@@ -199,6 +210,7 @@ class ProductModel
                             )
                             VALUES
                             (
+                                :code,
                                 :name, 
                                 :description, 
                                 :category_id, 
@@ -208,6 +220,7 @@ class ProductModel
                             )";
             $stmt = $this->db->prepare($insProduct);
             $stmt->execute([
+                ':code' => trim($payload['productCode'] ?? ''),
                 ':name' => trim($payload['productName'] ?? ''),
                 ':description' => trim($payload['description'] ?? ''),
                 ':category_id' => (int)$payload['categoryId'],
@@ -256,7 +269,8 @@ class ProductModel
         $this->db->beginTransaction();
         try {
             $updProduct = "UPDATE products
-                        SET name = :name,
+                        SET code = :code,
+                            name = :name,
                             description = :description,
                             category_id = :category_id,
                             unit_of_measure = :unit_of_measure,
@@ -264,6 +278,7 @@ class ProductModel
                         WHERE id = :product_id";
             $stmt = $this->db->prepare($updProduct);
             $stmt->execute([
+                ':code' => trim($payload['productCode'] ?? ''),
                 ':name' => trim($payload['productName'] ?? ''),
                 ':description' => trim($payload['description'] ?? ''),
                 ':category_id' => (int)$payload['categoryId'],

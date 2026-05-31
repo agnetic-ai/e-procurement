@@ -172,4 +172,4 @@
         </div>
     </div>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/goodsReceipts/CreateGr.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/goodsReceipts/CreateGr.js"></script>

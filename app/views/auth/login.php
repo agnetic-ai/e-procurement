@@ -317,7 +317,7 @@
                     <i class="fas fa-lock input-icon"></i>
                     <input type="password" class="input-field" name="password"
                         placeholder="Password" required
-                        value="admin123">
+                        >
                 </div>
                 <button class="login-btn" type="submit" id="submitBtn">
                     <i class="fas fa-sign-in-alt"></i>

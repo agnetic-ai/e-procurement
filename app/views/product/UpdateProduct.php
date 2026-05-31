@@ -24,6 +24,12 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
+                            <label>Product Code</label>
+                            <input type="text" class="form-control" name="code" value="<?= $data["product"]["code"] ?? '' ?>" readonly style="background:#f5f5f5;">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
                             <label>Product Name *</label>
                             <label style="display: none;" name="product_id"><?= $data["product"]["prodcutId"] ?></label>
                             <label style="display: none;" name="product_vendor_id"><?= $data["product"]["productVendorId"] ?></label>
@@ -122,4 +128,4 @@
         </div>
     </div>
 </div>
-<script src="<?php echo BASE_URL; ?>app/service/product/UpdateProduct.js"></script>
+<script src="<?php echo BASE_URL; ?>public/js/product/UpdateProduct.js"></script>

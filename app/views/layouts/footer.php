@@ -47,9 +47,6 @@
 </script>
 <script>
     $(document).ready(function() {
-        $('.sidebar-toggler').click(function() {
-            $('#sidebar').toggleClass('active');
-        });
         $('.select2').select2();
     });
 
