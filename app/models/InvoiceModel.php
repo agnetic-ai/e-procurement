@@ -225,6 +225,7 @@ class InvoiceModel
                     vendor_id,
                     invoice_date,
                     due_date,
+                    total_amount,
                     status_code,
                     created_by,
                     notes
@@ -234,6 +235,7 @@ class InvoiceModel
                     :vendorId,
                     :invoiceDate,
                     :dueDate,
+                    0,
                     'INV_DRAFT',
                     :createdBy,
                     :notes
