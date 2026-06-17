@@ -189,7 +189,7 @@ class PurchaseOrdersModel
         $query = "SELECT 
                     pod.product_id productId,
                     p.name productName,
-                    P.description productDescription,
+                    p.description productDescription,
                     pod.quantity,
                     pod.unit,
                     FORMAT(pod.unit_price, 'id-ID') unitPrice,
