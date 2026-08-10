@@ -5,7 +5,7 @@
 // APPLICATION CONSTANTS
 // ======================
 if (!defined('BASE_URL')) {
-    define('BASE_URL', 'http://150.109.23.12/eprocurement/');
+    define('BASE_URL', 'http://localhost/e-procurement/');
 }
 
 if (!defined('SITE_NAME')) {
@@ -39,19 +39,24 @@ if (!defined('SESSION_TIMEOUT')) {
 // DATABASE CONSTANTS
 // ======================
 if (!defined('DB_HOST')) {
-    define('DB_HOST', 'localhost');
+    define('DB_HOST', getenv('EPROC_DB_HOST') ?: 'localhost');
+}
+
+if (!defined('DB_PORT')) {
+    define('DB_PORT', (int)(getenv('EPROC_DB_PORT') ?: 3306));
 }
 
 if (!defined('DB_USER')) {
-    define('DB_USER', 'root');
+    define('DB_USER', getenv('EPROC_DB_USER') ?: 'root');
 }
 
 if (!defined('DB_PASS')) {
-    define('DB_PASS', '');
+    $databasePassword = getenv('EPROC_DB_PASS') ?: "root";
+    define('DB_PASS', $databasePassword === false ? '' : $databasePassword);
 }
 
 if (!defined('DB_NAME')) {
-    define('DB_NAME', 'eprocurement_db');
+    define('DB_NAME', getenv('EPROC_DB_NAME') ?: 'eprocurement_db');
 }
 
 

@@ -210,7 +210,7 @@ http://localhost:8000/
 
 1. **Default User** (dari database):
    - Username: `admin`
-   - Password: `password123` (atau sesuai data di `master-vendor.sql`)
+   - Password: `admin123` (sesuai hash user admin pada dump `eprocurement_db*.sql`)
 
 2. **Proses Login**:
    - Masukkan username dan password
@@ -475,6 +475,25 @@ Untuk questions atau issues:
 1. Cek dokumentasi di `README.md` dan `.github/copilot-instructions.md`
 2. Review file yang relevan di folder `app/`
 3. Untuk bug reports, buat issue di repository
+
+---
+
+## End-to-End Testing
+
+Automated E2E test menggunakan Playwright tersedia di `tests/e2e`. Test mencakup autentikasi, proteksi route, smoke test seluruh modul utama, kontrak API, dan validasi vendor tanpa membuat data transaksi baru.
+
+```powershell
+# Dari root project
+npm install
+npx playwright install chromium
+
+$env:E2E_BASE_URL = 'http://localhost/e-procurement/'
+$env:E2E_USERNAME = 'admin'
+$env:E2E_PASSWORD = 'admin123'
+npm run test:e2e
+```
+
+Matriks skenario dan aturan keamanan data tersedia di `tests/E2E-TEST-CASES.md`.
 
 ---
 

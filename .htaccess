@@ -1,13 +1,8 @@
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /eproc/
-    
-    # Jika file/folder tidak ada, arahkan ke index.php
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
-</IfModule>
+RewriteEngine On
 
-# Prevent directory listing
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
 Options -Indexes
-

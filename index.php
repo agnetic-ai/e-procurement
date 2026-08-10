@@ -1,7 +1,13 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
 
-define('BASE_URL', 'http://150.109.23.12/eprocurement/');
+$configuredBaseUrl = getenv('EPROC_BASE_URL');
+define(
+    'BASE_URL',
+    $configuredBaseUrl !== false
+        ? rtrim($configuredBaseUrl, '/') . '/'
+        : 'http://localhost/e-procurement/'
+);
 define('SITE_NAME', 'e-Procurement System');
 define('APP_PATH', __DIR__ . '/app');
 define('VIEWS_PATH', APP_PATH . '/views');

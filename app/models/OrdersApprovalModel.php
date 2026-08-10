@@ -96,19 +96,26 @@ class OrdersApprovalModel
                 $this->purchase->UpdatePurchaseRequestLevel($GetPr['purchaseId'], $nextLevel);
             } else {
                 $this->purchase->ApprovePurchaseRequest($GetPr['purchaseId']);
-            }
-            $this->db->commit();
-            $RefreshedPr = $this->purchase->GetPurchaseRequest($payload["prNumber"]);
 
-            if ($RefreshedPr['statusCode'] == 'PR_APPROVED') {
-                $this->po->DraftPurchaseOrder($payload);
+                // Create the PO in the same transaction as the final approval.
+                // If PO creation fails, the approval must also be rolled back.
+                $poResult = $this->po->DraftPurchaseOrder($payload);
+                if (!$poResult['success']) {
+                    throw new Exception('Gagal membuat draft PO: ' . $poResult['message']);
+                }
             }
+
+            $this->db->commit();
+
             return [
                 'success' => true,
                 'message' => 'Submit Approval Workflow Successfully'
             ];
         } catch (Throwable $e) {
-            $this->db->rollBack();
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+
             return [
                 'success' => false,
                 'message' => 'Failed Submit Approval: ' . $e->getMessage()

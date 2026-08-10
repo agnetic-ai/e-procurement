@@ -7,6 +7,7 @@ class PurchaseOrdersController extends Controller
     {
         parent::__construct();
         $this->checkLogin();
+        $this->checkPermission(['admin', 'procurement']);
         $this->po = new PurchaseOrdersModel();
         $this->terms = new PaymentTermsModel();
     }

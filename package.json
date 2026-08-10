@@ -1,0 +1,16 @@
+{
+  "name": "e-procurement-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "End-to-end regression tests for the e-Procurement application",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:local": "powershell -ExecutionPolicy Bypass -File tests/run-e2e-local.ps1",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0"
+  }
+}

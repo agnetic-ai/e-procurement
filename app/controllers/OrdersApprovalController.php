@@ -246,15 +246,15 @@ class OrdersApprovalController extends Controller
 
             // Fully approved
             $this->purchase->ApprovePurchaseRequest($approval['purchaseId']);
-            $db->commit();
 
-            // Draft PO
-            try {
-                $po = new PurchaseOrdersModel();
-                $po->DraftPurchaseOrder($payload);
-            } catch (Exception $e) {
-                error_log("Draft PO failed: " . $e->getMessage());
+            // Draft PO must succeed before the final approval is committed.
+            $po = new PurchaseOrdersModel();
+            $poResult = $po->DraftPurchaseOrder($payload);
+            if (!$poResult['success']) {
+                throw new Exception('Gagal membuat draft PO: ' . $poResult['message']);
             }
+
+            $db->commit();
 
             // Notify requester
             try {

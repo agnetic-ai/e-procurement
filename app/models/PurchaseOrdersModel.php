@@ -271,10 +271,22 @@ class PurchaseOrdersModel
 
     public function DraftPurchaseOrder($payload = [])
     {
-        try {
+        $ownsTransaction = !$this->db->inTransaction();
 
-            $this->db->beginTransaction();
+        try {
+            if (empty($payload["prNumber"])) {
+                throw new InvalidArgumentException('PR Number tidak boleh kosong.');
+            }
+
+            if ($ownsTransaction) {
+                $this->db->beginTransaction();
+            }
+
             $GetPr = $this->purchase->GetPurchaseRequest($payload["prNumber"]);
+            if (!$GetPr) {
+                throw new Exception("Purchase Request tidak ditemukan.");
+            }
+
             if ($GetPr["statusCode"] != "PR_APPROVED") {
                 throw new Exception("Purchase Request is not approved.");
             }
@@ -285,6 +297,10 @@ class PurchaseOrdersModel
                     array_column($GetPrVendors, 'vendorId')
                 )
             );
+
+            if (empty($vendorIds)) {
+                throw new Exception("Purchase Request tidak memiliki detail produk dan vendor yang valid.");
+            }
 
             $queryPo = "INSERT INTO purchase_orders (
                             po_number,
@@ -304,10 +320,29 @@ class PurchaseOrdersModel
                         ON pr.id = prd.purchase_request_id
                         WHERE pr.id = :pr_id
                         AND prd.vendor_id = :vendor_id
-                        GROUP BY prd.vendor_id;";
+                        GROUP BY pr.id, prd.vendor_id;";
             $stmtPo = $this->db->prepare($queryPo);
 
+            $findExistingPo = $this->db->prepare("SELECT id
+                                                    FROM purchase_orders
+                                                    WHERE purchase_request_id = :pr_id
+                                                      AND vendor_id = :vendor_id
+                                                    LIMIT 1");
+
+            $createdCount = 0;
+            $existingCount = 0;
+
             foreach ($vendorIds as $vendorId) {
+                // A retry must not create a second PO for the same PR and vendor.
+                $findExistingPo->execute([
+                    ':pr_id' => $GetPr['purchaseId'],
+                    ':vendor_id' => $vendorId
+                ]);
+                if ($findExistingPo->fetchColumn()) {
+                    $existingCount++;
+                    continue;
+                }
+
                 $poNumber = $this->GeneratePoNumber();
 
                 $stmtPo->execute([
@@ -315,6 +350,10 @@ class PurchaseOrdersModel
                     ':pr_id' => $GetPr['purchaseId'],
                     ':vendor_id' => $vendorId
                 ]);
+
+                if ($stmtPo->rowCount() !== 1) {
+                    throw new Exception("Gagal membuat draft PO untuk vendor ID {$vendorId}.");
+                }
 
                 $poId = $this->db->lastInsertId();
                 $queryPrd = "INSERT INTO purchase_order_details (
@@ -332,12 +371,9 @@ class PurchaseOrdersModel
                                     prd.product_id,
                                     prd.quantity,
                                     prd.unit,
-                                    pvp.unit_price,
+                                    prd.estimated_price,
                                     prd.subtotal
                                 FROM purchase_request_details prd
-                                JOIN product_vendor_prices pvp
-                                    ON prd.product_id = pvp.product_id
-                                    AND prd.vendor_id = pvp.vendor_id
                                 WHERE prd.purchase_request_id = :pr_id
                                 AND prd.vendor_id = :vendor_id;";
 
@@ -347,14 +383,36 @@ class PurchaseOrdersModel
                     ':pr_id' => $GetPr['purchaseId'],
                     ':vendor_id' => $vendorId
                 ]);
+
+                $expectedDetails = count(array_filter(
+                    $GetPrVendors,
+                    static fn($detail) => (int)$detail['vendorId'] === (int)$vendorId
+                ));
+
+                if ($stmtPrd->rowCount() !== $expectedDetails) {
+                    throw new Exception(
+                        "Gagal menyalin seluruh detail PR ke PO untuk vendor ID {$vendorId}."
+                    );
+                }
+
+                $createdCount++;
             }
-            $this->db->commit();
+
+            if ($ownsTransaction) {
+                $this->db->commit();
+            }
+
             return [
                 'success' => true,
-                'message' => 'Purchase Order(s) drafted successfully.'
+                'message' => 'Purchase Order(s) drafted successfully.',
+                'createdCount' => $createdCount,
+                'existingCount' => $existingCount
             ];
         } catch (Throwable $e) {
-            $this->db->rollBack();
+            if ($ownsTransaction && $this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+
             return [
                 'success' => false,
                 'message' => $e->getMessage()
