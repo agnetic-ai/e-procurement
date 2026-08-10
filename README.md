@@ -7,6 +7,7 @@ Sistem manajemen vendor e-procurement berbasis PHP MVC dengan antarmuka Bootstra
 - [Requirement](#-requirement)
 - [Instalasi](#-instalasi)
 - [Konfigurasi Database](#-konfigurasi-database)
+- [Mengosongkan Data Transaksi](#mengosongkan-data-transaksi-truncate)
 - [Setup Node Modules](#-setup-node-modules)
 - [Menjalankan Aplikasi](#-menjalankan-aplikasi)
 - [Penggunaan Sistem](#-penggunaan-sistem)
@@ -105,6 +106,71 @@ Buka `http://localhost/e-procurement/` di browser. Jika ada error database, peri
 - Username dan password MySQL
 - Database `eprocurement_db` sudah dibuat
 - MySQL service sudah running
+
+---
+
+## Mengosongkan Data Transaksi (TRUNCATE)
+
+Gunakan script `database/cleansing/04_truncate_transaction_data.sql` untuk menghapus seluruh data transaksi tanpa menghapus data master. Operasi ini cocok untuk mengembalikan aplikasi ke kondisi awal sebelum pengujian ulang.
+
+> **Peringatan:** `TRUNCATE` tidak dapat di-rollback. Buat backup database terlebih dahulu dan jangan jalankan pada database production tanpa persetujuan.
+
+### Data yang akan dikosongkan
+
+- Purchase request, detail, dan approval PR
+- Purchase order, detail, dan approval PO
+- Goods receipt dan detail penerimaan
+- Invoice, detail invoice, dan audit harga
+- Payment
+- Asset unit dan riwayat assignment aset
+
+Data master tetap dipertahankan, termasuk user/login, role, menu, workflow approval, status, vendor, produk, kategori, kota, employee, dan payment terms.
+
+### 1. Backup database
+
+Jalankan dari terminal sebelum melakukan truncate:
+
+```bash
+mysqldump -u root -p --result-file=eprocurement_db_before_truncate.sql eprocurement_db
+```
+
+Ganti `eprocurement_db` jika nama database pada `app/config/constants.php` berbeda.
+
+### 2. Buka MySQL client
+
+```bash
+mysql -u root -p
+```
+
+Kemudian pilih database aplikasi:
+
+```sql
+USE eprocurement_db;
+```
+
+### 3. Preview jumlah data
+
+Script berjalan dalam mode preview secara default. Gunakan path absolut dan tetap gunakan `/` sebagai pemisah folder, termasuk di Windows:
+
+```sql
+SET @confirm_truncate = 'PREVIEW_ONLY';
+SOURCE D:/laragon/www/e-procurement/database/cleansing/04_truncate_transaction_data.sql;
+```
+
+Preview akan menampilkan jumlah record transaksi pada bagian `BEFORE`, lalu menghentikan truncate karena konfirmasi belum diberikan. Pesan error konfirmasi pada tahap ini memang disengaja dan tidak ada data yang dihapus.
+
+### 4. Jalankan truncate
+
+Masih pada sesi MySQL yang sama, jalankan:
+
+```sql
+SET @confirm_truncate = 'TRUNCATE_TRANSACTION_DATA';
+SOURCE D:/laragon/www/e-procurement/database/cleansing/04_truncate_transaction_data.sql;
+```
+
+Jika berhasil, hasil `AFTER` untuk seluruh tabel transaksi bernilai `0`, sedangkan bagian `MASTER_KEPT` tetap berisi data. Setelah selesai, buka ulang aplikasi dan lakukan hard refresh browser dengan `Ctrl+F5`.
+
+Dokumentasi cleansing lainnya tersedia di `database/cleansing/README.md`.
 
 ---
 
