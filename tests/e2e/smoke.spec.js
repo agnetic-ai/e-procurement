@@ -82,4 +82,39 @@ test.describe('Authenticated application smoke test', () => {
     await expect(firstInvalidField).toHaveAttribute('name', 'name');
     await expect(page).toHaveURL(/vendor\/RegisterVendor/i);
   });
+
+  test('orders request handles an empty result without a DataTables warning', async ({ page }) => {
+    const dialogs = [];
+    page.on('dialog', async (dialog) => {
+      dialogs.push(dialog.message());
+      await dialog.dismiss();
+    });
+
+    const initialListResponse = page.waitForResponse(
+      (response) =>
+        response.url().includes('ordersRequest/GetRequestList') &&
+        response.request().method() === 'POST',
+    );
+    await page.goto('ordersrequest', { waitUntil: 'domcontentloaded' });
+    await initialListResponse;
+
+    const emptyListResponse = page.waitForResponse(
+      (response) =>
+        response.url().includes('ordersRequest/GetRequestList') &&
+        response.request().method() === 'POST',
+    );
+    await page.locator('#filterName').fill('__E2E_NO_MATCHING_PURCHASE_REQUEST__');
+    await page.locator('button[onclick="loadRequest();"]').click();
+
+    const response = await emptyListResponse;
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.status).toBe(200);
+    expect(body.result).toEqual([]);
+
+    await expect(page.locator('#requestTableBody')).toContainText(
+      'No purchase requests found',
+    );
+    expect(dialogs.filter((message) => message.includes('DataTables warning'))).toEqual([]);
+  });
 });

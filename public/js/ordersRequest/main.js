@@ -39,16 +39,16 @@ function loadRequest() {
                           </td>
                       </tr>`;
           });
-        } else {
-          body = `<tr><td colspan="8" class="text-center text-muted py-4">
-                    <i data-feather="inbox" style="width:48px;height:48px;opacity:0.3;"></i>
-                    <p class="mt-2">No purchase requests found</p>
-                  </td></tr>`;
         }
 
         Header.append(body);
+        $("#requestTable").DataTable({
+          ordering: false,
+          language: {
+            emptyTable: "No purchase requests found",
+          },
+        });
         feather.replace();
-        $("#requestTable").DataTable({ ordering: false });
       }
     },
     error: function (err) {
