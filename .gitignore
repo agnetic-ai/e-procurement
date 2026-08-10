@@ -1,6 +1,7 @@
 /public/node_modules/
 /uploads
 /vendor/
+<<<<<<< HEAD
 /composer.json
 /composer.lock
 /node_modules/
@@ -8,3 +9,6 @@
 /test-results/
 /blob-report/
 /.e2e-runtime/
+=======
+
+>>>>>>> 6e4f05e94657b5351bc568d906ef4cc921bf9732
